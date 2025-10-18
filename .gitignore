@@ -1,0 +1,42 @@
+# Python Caches & Compiled Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments (uv / venv)
+.venv/
+venv/
+ENV/
+
+# IDE and OS specific files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# Data, Models, and Results - Runtime generated, often large
+data/
+models/
+results/
+outputs/
+*.zip
+
+# Build artifacts and Packaging
+*.egg-info/
+build/
+dist/
+
+# Logs and Temporary Files
+*.log
+*~
+*.tmp
+
+# Environment variables
+.env
+
+# outputdata
+output/*

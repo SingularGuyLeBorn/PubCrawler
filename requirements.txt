@@ -1,0 +1,13 @@
+# FILE: requirements.txt
+
+pandas
+openreview-py
+requests
+beautifulsoup4
+lxml
+tqdm
+PyYAML
+selenium
+webdriver-manager
+
+# END OF FILE: requirements.txt

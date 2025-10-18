@@ -1,0 +1,11 @@
+[project]
+name = "PubCrawer"
+version = "0.1.0"
+dependencies = [
+    "openreview-py",
+    "requests",
+    "beautifulsoup4",
+    "pyyaml",
+    "rich",
+    "tqdm",
+]

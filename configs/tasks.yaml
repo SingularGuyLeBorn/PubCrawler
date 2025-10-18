@@ -1,0 +1,156 @@
+# FILE: configs/tasks.yaml
+
+# ==============================================================================
+# PubCrawler Task Configuration v3.0 ("The Encyclopedia & Battle Plan")
+# ==============================================================================
+# This file centralizes all scraping logic, fully migrated from selective_recon.py.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. DATA SOURCE DEFINITIONS ("The Encyclopedia")
+#    - This is the "knowledge base" of where and how to find each conference.
+#    - 'YYYY' will be replaced by the task's 'year'.
+# ------------------------------------------------------------------------------
+source_definitions:
+  # --- Tier 1: Stable & Parsable Sources ---
+  openreview:
+    ICLR: { venue_id: "ICLR.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022, 2023] }
+    NeurIPS: { venue_id: "NeurIPS.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022] }
+
+  html_cvf:
+    CVPR: "https://openaccess.thecvf.com/CVPRYYYY?day=all"
+    ICCV: "https://openaccess.thecvf.com/ICCVYYYY?day=all"
+
+  html_pmlr:
+    # NOTE: PMLR volumes (e.g., v235) are not predictable by year.
+    # Tasks for this source_type MUST provide a `url_override`.
+    ICML: "https://proceedings.mlr.press/"
+    AISTATS: "https://proceedings.mlr.press/"
+
+  html_acl:
+    ACL: "https://aclanthology.org/volumes/YYYY.acl-long/"
+    EMNLP: "https://aclanthology.org/volumes/YYYY.emnlp-main/"
+    # NAACL has irregular URL patterns. It's best to use `url_override` for it.
+    # Example: "https://aclanthology.org/2022.naacl-main/"
+    NAACL: { pattern_map: { 2019: "2019.naacl-main", 2021: "2021.naacl-main", 2022: "2022.naacl-main", 2024: "2024.naacl-long" } }
+
+  # --- Tier 2: Dynamic/Complex Sites Requiring Selenium ---
+  selenium:
+    TPAMI: "https://www.computer.org/csdl/journal/tp/past-issues/YYYY"
+    IJCV: "https://link.springer.com/journal/11263/volumes-and-issues"
+    ECCV: "https://link.springer.com/conference/eccv"
+    AAAI: "https://aaai.org/aaai-publications/aaai-conference-proceedings/"
+    KDD: "https://dl.acm.org/conference/kdd/proceedings"
+    SIGIR: "https://dl.acm.org/conference/sigir/proceedings"
+    WWW: "https://dl.acm.org/conference/www/proceedings"
+    CHI: "https://dl.acm.org/conference/chi/proceedings"
+    ICRA: "https://ieeexplore.ieee.org/xpl/conhome/all-proceedings.html"
+    IJCAI: "https://www.ijcai.org/proceedings/YYYY/"
+    MLSys: "https://mlsys.org/virtual/YYYY/papers.html"
+
+  # --- Tier 3: Static HTML that might need new parsers (currently mapped to selenium as a fallback) ---
+  html_other:
+    # JMLR uses volume numbers. A 'vol_map' could be implemented or use url_override.
+    JMLR: "https://jmlr.org/papers/"
+    TACL: "https://aclanthology.org/venues/tacl/"
+
+
+# ------------------------------------------------------------------------------
+# 2. TASKS TO EXECUTE ("The Battle Plan")
+#    - This is your "playlist" of scraping jobs for the current run.
+# ------------------------------------------------------------------------------
+tasks:
+  # ============================================================================
+  # --- THIS RUN'S ACTIVE TASKS ---
+  # ============================================================================
+
+  - name: 'ICLR_2024'
+    conference: 'ICLR'
+    year: 2024
+    source_type: 'openreview'
+    enabled: true
+    download_pdfs: true
+    limit: 10
+
+  - name: 'ICML_2024'
+    conference: 'ICML'
+    year: 2024
+    source_type: 'html_pmlr'
+    url_override: "https://proceedings.mlr.press/v235/"
+    enabled: true
+    download_pdfs: true
+    limit: 10
+
+  - name: 'NeurIPS_2024'
+    conference: 'NeurIPS'
+    year: 2024
+    source_type: 'openreview'
+    enabled: true
+    download_pdfs: true
+    limit: 10
+
+  - name: 'ACL_2024'
+    conference: 'ACL'
+    year: 2024
+    source_type: 'html_acl'
+    url_override: "https://aclanthology.org/volumes/2024.acl-long/" # Override is safer for ACL
+    enabled: true
+    download_pdfs: true
+    limit: 10
+
+  # ============================================================================
+  # --- DISABLED TASKS (Examples based on your recon script) ---
+  # ============================================================================
+
+  - name: 'CVPR_2023'
+    conference: 'CVPR'
+    year: 2023
+    source_type: 'html_cvf'
+    enabled: false
+    download_pdfs: false
+    limit: 5
+
+  - name: 'ICCV_2023'
+    conference: 'ICCV'
+    year: 2023
+    source_type: 'html_cvf'
+    enabled: false
+    download_pdfs: false
+    limit: 5
+
+  - name: 'AISTATS_2024'
+    conference: 'AISTATS'
+    year: 2024
+    source_type: 'html_pmlr'
+    url_override: "https://proceedings.mlr.press/v238/"
+    enabled: false
+    download_pdfs: false
+    limit: 5
+
+  - name: 'EMNLP_2023'
+    conference: 'EMNLP'
+    year: 2023
+    source_type: 'html_acl'
+    url_override: "https://aclanthology.org/volumes/2023.emnlp-main/"
+    enabled: false
+    download_pdfs: false
+    limit: 5
+
+  - name: 'NAACL_2024'
+    conference: 'NAACL'
+    year: 2024
+    source_type: 'html_acl'
+    # This task will automatically use the pattern_map from source_definitions
+    enabled: false
+    download_pdfs: false
+    limit: 5
+
+  - name: 'IJCAI_2023_Selenium'
+    conference: 'IJCAI'
+    year: 2023
+    source_type: 'selenium'
+    enabled: false
+    download_pdfs: false
+    limit: 5
+
+# END OF FILE: configs/tasks.yaml
