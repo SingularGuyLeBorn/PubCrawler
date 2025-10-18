@@ -3,6 +3,7 @@
 import time
 import yaml
 from collections import defaultdict
+import re
 
 from src.scrapers.html_scraper import HTMLScraper
 from src.scrapers.openreview_scraper import OpenReviewScraper
@@ -10,6 +11,7 @@ from src.scrapers.selenium_scraper import SeleniumScraper
 from src.config import get_logger, CONFIG_FILE, OUTPUT_DIR
 from src.utils.formatter import save_as_markdown, save_as_csv, save_as_summary_txt
 from src.utils.downloader import download_pdfs
+from src.analysis.analyzer import generate_wordcloud_from_papers
 
 logger = get_logger(__name__)
 
@@ -19,7 +21,7 @@ SCRAPER_MAPPING = {
     "html_cvf": HTMLScraper,
     "html_pmlr": HTMLScraper,
     "html_acl": HTMLScraper,
-    "html_other": HTMLScraper,  # Fallback for simple HTML
+    "html_other": HTMLScraper,
     "selenium": SeleniumScraper,
 }
 
@@ -47,7 +49,6 @@ def build_task_info(task: dict, source_definitions: dict) -> dict:
             definition = source_definitions[source_type][conf]
 
             if isinstance(definition, dict):
-                # Handle complex definitions (e.g., OpenReview with API versions, NAACL with patterns)
                 if 'venue_id' in definition:  # OpenReview
                     pattern = definition['venue_id']
                     task_info['venue_id'] = pattern.replace('YYYY', str(year))
@@ -81,12 +82,29 @@ def build_task_info(task: dict, source_definitions: dict) -> dict:
     return task_info
 
 
+def filter_papers(papers: list, filters: list) -> list:
+    """Filters a list of papers based on keywords in title or abstract."""
+    if not filters:
+        return papers
+
+    filtered_papers = []
+    # Join filters with '|' to create an OR condition regex
+    filter_regex = re.compile('|'.join(filters), re.IGNORECASE)
+
+    for paper in papers:
+        text_to_search = paper.get('title', '') + ' ' + paper.get('abstract', '')
+        if filter_regex.search(text_to_search):
+            filtered_papers.append(paper)
+
+    logger.info(f"Filtered papers: {len(papers)} -> {len(filtered_papers)} using filters: {filters}")
+    return filtered_papers
+
+
 def main():
     """Main execution function driven by the YAML config."""
     logger.info("Starting PubCrawler...")
     config = load_config()
-    if not config:
-        return
+    if not config: return
 
     source_definitions = config.get('source_definitions', {})
     tasks_to_run = config.get('tasks', [])
@@ -101,8 +119,7 @@ def main():
 
         logger.info(f"Processing task: {task_name}")
         task_info = build_task_info(task, source_definitions)
-        if not task_info:
-            continue
+        if not task_info: continue
 
         scraper_class = SCRAPER_MAPPING.get(task['source_type'])
         if not scraper_class:
@@ -113,17 +130,20 @@ def main():
             scraper = scraper_class(task_info)
             papers = scraper.scrape()
 
-            # This logic is now inside each scraper for better performance
-            # limit = task.get('limit')
-            # if papers and limit is not None and len(papers) > limit:
-            #     logger.info(f"Limiting results for {task_name} from {len(papers)} to {limit} papers.")
-            #     papers = papers[:limit]
+            # Apply filters first
+            papers = filter_papers(papers, task.get('filters', []))
+
+            # Then apply limit to the filtered results
+            limit = task.get('limit')
+            if papers and limit is not None and len(papers) > limit:
+                logger.info(f"Limiting final results for {task_name} from {len(papers)} to {limit} papers.")
+                papers = papers[:limit]
 
             if papers:
                 logger.info(f"Successfully processed {len(papers)} papers for {task_name}.")
                 results_by_task[task_name] = (papers, task)
             else:
-                logger.warning(f"No papers found for task: {task_name}")
+                logger.warning(f"No papers found for task: {task_name} (or none matched filters)")
 
         except Exception as e:
             logger.error(f"Failed to process task {task_name}: {e}", exc_info=True)
@@ -138,14 +158,24 @@ def main():
     total_papers = 0
     for task_name, (papers, task_config) in results_by_task.items():
         total_papers += len(papers)
+        task_output_dir = OUTPUT_DIR / task_name
+        task_output_dir.mkdir(exist_ok=True)
+
+        # --- Analysis Step ---
+        logger.info(f"Analyzing trends for {task_name}...")
+        wc_path = task_output_dir / f"{task_name}_wordcloud.png"
+        analysis_done = generate_wordcloud_from_papers(papers, wc_path)
+
+        # --- Reporting Step ---
         logger.info(f"Saving reports for {task_name}...")
-        save_as_markdown(papers, task_name, OUTPUT_DIR)
-        save_as_csv(papers, task_name, OUTPUT_DIR)
-        save_as_summary_txt(papers, task_name, OUTPUT_DIR)
+        wc_relative_path = wc_path.name if analysis_done else None
+        save_as_markdown(papers, task_name, task_output_dir, wordcloud_path=wc_relative_path)
+        save_as_csv(papers, task_name, task_output_dir)
+        save_as_summary_txt(papers, task_name, task_output_dir)
 
         if task_config.get('download_pdfs', False):
             logger.info(f"Starting PDF download for {task_name}...")
-            download_pdfs(papers, task_name, OUTPUT_DIR)
+            download_pdfs(papers, task_name, task_output_dir)  # Save PDFs inside task-specific folder
         else:
             logger.info(f"PDF download disabled for {task_name}. Skipping.")
 

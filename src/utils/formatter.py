@@ -5,19 +5,22 @@ from pathlib import Path
 from datetime import datetime
 
 
-def save_as_markdown(papers: list, task_name: str, output_dir: Path):
+def save_as_markdown(papers: list, task_name: str, output_dir: Path, wordcloud_path: str = None):
     """Saves a list of paper dictionaries as a formatted Markdown file."""
     if not papers:
         return
 
-    report_dir = output_dir / task_name
-    report_dir.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d")
-    filename = report_dir / f"{task_name}_report_{timestamp}.md"
+    filename = output_dir / f"{task_name}_report_{timestamp}.md"
 
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(f"# {task_name} Papers ({timestamp})\n\n")
-        f.write(f"Total papers found: **{len(papers)}**\n\n")
+        f.write(f"Total papers found matching criteria: **{len(papers)}**\n\n")
+
+        if wordcloud_path:
+            f.write(f"## Trend Word Cloud\n\n")
+            f.write(f"![Word Cloud](./{wordcloud_path})\n\n")
+
         f.write("---\n\n")
 
         for i, paper in enumerate(papers, 1):
@@ -44,10 +47,8 @@ def save_as_summary_txt(papers: list, task_name: str, output_dir: Path):
     if not papers:
         return
 
-    report_dir = output_dir / task_name
-    report_dir.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d")
-    filename = report_dir / f"{task_name}_summary_{timestamp}.txt"
+    filename = output_dir / f"{task_name}_summary_{timestamp}.txt"
 
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(f"--- {task_name} Summary ({timestamp}) ---\n")
@@ -73,10 +74,8 @@ def save_as_csv(papers: list, task_name: str, output_dir: Path):
     if not papers:
         return
 
-    report_dir = output_dir / task_name
-    report_dir.mkdir(exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d")
-    filename = report_dir / f"{task_name}_data_{timestamp}.csv"
+    filename = output_dir / f"{task_name}_data_{timestamp}.csv"
 
     df = pd.DataFrame(papers)
 

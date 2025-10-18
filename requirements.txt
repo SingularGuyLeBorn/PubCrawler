@@ -9,5 +9,8 @@ tqdm
 PyYAML
 selenium
 webdriver-manager
+wordcloud
+matplotlib
+nltk
 
 # END OF FILE: requirements.txt
