@@ -1,94 +1,139 @@
-# FILE: configs/tasks.yaml
+# FILE: configs/tasks.yaml (已按新要求修改)
 
 # ==============================================================================
-# PubCrawler Task Configuration v4.0 ("The Complete Encyclopedia & Battle Plan")
-# ==============================================================================
-# This file centralizes all scraping logic, fully migrated from selective_recon.py.
+# PubCrawler Task Configuration v10.1
+# 修改说明:
+# - 所有任务的 download_pdfs 设置为 true。
+# - 所有任务的 limit 统一设置为 20。
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
 # 1. DATA SOURCE DEFINITIONS ("The Encyclopedia")
 # ------------------------------------------------------------------------------
 source_definitions:
-  # --- Tier 0: API-Based Sources (NEW) ---
   arxiv:
-    # ArXiv doesn't use conference/year, its parameters are defined directly in the task.
-    # This entry is mainly for validation and mapping.
     API: "http://export.arxiv.org/api/query?"
-
-  # --- Tier 1: Stable & Parsable Sources ---
   openreview:
     ICLR: { venue_id: "ICLR.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022, 2023] }
     NeurIPS: { venue_id: "NeurIPS.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022] }
-
   html_cvf:
     CVPR: "https://openaccess.thecvf.com/CVPRYYYY?day=all"
     ICCV: "https://openaccess.thecvf.com/ICCVYYYY?day=all"
-
   html_pmlr:
-    # NOTE: PMLR volumes (e.g., v235) are not predictable by year.
-    # Tasks for this source_type MUST provide a `url_override`.
     ICML: "https://proceedings.mlr.press/"
-    AISTATS: "https://proceedings.mlr.press/"
-
   html_acl:
     ACL: "https://aclanthology.org/volumes/YYYY.acl-long/"
     EMNLP: "https://aclanthology.org/volumes/YYYY.emnlp-main/"
     NAACL: { pattern_map: { 2019: "2019.naacl-main", 2021: "2021.naacl-main", 2022: "2022.naacl-main", 2024: "2024.naacl-long" } }
-
-  # --- Tier 2: Dynamic/Complex Sites Requiring Selenium ---
   selenium:
-    TPAMI: "https://www.computer.org/csdl/journal/tp/past-issues/YYYY"
-    IJCV: "https://link.springer.com/journal/11263/volumes-and-issues"
-    ECCV: "https://link.springer.com/conference/eccv"
     AAAI: "https://aaai.org/aaai-publications/aaai-conference-proceedings/"
     KDD: "https://dl.acm.org/conference/kdd/proceedings"
-    SIGIR: "https://dl.acm.org/conference/sigir/proceedings"
-    WWW: "https://dl.acm.org/conference/www/proceedings"
-    CHI: "https://dl.acm.org/conference/chi/proceedings"
-    ICRA: "https://ieeexplore.ieee.org/xpl/conhome/all-proceedings.html"
-    IJCAI: "https://www.ijcai.org/proceedings/YYYY/"
-    MLSys: "https://mlsys.org/virtual/YYYY/papers.html"
-
-  # --- Tier 3: Static HTML that need specific parsers (can use selenium as a fallback) ---
   html_other:
-    JMLR: "https://jmlr.org/papers/" # Requires custom logic for volume numbers
-    TACL: "https://aclanthology.org/venues/tacl/"
-
+    JMLR: "https://jmlr.org/papers/"
 
 # ------------------------------------------------------------------------------
 # 2. TASKS TO EXECUTE ("The Battle Plan")
-#    - This is your "playlist" of scraping jobs for the current run.
 # ------------------------------------------------------------------------------
 tasks:
-  # ============================================================================
-  # --- NEW: ArXiv Task Example ---
-  # ============================================================================
-  - name: 'ArXiv_Latest_AI_Papers'
-    source_type: 'arxiv'
+  # === ICLR: 2022 - 2026 ===
+  - name: 'ICLR_2026'
+    conference: 'ICLR'
+    year: 2026
+    source_type: 'openreview'
     enabled: true
-    download_pdfs: false
-    limit: 5
-    # ArXiv-specific parameters
-    search_query: 'cat:cs.AI'
-    sort_by: "submittedDate"
-    sort_order: "descending"
-    filters: # You can still use your powerful filters
-      - "language model"
-      - "diffusion"
-
-  # ============================================================================
-  # --- THIS RUN'S ACTIVE TASKS (AS PER YOUR REQUEST) ---
-  # ============================================================================
-
+    fetch_reviews: true
+    download_pdfs: true
+    limit: 20
+  - name: 'ICLR_2025'
+    conference: 'ICLR'
+    year: 2025
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: true
+    download_pdfs: true
+    limit: 20
   - name: 'ICLR_2024'
     conference: 'ICLR'
     year: 2024
     source_type: 'openreview'
     enabled: true
+    fetch_reviews: false
     download_pdfs: true
-    limit: 10
+    limit: 20
+  - name: 'ICLR_2023'
+    conference: 'ICLR'
+    year: 2023
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: false
+    download_pdfs: true
+    limit: 20
+  - name: 'ICLR_2022'
+    conference: 'ICLR'
+    year: 2022
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: false
+    download_pdfs: true
+    limit: 20
 
+  # === NeurIPS: 2022 - 2026 ===
+  - name: 'NeurIPS_2026'
+    conference: 'NeurIPS'
+    year: 2026
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: true
+    download_pdfs: true
+    limit: 20
+  - name: 'NeurIPS_2025'
+    conference: 'NeurIPS'
+    year: 2025
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: true
+    download_pdfs: true
+    limit: 20
+  - name: 'NeurIPS_2024'
+    conference: 'NeurIPS'
+    year: 2024
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: false
+    download_pdfs: true
+    limit: 20
+  - name: 'NeurIPS_2023'
+    conference: 'NeurIPS'
+    year: 2023
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: false
+    download_pdfs: true
+    limit: 20
+  - name: 'NeurIPS_2022'
+    conference: 'NeurIPS'
+    year: 2022
+    source_type: 'openreview'
+    enabled: true
+    fetch_reviews: false
+    download_pdfs: true
+    limit: 20
+
+  # === ICML: 2022 - 2026 ===
+  - name: 'ICML_2026'
+    conference: 'ICML'
+    year: 2026
+    source_type: 'html_pmlr'
+    enabled: true
+    download_pdfs: true
+    limit: 20
+  - name: 'ICML_2025'
+    conference: 'ICML'
+    year: 2025
+    source_type: 'html_pmlr'
+    enabled: true
+    download_pdfs: true
+    limit: 20
   - name: 'ICML_2024'
     conference: 'ICML'
     year: 2024
@@ -96,76 +141,58 @@ tasks:
     url_override: "https://proceedings.mlr.press/v235/"
     enabled: true
     download_pdfs: true
-    limit: 10
-
-  - name: 'NeurIPS_2024'
-    conference: 'NeurIPS'
-    year: 2024
-    source_type: 'openreview'
+    limit: 20
+  - name: 'ICML_2023'
+    conference: 'ICML'
+    year: 2023
+    source_type: 'html_pmlr'
+    url_override: "https://proceedings.mlr.press/v202/"
     enabled: true
     download_pdfs: true
-    limit: 10
+    limit: 20
+  - name: 'ICML_2022'
+    conference: 'ICML'
+    year: 2022
+    source_type: 'html_pmlr'
+    url_override: "https://proceedings.mlr.press/v162/"
+    enabled: true
+    download_pdfs: true
+    limit: 20
 
+  # === ACL: 2022 - 2026 ===
+  - name: 'ACL_2026'
+    conference: 'ACL'
+    year: 2026
+    source_type: 'html_acl'
+    enabled: true
+    download_pdfs: true
+    limit: 20
+  - name: 'ACL_2025'
+    conference: 'ACL'
+    year: 2025
+    source_type: 'html_acl'
+    enabled: true
+    download_pdfs: true
+    limit: 20
   - name: 'ACL_2024'
     conference: 'ACL'
     year: 2024
     source_type: 'html_acl'
-    url_override: "https://aclanthology.org/volumes/2024.acl-long/" # Override is safer for ACL
+    url_override: "https://aclanthology.org/volumes/2024.acl-long/"
     enabled: true
     download_pdfs: true
-    limit: 10
-
-  # ============================================================================
-  # --- ALL OTHER TASKS ARE DISABLED FOR THIS RUN ---
-  # ============================================================================
-
-  - name: 'CVPR_2024'
-    conference: 'CVPR'
-    year: 2024
-    source_type: 'html_cvf'
-    enabled: false
-    download_pdfs: false
-    limit: 10
-
-  - name: 'ICCV_2023'
-    conference: 'ICCV'
-    year: 2023
-    source_type: 'html_cvf'
-    enabled: false
-    download_pdfs: false
-    limit: 10
-
-  - name: 'AISTATS_2024'
-    conference: 'AISTATS'
-    year: 2024
-    source_type: 'html_pmlr'
-    url_override: "https://proceedings.mlr.press/v238/"
-    enabled: false
-    download_pdfs: false
-    limit: 10
-
-  - name: 'EMNLP_2023'
-    conference: 'EMNLP'
+    limit: 20
+  - name: 'ACL_2023'
+    conference: 'ACL'
     year: 2023
     source_type: 'html_acl'
-    url_override: "https://aclanthology.org/volumes/2023.emnlp-main/"
-    enabled: false
-    download_pdfs: false
-    limit: 10
-
-  - name: 'NAACL_2024'
-    conference: 'NAACL'
-    year: 2024
+    enabled: true
+    download_pdfs: true
+    limit: 20
+  - name: 'ACL_2022'
+    conference: 'ACL'
+    year: 2022
     source_type: 'html_acl'
-    enabled: false
-    download_pdfs: false
-    limit: 10
-
-  - name: 'IJCAI_2023_Selenium'
-    conference: 'IJCAI'
-    year: 2023
-    source_type: 'selenium'
-    enabled: false
-    download_pdfs: false
-    limit: 10
-# END OF FILE: configs/tasks.yaml
+    enabled: true
+    download_pdfs: true
+    limit: 20

@@ -19,13 +19,22 @@ def save_as_markdown(papers: list, task_name: str, output_dir: Path, wordcloud_p
 
         if wordcloud_path:
             f.write(f"## Trend Word Cloud\n\n")
-            f.write(f"![Word Cloud](./{wordcloud_path})\n\n")
+            # --- 修复点: 确保路径在Markdown中是正确的相对路径 ---
+            f.write(f"![Word Cloud](./{Path(wordcloud_path).name})\n\n")
 
         f.write("---\n\n")
 
         for i, paper in enumerate(papers, 1):
             title = paper.get('title', 'N/A').replace('\n', ' ')
-            authors = paper.get('authors', 'N/A').replace('\n', ' ')
+
+            # --- 修复点: 健壮地处理作者字段，无论是字符串还是列表 ---
+            authors_data = paper.get('authors', 'N/A')
+            if isinstance(authors_data, list):
+                authors = ", ".join(authors_data)
+            else:
+                authors = str(authors_data)  # 确保是字符串
+            authors = authors.replace('\n', ' ')
+
             abstract = paper.get('abstract', 'N/A').replace('\n', ' ')
             pdf_url = paper.get('pdf_url', '#')
 
@@ -57,7 +66,14 @@ def save_as_summary_txt(papers: list, task_name: str, output_dir: Path):
 
         for i, paper in enumerate(papers, 1):
             title = paper.get('title', 'N/A').replace('\n', ' ')
-            authors = paper.get('authors', 'N/A').replace('\n', ' ')
+
+            authors_data = paper.get('authors', 'N/A')
+            if isinstance(authors_data, list):
+                authors = ", ".join(authors_data)
+            else:
+                authors = str(authors_data)
+            authors = authors.replace('\n', ' ')
+
             abstract = paper.get('abstract', 'N/A').replace('\n', ' ')
             pdf_url = paper.get('pdf_url', 'N/A')
 
@@ -77,14 +93,20 @@ def save_as_csv(papers: list, task_name: str, output_dir: Path):
     timestamp = datetime.now().strftime("%Y%m%d")
     filename = output_dir / f"{task_name}_data_{timestamp}.csv"
 
-    df = pd.DataFrame(papers)
+    # --- 修复点: 在转换为DataFrame之前，确保所有列表都变成字符串 ---
+    processed_papers = []
+    for paper in papers:
+        new_paper = paper.copy()
+        for key, value in new_paper.items():
+            if isinstance(value, list):
+                new_paper[key] = ", ".join(map(str, value))
+        processed_papers.append(new_paper)
 
-    # Standardize column order
+    df = pd.DataFrame(processed_papers)
+
     cols = ['title', 'authors', 'abstract', 'pdf_url', 'keywords', 'source_url']
     df_cols = [c for c in cols if c in df.columns] + [c for c in df.columns if c not in cols]
     df = df[df_cols]
 
     df.to_csv(filename, index=False, encoding='utf-8-sig')
     print(f"Successfully saved CSV data to {filename}")
-
-# END OF FILE: src/utils/formatter.py

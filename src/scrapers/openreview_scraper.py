@@ -2,104 +2,124 @@
 
 import openreview
 import openreview.api
+import re
+import numpy as np
 from tqdm import tqdm
+from itertools import islice
+import time
+import logging
+from typing import List, Dict, Any
 
 from src.scrapers.base_scraper import BaseScraper
 
 
 class OpenReviewScraper(BaseScraper):
-    """Scraper for conferences hosted on OpenReview."""
+    """Scraper for conferences hosted on OpenReview, supporting both v1 and v2 APIs and optional review data fetching."""
 
-    def scrape(self):
-        """
-        Fetches paper data from OpenReview using the v1 or v2 API.
-        """
+    def __init__(self, task_info: Dict[str, Any], logger: logging.Logger):
+        super().__init__(task_info, logger)
+
+    def scrape(self) -> List[Dict[str, Any]]:
         api_version = self.task_info.get("api_version", "v2")
         venue_id = self.task_info["venue_id"]
-        limit = self.task_info.get("limit")  # Get limit from task info
+        limit = self.task_info.get("limit")
+        fetch_reviews = self.task_info.get("fetch_reviews", False)
 
-        self.logger.info(f"Using OpenReview API v{api_version} for venue: {venue_id}")
+        self.logger.info(f"    -> Using OpenReview API v{api_version} for venue: {venue_id}")
+        if fetch_reviews:
+            self.logger.info("    -> Review fetching is ENABLED. This will be slower due to API rate limits.")
 
         try:
-            notes_list = []
             if api_version == "v1":
-                client = openreview.Client(baseurl='https://api.openreview.net')
-                notes_iterator = client.get_all_notes(content={'venueid': venue_id}, details='original')
-                notes_list = list(notes_iterator)  # Must convert iterator to list to slice
-            else:  # API v2
-                client = openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
-                notes_iterator = client.get_all_notes(content={'venueid': venue_id})
-                notes_list = list(notes_iterator)  # Must convert iterator to list to slice
+                notes_list = self._scrape_v1(venue_id, limit)
+            else:
+                notes_list = self._scrape_v2(venue_id, limit)
 
             if not notes_list:
-                self.logger.warning(f"No papers found for venue_id: {venue_id}")
                 return []
 
-            self.logger.info(f"Found {len(notes_list)} total notes.")
+            self.logger.info(f"    -> Found {len(notes_list)} submissions to process.")
 
-            # --- LIMIT LOGIC APPLIED HERE (BEFORE PARSING) ---
-            if limit is not None and len(notes_list) > limit:
-                self.logger.info(f"Applying limit: processing first {limit} papers out of {len(notes_list)}.")
-                notes_list = notes_list[:limit]
+            papers = []
+            client_v2 = openreview.api.OpenReviewClient(
+                baseurl='https://api2.openreview.net') if fetch_reviews else None
 
-            papers = [self._parse_note(note) for note in tqdm(notes_list, desc=f"Parsing {venue_id}")]
-            papers = [p for p in papers if p]
+            # --- 核心修复点: `leave=True` ---
+            pbar_desc = f"    -> Parsing {self.task_info.get('conference', 'papers')}"
+            for note in tqdm(notes_list, desc=pbar_desc, leave=True):
+                paper_details = self._parse_note(note)
+                if fetch_reviews and client_v2:
+                    forum_id = note.id
+                    time.sleep(0.3)  # Rate limit
+                    review_details = self._fetch_review_details(client_v2, forum_id)
+                    paper_details.update(review_details)
+                papers.append(paper_details)
             return papers
 
         except Exception as e:
-            self.logger.error(f"Failed to scrape OpenReview for {venue_id}: {e}", exc_info=True)
+            self.logger.error(f"    [✖ ERROR] Failed to scrape OpenReview for {venue_id}: {e}", exc_info=True)
             return []
 
+    def _scrape_v1(self, venue_id, limit):
+        client_v1 = openreview.Client(baseurl='https://api.openreview.net')
+        notes_iterator = client_v1.get_all_notes(content={'venueid': venue_id})
+        if limit:
+            self.logger.info(f"    -> Applying limit: processing first {limit} papers.")
+            return list(islice(notes_iterator, limit))
+        return list(notes_iterator)
+
+    def _scrape_v2(self, venue_id, limit):
+        client_v2 = openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
+        if limit:
+            self.logger.info(f"    -> Applying limit: fetching first {limit} papers using API limit.")
+            return client_v2.get_notes(content={'venueid': venue_id}, limit=limit)
+        notes_iterator = client_v2.get_all_notes(content={'venueid': venue_id})
+        return list(notes_iterator)
+
     def _parse_note(self, note):
-        """
-        Parses an OpenReview Note object into a standardized paper dictionary.
-        This version is robust to handle both v1 (flat) and v2 (nested dict) structures.
-        """
+        content = note.content
+
+        def get_field_robust(field_name, default_value):
+            field_data = content.get(field_name)
+            if isinstance(field_data, dict):
+                return field_data.get('value', default_value)
+            return field_data if field_data is not None else default_value
+
+        return {
+            'id': note.id,
+            'title': get_field_robust('title', 'N/A'),
+            'authors': ', '.join(get_field_robust('authors', [])),
+            'abstract': get_field_robust('abstract', 'N/A'),
+            'keywords': ', '.join(get_field_robust('keywords', [])),
+            'pdf_url': f"https://openreview.net/pdf?id={note.id}",
+            'source_url': f"https://openreview.net/forum?id={note.id}"
+        }
+
+    def _fetch_review_details(self, client, forum_id):
         try:
-            content = note.content if hasattr(note, 'content') else note
+            related_notes = client.get_notes(forum=forum_id)
+        except Exception:
+            return {'decision': 'N/A', 'avg_rating': None, 'review_ratings': []}
+        ratings, decision = [], 'N/A'
+        for note in related_notes:
+            if any(re.search(r'/Decision', inv, re.IGNORECASE) for inv in note.invitations):
+                decision_value = note.content.get('decision', {}).get('value')
+                if decision_value: decision = self._clean_decision(decision_value)
+        for note in related_notes:
+            if any(re.search(r'/Review|/Official_Review', inv, re.IGNORECASE) for inv in note.invitations):
+                rating_value = note.content.get('rating', {}).get('value')
+                if isinstance(rating_value, str):
+                    match = re.search(r'^\d+', rating_value)
+                    if match: ratings.append(int(match.group(0)))
+                elif isinstance(rating_value, (int, float)):
+                    ratings.append(int(rating_value))
+        return {'decision': decision, 'avg_rating': round(np.mean(ratings), 2) if ratings else None,
+                'review_ratings': ratings}
 
-            def get_field_value(field_name, default_value):
-                """A helper to safely extract values from either v1 or v2 format."""
-                field = content.get(field_name)
-                if isinstance(field, dict):
-                    # Handles v2 format like {'value': '...'}
-                    return field.get('value', default_value)
-                elif field is not None:
-                    # Handles v1 format (direct value)
-                    return field
-                return default_value
-
-            title = get_field_value('title', 'N/A')
-            abstract = get_field_value('abstract', 'N/A')
-            authors_list = get_field_value('authors', [])
-            keywords_list = get_field_value('keywords', [])
-
-            # PDF URL logic is slightly more complex
-            pdf_url = None
-            pdf_field = content.get('pdf')
-            if isinstance(pdf_field, dict):  # v2 format
-                pdf_url = pdf_field.get('url')
-            elif isinstance(pdf_field, str):  # v1 format
-                pdf_url = pdf_field
-
-            if not pdf_url:
-                bibtex = get_field_value('_bibtex', '')
-                if 'url={' in bibtex:
-                    pdf_url = bibtex.split('url={')[-1].split('}')[0]
-
-            if pdf_url and pdf_url.startswith('/pdf/'):
-                pdf_url = f"https://openreview.net{pdf_url}"
-
-            return {
-                'title': title,
-                'authors': ', '.join(authors_list),
-                'abstract': abstract,
-                'pdf_url': pdf_url,
-                'keywords': ', '.join(keywords_list),
-                'raw_data': note.to_json() if hasattr(note, 'to_json') else str(note)
-            }
-        except Exception as e:
-            self.logger.error(f"Failed to parse a note: {e}", exc_info=True)
-            self.logger.debug(f"Problematic note data: {note}")
-            return None
-# END OF FILE: src/scrapers/openreview_scraper.py
+    def _clean_decision(self, decision_str):
+        decision_str = str(decision_str).lower()
+        if 'oral' in decision_str: return 'Oral'
+        if 'spotlight' in decision_str: return 'Spotlight'
+        if 'poster' in decision_str: return 'Poster'
+        if 'reject' in decision_str: return 'Reject'
+        return 'Accept'

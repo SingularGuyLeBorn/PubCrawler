@@ -1,0 +1,109 @@
+# FILE: configs/trends.yaml ("Flagship Edition")
+
+# 定义AI研究领域及其子方向的关键词。这是一个全面、层级化、与时俱进的知识库。
+# 关键词不区分大小写，并经过优化以提高匹配准确率。
+
+# --- 大语言模型与基础模型 (LLMs & Foundation Models) ---
+"LLMs & Foundation Models":
+  keywords: ["language model", "foundation model", "llm", "large model"]
+  sub_fields:
+    "LLM Alignment & RLHF/DPO": ["alignment", "rlhf", "dpo", "instruction tuning", "human feedback", "constitutional ai", "preference optimization"]
+    "LLM Evaluation": ["llm evaluation", "benchmark", "hallucination", "llm robustness", "truthfulness"]
+    "LLM Reasoning & Planning": ["reasoning", "chain-of-thought", "tree-of-thought", "self-consistency", "planning"]
+    "LLM-Based Agents": ["llm agent", "tool use", "toolformer", "react"]
+    "Parameter-Efficient Fine-tuning (PEFT)": ["parameter-efficient", "peft", "lora", "qlora", "adapter tuning", "soft prompts"]
+    "Retrieval-Augmented Generation (RAG)": ["retrieval-augmented", "rag", "in-context learning", "knowledge retrieval"]
+    "Mixture of Experts (MoE)": ["mixture of experts", "moe", "sparse model"]
+    "State Space Models (Mamba)": ["state space model", "ssm", "mamba", "s4"]
+    "World Models": ["world model", "generative world model", "learning world models"]
+
+# --- 多模态 AI (Multimodal AI) ---
+"Multimodal AI":
+  keywords: ["multimodal", "multi-modal", "cross-modal"]
+  sub_fields:
+    "Visual-Language Models (VLM)": ["visual-language", "vlm", "multi-modal llm", "vision-language", "llava", "gpt-4v"]
+    "Text-to-Image Generation": ["text-to-image", "dall-e", "stable diffusion", "midjourney", "image generation"]
+    "Video Generation & Editing": ["video generation", "video editing", "text-to-video", "sora", "video synthesis"]
+    "Speech & Audio Generation": ["speech synthesis", "text-to-speech", "tts", "audio generation", "voice conversion"]
+    "General Multimodality": ["audio-visual", "text-video", "image-audio", "speech recognition"] # 捕捉非VLM的多模态组合
+
+# --- 计算机视觉 (CV) ---
+"Computer Vision":
+  keywords: ["image", "vision", "visual", "cnn", "convolutional", "scene"]
+  sub_fields:
+    "Diffusion Models & Generative Theory": ["diffusion model", "denoising diffusion", "score-based", "generative model"]
+    "3D Vision & Gaussian Splatting": ["3d vision", "gaussian splatting", "nerf", "neural radiance", "reconstruction", "point cloud", "view synthesis"]
+    "Object Detection & Segmentation": ["object detection", "segmentation", "yolo", "mask r-cnn", "instance segmentation", "panoptic"]
+    "Video Understanding": ["video understanding", "action recognition", "video classification", "temporal understanding"]
+    "Image Restoration": ["image restoration", "super-resolution", "denoising", "deblurring"]
+    "Visual Transformers (ViT)": ["vision transformer", "vit", "visual transformer"]
+    "Self-Supervised Learning (CV)": ["self-supervised", "contrastive learning", "simclr", "moco", "byol", "masked image modeling"]
+
+# --- 自然语言处理 (NLP) ---
+# Note: 很多NLP任务正被LLMs subsume，这里保留更经典的或非LLM-centric的任务
+"Natural Language Processing":
+  keywords: ["natural language", "nlp", "text", "corpus", "linguistic"]
+  sub_fields:
+    "Code Generation": ["code generation", "text-to-code", "program synthesis", "alphacode"]
+    "Machine Translation": ["machine translation", "nmt", "cross-lingual"]
+    "Information Extraction": ["information extraction", "named entity recognition", "ner", "relation extraction"]
+    "Summarization": ["summarization", "text summarization", "abstractive", "extractive"]
+
+# --- 强化学习 (RL) ---
+"Reinforcement Learning":
+  keywords: ["reinforcement learning", "rl", "q-learning", "reward", "policy", "markov decision"]
+  sub_fields:
+    "Reinforcement Learning (Algorithms)": ["actor-critic", "a2c", "a3c", "policy gradient", "sac", "ppo", "td3"]
+    "Offline & Imitation Learning": ["offline rl", "imitation learning", "behavioral cloning", "inverse rl"]
+    "Multi-Agent RL (MARL)": ["multi-agent rl", "marl", "cooperative", "competitive"]
+    "Human Motion Generation": ["motion generation", "humanoid", "locomotion", "character animation"]
+
+# --- 机器学习核心 (Core ML) ---
+"Core Machine Learning":
+  keywords: ["learning", "model", "network", "algorithm", "theory"]
+  sub_fields:
+    "Federated Learning (FL)": ["federated learning", "fl", "decentralized learning"]
+    "Continual Learning": ["continual learning", "lifelong learning", "catastrophic forgetting"]
+    "Transfer Learning": ["transfer learning", "domain adaptation", "fine-tuning"]
+    "Meta-Learning": ["meta-learning", "learning to learn", "few-shot learning", "maml"]
+    "Self-Supervised Learning (General)": ["self-supervised", "ssl", "contrastive learning"] # For non-CV applications
+    "Graph Neural Networks (GNN)": ["graph neural network", "gnn", "graph representation", "message passing"]
+    "Transformers & Attention": ["transformer", "attention mechanism", "self-attention"] # General, non-visual
+    "Causal Discovery & Inference": ["causal discovery", "causal inference", "structural causal model", "scm", "treatment effect"]
+    "Optimization Algorithms": ["optimization", "sgd", "adam", "gradient descent", "convergence", "second-order"]
+    "Bayesian Methods": ["bayesian", "gaussian process", "variational inference", "probabilistic model"]
+    "Quantization & Pruning": ["quantization", "pruning", "model compression", "8-bit", "4-bit", "int8", "binarization"]
+
+# --- AI伦理、安全与可解释性 (Trustworthy AI) ---
+"Trustworthy AI":
+  keywords: ["trustworthy", "responsible", "ethical"]
+  sub_fields:
+    "Adversarial Robustness & Attacks": ["adversarial attack", "adversarial robustness", "defense", "adversarial example"]
+    "Differential Privacy (DP)": ["differential privacy", "dp-sgd", "privacy-preserving", "private ml"]
+    "AI Fairness & Bias": ["fairness", "bias", "algorithmic fairness", "group fairness", "debiasing"]
+    "Model Interpretability (XAI)": ["interpretability", "explainable ai", "xai", "shap", "lime", "feature attribution"]
+    "LLM Safety & Jailbreaking": ["llm safety", "jailbreaking", "red teaming", "model guardrails"] # LLM-specific safety
+
+# --- AI for Science & Society ---
+"AI for Science & Society":
+  keywords: ["ai for", "applications", "applied ai"]
+  sub_fields:
+    "AI for Drug/Molecule Science": ["drug discovery", "molecule generation", "protein folding", "alphafold", "computational biology"]
+    "AI for Healthcare": ["healthcare", "medical image", "ecg", "eeg", "patient data", "clinical notes", "radiology"]
+    "AI for Weather & Climate": ["weather forecasting", "climate modeling", "physics-informed", "pinn"]
+    "Robotics": ["robotics", "robot learning", "manipulation", "control", "embodied ai"]
+    "Recommender Systems": ["recommender system", "collaborative filtering", "recommendation"]
+    "AI for Chip Design (EDA)": ["chip design", "eda", "electronic design automation", "placement", "routing"]
+    "Time Series Forecasting": ["time series", "forecasting", "temporal data", "sequential data"]
+
+# --- 未来可扩展的“第三层级”结构示例 (代码暂不支持) ---
+# "Example with Sub-Sub-Fields":
+#  keywords: ["example"]
+#  sub_fields:
+#    "Generative Vision":
+#      keywords: ["generative vision"]
+#      sub_sub_fields:
+#        "GANs": ["gan", "generative adversarial"]
+#        "Diffusion Models": ["diffusion", "ddpm"]
+#        "VAEs": ["variational autoencoder", "vae"]
+#        "Autoregressive Models": ["pixelcnn", "imagen"]

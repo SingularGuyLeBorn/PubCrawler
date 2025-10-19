@@ -1,197 +1,218 @@
-# FILE: src/main.py
+# FILE: src/main.py (Downloader Tqdm Integrated)
 
 import time
 import yaml
-from collections import defaultdict
 import re
+import pandas as pd
+from collections import defaultdict
+from pathlib import Path
+from tqdm import tqdm
 
 from src.scrapers.html_scraper import HTMLScraper
 from src.scrapers.openreview_scraper import OpenReviewScraper
 from src.scrapers.selenium_scraper import SeleniumScraper
-from src.scrapers.arxiv_scraper import ArxivScraper # MODIFIED: Import ArxivScraper
+from src.scrapers.arxiv_scraper import ArxivScraper
 from src.config import get_logger, CONFIG_FILE, OUTPUT_DIR
-from src.utils.formatter import save_as_markdown, save_as_csv, save_as_summary_txt
-from src.utils.downloader import download_pdfs
-from src.analysis.analyzer import generate_wordcloud_from_papers
+from src.utils.formatter import save_as_csv
+# --- 核心修改点: 导入单个下载函数 ---
+from src.utils.downloader import download_single_pdf
+from src.analysis.trends import run_single_task_analysis, run_cross_year_analysis
+from src.utils.console_logger import print_banner, COLORS
+
+OPERATION_MODE = "collect_and_analyze"
 
 logger = get_logger(__name__)
+PAPERS_OUTPUT_DIR = OUTPUT_DIR / "papers"
+TRENDS_OUTPUT_DIR = OUTPUT_DIR / "trends"
 
-# --- Scraper Mapping ---
 SCRAPER_MAPPING = {
-    "openreview": OpenReviewScraper,
-    "html_cvf": HTMLScraper,
-    "html_pmlr": HTMLScraper,
-    "html_acl": HTMLScraper,
-    "html_other": HTMLScraper,
-    "selenium": SeleniumScraper,
-    "arxiv": ArxivScraper, # MODIFIED: Register the new ArxivScraper
+    "openreview": OpenReviewScraper, "html_cvf": HTMLScraper, "html_pmlr": HTMLScraper,
+    "html_acl": HTMLScraper, "html_other": HTMLScraper, "selenium": SeleniumScraper, "arxiv": ArxivScraper
 }
 
 
 def load_config():
-    """Loads and validates the YAML config file."""
     if not CONFIG_FILE.exists():
-        logger.error(f"Config file not found at {CONFIG_FILE}")
+        logger.error(f"[✖ ERROR] Config file not found at {CONFIG_FILE}")
         return None
     with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
         return yaml.safe_load(f)
 
 
 def build_task_info(task: dict, source_definitions: dict) -> dict:
-    """Constructs the specific info dictionary needed by a scraper from the task config."""
     task_info = task.copy()
     source_type = task['source_type']
-
-    # MODIFIED: Add a special handler for 'arxiv' to bypass conference/year logic
-    if source_type == 'arxiv':
-        logger.debug("ArXiv task detected. Bypassing conference/year URL construction.")
-        return task_info
-
-    conf = task['conference']
-    year = task['year']
-
-    if 'url_override' in task:
-        task_info['url'] = task['url_override']
-    else:
+    if source_type == 'arxiv': return task_info
+    conf, year = task.get('conference'), task.get('year')
+    if not conf or not year:
+        logger.error(f"[✖ ERROR] Task '{task.get('name')}' is missing 'conference' or 'year'.")
+        return None
+    if 'url_override' not in task:
         try:
             definition = source_definitions[source_type][conf]
-
             if isinstance(definition, dict):
-                if 'venue_id' in definition:  # OpenReview
+                if 'venue_id' in definition:
                     pattern = definition['venue_id']
                     task_info['venue_id'] = pattern.replace('YYYY', str(year))
                     task_info['api_version'] = 'v1' if year in definition.get('api_v1_years', []) else 'v2'
-                elif 'pattern_map' in definition:  # Special cases like NAACL
+                elif 'pattern_map' in definition:
                     base_url = "https://aclanthology.org/"
                     pattern = definition['pattern_map'].get(year)
                     if not pattern:
-                        logger.error(f"No URL pattern found for {conf} year {year}")
+                        logger.error(f"[✖ ERROR] No URL pattern for {conf} year {year}");
                         return None
                     task_info['url'] = f"{base_url}{pattern}/"
                 else:
-                    logger.error(f"Unknown complex definition for {conf}")
+                    logger.error(f"[✖ ERROR] Unknown complex definition for {conf}");
                     return None
             else:
-                # Handle simple URL string definitions
-                pattern = definition
-                entry_point = pattern.replace('YYYY', str(year))
-                task_info['url'] = entry_point
-
+                task_info['url'] = definition.replace('YYYY', str(year))
         except KeyError:
-            logger.error(f"No source definition found for source_type='{source_type}' and conference='{conf}'")
+            logger.error(f"[✖ ERROR] No source definition for type='{source_type}' and conf='{conf}'");
             return None
-
-    if source_type.startswith('html_'):
-        task_info['parser_type'] = source_type.split('_', 1)[1]
-
-    if source_type == 'selenium':
-        task_info['parser_type'] = conf
-
+    else:
+        task_info['url'] = task['url_override']
+    if source_type.startswith('html_'): task_info['parser_type'] = source_type.split('_', 1)[1]
+    if source_type == 'selenium': task_info['parser_type'] = conf
     return task_info
 
 
 def filter_papers(papers: list, filters: list) -> list:
-    """Filters a list of papers based on keywords in title or abstract."""
-    if not filters:
-        return papers
-
-    filtered_papers = []
-    # Join filters with '|' to create an OR condition regex
+    if not filters: return papers
+    original_count = len(papers)
     filter_regex = re.compile('|'.join(filters), re.IGNORECASE)
-
-    for paper in papers:
-        text_to_search = paper.get('title', '') + ' ' + paper.get('abstract', '')
-        if filter_regex.search(text_to_search):
-            filtered_papers.append(paper)
-
-    logger.info(f"Filtered papers: {len(papers)} -> {len(filtered_papers)} using filters: {filters}")
+    filtered_papers = [p for p in papers if filter_regex.search(p.get('title', '') + ' ' + p.get('abstract', ''))]
+    logger.info(
+        f"    {COLORS['STEP']}-> Filtered papers: {original_count} -> {len(filtered_papers)} using filters: {filters}")
     return filtered_papers
 
 
-def main():
-    """Main execution function driven by the YAML config."""
-    logger.info("Starting PubCrawler...")
-    config = load_config()
-    if not config: return
-
-    source_definitions = config.get('source_definitions', {})
-    tasks_to_run = config.get('tasks', [])
-
+def collect_papers_from_tasks(tasks_to_run: list, source_definitions: dict) -> dict:
     results_by_task = defaultdict(list)
-
     for task in tasks_to_run:
-        # MODIFIED: Handle task naming for non-conference tasks like arXiv
-        task_name = task.get('name', f"{task.get('conference', task.get('source_type'))}_{task.get('year', 'latest')}")
+        task_name = task.get('name', f"{task.get('conference')}_{task.get('year')}")
         if not task.get('enabled', False):
-            logger.info(f"Skipping disabled task: {task_name}")
             continue
 
-        logger.info(f"Processing task: {task_name}")
+        logger.info(f"{COLORS['TASK_START']}[▶] STARTING TASK: {task_name}{COLORS['RESET']}")
         task_info = build_task_info(task, source_definitions)
-        if not task_info: continue
-
+        if not task_info:
+            logger.error(
+                f"{COLORS['ERROR']}[✖ FAILURE] Could not build task info for '{task_name}'.{COLORS['RESET']}\n");
+            continue
         scraper_class = SCRAPER_MAPPING.get(task['source_type'])
         if not scraper_class:
-            logger.error(f"No scraper found for source type: {task['source_type']}")
+            logger.error(f"{COLORS['ERROR']}[✖ FAILURE] No scraper for type: {task['source_type']}{COLORS['RESET']}\n");
             continue
-
         try:
-            scraper = scraper_class(task_info)
+            scraper = scraper_class(task_info, logger)
             papers = scraper.scrape()
-
-            # Apply filters first
             papers = filter_papers(papers, task.get('filters', []))
-
-            # Then apply limit to the filtered results
-            limit = task.get('limit')
-            if papers and limit is not None and len(papers) > limit:
-                logger.info(f"Limiting final results for {task_name} from {len(papers)} to {limit} papers.")
-                papers = papers[:limit]
-
             if papers:
-                logger.info(f"Successfully processed {len(papers)} papers for {task_name}.")
+                for paper in papers:
+                    paper['year'], paper['conference'] = task.get('year'), task.get('conference')
                 results_by_task[task_name] = (papers, task)
+                logger.info(f"    {COLORS['STEP']}-> Successfully processed {len(papers)} papers.")
             else:
-                logger.warning(f"No papers found for task: {task_name} (or none matched filters)")
-
+                logger.warning(f"[⚠ WARNING] No papers found for task: {task_name} (or none matched filters)")
         except Exception as e:
-            logger.error(f"Failed to process task {task_name}: {e}", exc_info=True)
+            logger.error(f"[✖ FAILURE] Unexpected error in task {task_name}: {e}", exc_info=True)
 
-        time.sleep(1)
+        if task_name in results_by_task:
+            logger.info(f"{COLORS['SUCCESS']}[✔ SUCCESS] Task '{task_name}' completed.{COLORS['RESET']}\n")
+        else:
+            logger.info(f"{COLORS['WARNING']}[!] Task '{task_name}' finished with no results.{COLORS['RESET']}\n")
+        time.sleep(0.5)
+    return results_by_task
 
-    if not results_by_task:
-        logger.info("All tasks finished. No papers were collected.")
-        return
 
-    logger.info("All scraping tasks finished. Now processing results...")
-    total_papers = 0
+def process_and_save_results(results_by_task: dict, base_output_dir: Path, perform_single_analysis: bool):
+    base_output_dir.mkdir(exist_ok=True, parents=True)
     for task_name, (papers, task_config) in results_by_task.items():
-        total_papers += len(papers)
-        task_output_dir = OUTPUT_DIR / task_name
-        task_output_dir.mkdir(exist_ok=True)
+        conf, year = task_config.get('conference', 'Misc'), task_config.get('year', 'Latest')
+        task_output_dir = base_output_dir / conf / str(year)
+        task_output_dir.mkdir(exist_ok=True, parents=True)
 
-        # --- Analysis Step ---
-        logger.info(f"Analyzing trends for {task_name}...")
-        wc_path = task_output_dir / f"{task_name}_wordcloud.png"
-        analysis_done = generate_wordcloud_from_papers(papers, wc_path)
-
-        # --- Reporting Step ---
-        logger.info(f"Saving reports for {task_name}...")
-        wc_relative_path = wc_path.name if analysis_done else None
-        save_as_markdown(papers, task_name, task_output_dir, wordcloud_path=wc_relative_path)
+        logger.info(f"    -> Saving reports for '{task_name}' to {task_output_dir}")
         save_as_csv(papers, task_name, task_output_dir)
-        save_as_summary_txt(papers, task_name, task_output_dir)
 
         if task_config.get('download_pdfs', False):
-            logger.info(f"Starting PDF download for {task_name}...")
-            download_pdfs(papers, task_name, task_output_dir)  # Save PDFs inside task-specific folder
-        else:
-            logger.info(f"PDF download disabled for {task_name}. Skipping.")
+            logger.info(f"    -> Starting PDF download for '{task_name}'...")
+            pdf_dir = task_output_dir / "pdfs"
+            pdf_dir.mkdir(exist_ok=True)
+            # --- 核心修复点: 在 main.py 中创建和控制 tqdm ---
+            pbar_desc = f"    -> Downloading PDFs for {task_name}"
+            for paper in tqdm(papers, desc=pbar_desc, leave=True):
+                download_single_pdf(paper, pdf_dir)
 
-    logger.info(f"Processing complete. Total papers collected: {total_papers}")
-    logger.info(f"All reports saved in: {OUTPUT_DIR.resolve()}")
+        if perform_single_analysis:
+            analysis_output_dir = task_output_dir / "analysis"
+            analysis_output_dir.mkdir(exist_ok=True)
+            logger.info(f"    -> Running single-task analysis for '{task_name}'...")
+            run_single_task_analysis(papers, task_name, analysis_output_dir)
+
+
+def load_all_data_for_cross_analysis(papers_dir: Path) -> dict:
+    if not papers_dir.exists():
+        logger.error(f"[✖ ERROR] Data directory not found: {papers_dir}.");
+        return {}
+    all_data_by_conf = defaultdict(list)
+    csv_files = list(papers_dir.rglob("*_data_*.csv"))
+    if not csv_files:
+        logger.warning("[⚠ WARNING] No CSV data files found for cross-year analysis.");
+        return {}
+    logger.info(f"    -> Loading {len(csv_files)} previously collected CSV file(s)...")
+    for csv_path in csv_files:
+        try:
+            conference = csv_path.parent.parent.name
+            df = pd.read_csv(csv_path)
+            df.fillna('', inplace=True)
+            if 'year' in df.columns:
+                df['year'] = pd.to_numeric(df['year'], errors='coerce').astype('Int64')
+            all_data_by_conf[conference].extend(df.to_dict('records'))
+        except Exception as e:
+            logger.error(f"[✖ ERROR] Failed to load data from {csv_path}: {e}")
+    return all_data_by_conf
+
+
+def main():
+    print_banner()
+    logger.info("=====================================================================================")
+    logger.info(f"Starting PubCrawler in mode: '{OPERATION_MODE}'")
+    logger.info("=====================================================================================\n")
+
+    if OPERATION_MODE in ["collect", "collect_and_analyze"]:
+        config = load_config()
+        if not config: return
+        logger.info(f"{COLORS['PHASE']}+----------------------------------------------------------+")
+        logger.info(f"|    PHASE 1: PAPER COLLECTION & SINGLE-TASK ANALYSIS      |")
+        logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
+        collected_results = collect_papers_from_tasks(config.get('tasks', []), config.get('source_definitions', {}))
+        if collected_results:
+            logger.info(f"{COLORS['PHASE']}--- Processing & Saving Collected Results ---{COLORS['RESET']}")
+            process_and_save_results(collected_results, PAPERS_OUTPUT_DIR, perform_single_analysis=True)
+
+    if OPERATION_MODE in ["analyze", "collect_and_analyze"]:
+        logger.info(f"\n{COLORS['PHASE']}+----------------------------------------------------------+")
+        logger.info(f"|          PHASE 2: CROSS-YEAR TREND ANALYSIS              |")
+        logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
+        all_data_by_conf = load_all_data_for_cross_analysis(PAPERS_OUTPUT_DIR)
+        if not all_data_by_conf:
+            logger.warning("[⚠ WARNING] No data found to perform cross-year analysis.")
+        else:
+            for conference, papers in all_data_by_conf.items():
+                if not papers: continue
+                conf_trend_dir = TRENDS_OUTPUT_DIR / conference
+                conf_trend_dir.mkdir(exist_ok=True, parents=True)
+                logger.info(f"{COLORS['TASK_START']}[▶] Analyzing trends for: {conference}{COLORS['RESET']}")
+                run_cross_year_analysis(papers, conference, conf_trend_dir)
+                logger.info(
+                    f"{COLORS['SUCCESS']}[✔ SUCCESS] Cross-year analysis for '{conference}' completed.{COLORS['RESET']}\n")
+
+    logger.info("=====================================================================================")
+    logger.info("PubCrawler run finished successfully.")
+    logger.info("=====================================================================================")
 
 
 if __name__ == "__main__":
     main()
-# END OF FILE: src/main.py

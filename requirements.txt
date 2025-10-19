@@ -12,5 +12,9 @@ webdriver-manager
 wordcloud
 matplotlib
 nltk
+gensim  # 强大的主题建模库
+scikit-learn # 可能需要用到其中的特征提取工具
+
+
 
 # END OF FILE: requirements.txt

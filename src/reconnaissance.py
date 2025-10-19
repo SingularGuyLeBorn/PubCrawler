@@ -223,9 +223,9 @@ TASK_DEFINITIONS = {
 # ==============================================================================
 BATTLE_PLAN = [
     # --- Your Core Targets ---
-    'ICLR_2019', 'ICLR_2020', 'ICLR_2021', 'ICLR_2022', 'ICLR_2023', 'ICLR_2024', 'ICLR_2025', 'ICLR_2026',
-    'NeurIPS_2019', 'NeurIPS_2020', 'NeurIPS_2021', 'NeurIPS_2022', 'NeurIPS_2023', 'NeurIPS_2024', 'NeurIPS_2025',
-    'NeurIPS_2026',  # Use NeurIPS or NIPS, both work
+    # 'ICLR_2019', 'ICLR_2020', 'ICLR_2021', 'ICLR_2022', 'ICLR_2023', 'ICLR_2024', 'ICLR_2025', 'ICLR_2026',
+    # 'NeurIPS_2019', 'NeurIPS_2020', 'NeurIPS_2021', 'NeurIPS_2022', 'NeurIPS_2023', 'NeurIPS_2024', 'NeurIPS_2025',
+    # 'NeurIPS_2026',  # Use NeurIPS or NIPS, both work
     'ICML_2019', 'ICML_2020', 'ICML_2021', 'ICML_2022', 'ICML_2023', 'ICML_2024', 'ICML_2025', 'ICML_2026',
     'ACL_2019', 'ACL_2020', 'ACL_2021', 'ACL_2022', 'ACL_2023', 'ACL_2024', 'ACL_2025', 'ACL_2026',
 
