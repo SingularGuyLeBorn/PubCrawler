@@ -8,6 +8,7 @@ import re
 from src.scrapers.html_scraper import HTMLScraper
 from src.scrapers.openreview_scraper import OpenReviewScraper
 from src.scrapers.selenium_scraper import SeleniumScraper
+from src.scrapers.arxiv_scraper import ArxivScraper # MODIFIED: Import ArxivScraper
 from src.config import get_logger, CONFIG_FILE, OUTPUT_DIR
 from src.utils.formatter import save_as_markdown, save_as_csv, save_as_summary_txt
 from src.utils.downloader import download_pdfs
@@ -23,6 +24,7 @@ SCRAPER_MAPPING = {
     "html_acl": HTMLScraper,
     "html_other": HTMLScraper,
     "selenium": SeleniumScraper,
+    "arxiv": ArxivScraper, # MODIFIED: Register the new ArxivScraper
 }
 
 
@@ -39,6 +41,12 @@ def build_task_info(task: dict, source_definitions: dict) -> dict:
     """Constructs the specific info dictionary needed by a scraper from the task config."""
     task_info = task.copy()
     source_type = task['source_type']
+
+    # MODIFIED: Add a special handler for 'arxiv' to bypass conference/year logic
+    if source_type == 'arxiv':
+        logger.debug("ArXiv task detected. Bypassing conference/year URL construction.")
+        return task_info
+
     conf = task['conference']
     year = task['year']
 
@@ -112,7 +120,8 @@ def main():
     results_by_task = defaultdict(list)
 
     for task in tasks_to_run:
-        task_name = task.get('name', f"{task.get('conference')}_{task.get('year')}")
+        # MODIFIED: Handle task naming for non-conference tasks like arXiv
+        task_name = task.get('name', f"{task.get('conference', task.get('source_type'))}_{task.get('year', 'latest')}")
         if not task.get('enabled', False):
             logger.info(f"Skipping disabled task: {task_name}")
             continue

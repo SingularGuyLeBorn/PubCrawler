@@ -10,6 +10,12 @@
 # 1. DATA SOURCE DEFINITIONS ("The Encyclopedia")
 # ------------------------------------------------------------------------------
 source_definitions:
+  # --- Tier 0: API-Based Sources (NEW) ---
+  arxiv:
+    # ArXiv doesn't use conference/year, its parameters are defined directly in the task.
+    # This entry is mainly for validation and mapping.
+    API: "http://export.arxiv.org/api/query?"
+
   # --- Tier 1: Stable & Parsable Sources ---
   openreview:
     ICLR: { venue_id: "ICLR.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022, 2023] }
@@ -55,6 +61,22 @@ source_definitions:
 #    - This is your "playlist" of scraping jobs for the current run.
 # ------------------------------------------------------------------------------
 tasks:
+  # ============================================================================
+  # --- NEW: ArXiv Task Example ---
+  # ============================================================================
+  - name: 'ArXiv_Latest_AI_Papers'
+    source_type: 'arxiv'
+    enabled: true
+    download_pdfs: false
+    limit: 5
+    # ArXiv-specific parameters
+    search_query: 'cat:cs.AI'
+    sort_by: "submittedDate"
+    sort_order: "descending"
+    filters: # You can still use your powerful filters
+      - "language model"
+      - "diffusion"
+
   # ============================================================================
   # --- THIS RUN'S ACTIVE TASKS (AS PER YOUR REQUEST) ---
   # ============================================================================

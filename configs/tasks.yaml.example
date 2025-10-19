@@ -1,0 +1,102 @@
+# FILE: configs/tasks.yaml.example
+
+# ==============================================================================
+# PubCrawler Pro - 示例任务配置文件 v4.1
+# ==============================================================================
+# 使用方法: 复制本文件为 `tasks.yaml`，然后根据您的需求修改。
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. DATA SOURCE DEFINITIONS ("知识库")
+#    这里定义了所有支持的数据源及其访问规则。通常您不需要修改这里。
+# ------------------------------------------------------------------------------
+source_definitions:
+  # --- API-Based Sources ---
+  arxiv:
+    API: "http://export.arxiv.org/api/query?"
+  # --- Stable & Parsable Sources ---
+  openreview:
+    ICLR: { venue_id: "ICLR.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022, 2023] }
+    NeurIPS: { venue_id: "NeurIPS.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022] }
+  html_cvf:
+    CVPR: "https://openaccess.thecvf.com/CVPRYYYY?day=all"
+    ICCV: "https://openaccess.thecvf.com/ICCVYYYY?day=all"
+  html_pmlr:
+    ICML: "https://proceedings.mlr.press/"
+  html_acl:
+    ACL: "https://aclanthology.org/volumes/YYYY.acl-long/"
+    NAACL: { pattern_map: { 2019: "2019.naacl-main", 2021: "2021.naacl-main", 2022: "2022.naacl-main", 2024: "2024.naacl-long" } }
+  # --- Dynamic/Complex Sites Requiring Selenium ---
+  selenium:
+    IJCAI: "https://www.ijcai.org/proceedings/YYYY/"
+
+# ------------------------------------------------------------------------------
+# 2. TASKS TO EXECUTE ("作战计划")
+#    这是您的 "任务清单"。启用或禁用任务，并自定义它们的行为。
+# ------------------------------------------------------------------------------
+tasks:
+  # ============================================================================
+  # 示例 1: 【多年度、聚合结果】抓取
+  # 场景: 我想研究 "多模态大模型" 领域，需要 ICML 2022年 和 2024年 的相关论文，
+  #       并将所有结果放在一个文件夹里进行统一分析。
+  # ============================================================================
+  - name: 'ICML_Multi_Year_MLLM_Research'
+    output_folder: 'Research_ICML_MLLM_2022_2024' # 聚合结果到这个指定文件夹
+    conference: 'ICML'
+    source_type: 'html_pmlr'
+    years: [2022, 2024] # 跨年份抓取
+    enabled: true # <-- 将这里设为 true 来运行此任务
+    download_pdfs: true # 同时下载PDF
+    url_overrides: # PMLR 的 URL 不规律，因此为每年提供精确的链接
+      2022: "https://proceedings.mlr.press/v162/"
+      2024: "https://proceedings.mlr.press/v235/"
+    filters: # 关键词过滤，不区分大小写
+      - "multimodal"
+      - "large language model"
+      - "MLLM"
+    limit: 20 # 在所有年份的结果合并、过滤后，最终只保留最重要的20篇
+
+  # ============================================================================
+  # 示例 2: 【ArXiv API】抓取
+  # 场景: 我想追踪 arXiv 上最新的 AI 论文，但只关心 "扩散模型" 相关的。
+  # ============================================================================
+  - name: 'ArXiv_Latest_AI_Diffusion_Papers'
+    source_type: 'arxiv'
+    enabled: false # <-- 将这里设为 true 来运行此任务
+    download_pdfs: false
+    search_query: 'cat:cs.AI' # 使用 arXiv 的官方查询语法
+    sort_by: "submittedDate"   # 按提交日期排序
+    sort_order: "descending"
+    filters:
+      - "diffusion model"
+      - "DDPM"
+    limit: 10
+
+  # ============================================================================
+  # 示例 3: 【单年度、精确会议】抓取
+  # 场景: 我只想快速获取 ICLR 2024 会议的所有论文，不需要过滤。
+  # ============================================================================
+  - name: 'ICLR_2024_Full_Archive'
+    conference: 'ICLR'
+    year: 2024
+    source_type: 'openreview'
+    enabled: false # <-- 将这里设为 true 来运行此任务
+    download_pdfs: false
+    # filters 未设置，表示抓取所有论文
+    # limit 未设置，表示抓取所有论文
+
+  # ============================================================================
+  # 示例 4: 【高级 ArXiv 查询】
+  # 场景: 我想查找传奇人物 "Geoffrey Hinton" 在机器学习或AI领域发表的，
+  #       且主题与 "胶囊网络" 或 "对比学习" 相关的论文。
+  # ============================================================================
+  - name: 'ArXiv_Hinton_Specific_Research'
+    source_type: 'arxiv'
+    enabled: false # <-- 将这里设为 true 来运行此任务
+    download_pdfs: false
+    # 使用括号、AND、OR 组合复杂查询
+    search_query: 'au:Hinton AND (cat:cs.LG OR cat:cs.AI) AND (ti:capsule OR ti:contrastive)'
+    sort_by: "relevance" # 按相关度排序
+    limit: 15
+
+# END OF FILE: configs/tasks.yaml.example
