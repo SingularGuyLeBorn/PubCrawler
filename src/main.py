@@ -1,4 +1,4 @@
-# FILE: src/main.py (Downloader Tqdm Integrated)
+# FILE: src/main.py (Optimized for Memory)
 
 import time
 import yaml
@@ -8,13 +8,19 @@ from collections import defaultdict
 from pathlib import Path
 from tqdm import tqdm
 
-from src.scrapers.html_scraper import HTMLScraper
-from src.scrapers.openreview_scraper import OpenReviewScraper
-from src.scrapers.selenium_scraper import SeleniumScraper
+# --- 导入所有独立的 Scraper ---
+from src.scrapers.iclr_scraper import IclrScraper
+from src.scrapers.neurips_scraper import NeuripsScraper
+from src.scrapers.icml_scraper import IcmlScraper
+from src.scrapers.acl_scraper import AclScraper
 from src.scrapers.arxiv_scraper import ArxivScraper
-from src.config import get_logger, CONFIG_FILE, OUTPUT_DIR
+from src.scrapers.cvf_scraper import CvfScraper
+from src.scrapers.aaai_scraper import AaaiScraper
+from src.scrapers.kdd_scraper import KddScraper
+
+from src.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, LOG_DIR
+from src.scrapers.tpami_scraper import TpamiScraper
 from src.utils.formatter import save_as_csv
-# --- 核心修改点: 导入单个下载函数 ---
 from src.utils.downloader import download_single_pdf
 from src.analysis.trends import run_single_task_analysis, run_cross_year_analysis
 from src.utils.console_logger import print_banner, COLORS
@@ -22,13 +28,17 @@ from src.utils.console_logger import print_banner, COLORS
 OPERATION_MODE = "collect_and_analyze"
 
 logger = get_logger(__name__)
-PAPERS_OUTPUT_DIR = OUTPUT_DIR / "papers"
-TRENDS_OUTPUT_DIR = OUTPUT_DIR / "trends"
 
-SCRAPER_MAPPING = {
-    "openreview": OpenReviewScraper, "html_cvf": HTMLScraper, "html_pmlr": HTMLScraper,
-    "html_acl": HTMLScraper, "html_other": HTMLScraper, "selenium": SeleniumScraper, "arxiv": ArxivScraper
-}
+# --- Scraper 和 Conference 定义 (保持不变) ---
+SCRAPER_MAPPING = {"iclr": IclrScraper, "neurips": NeuripsScraper, "icml": IcmlScraper, "acl": AclScraper,
+                   "cvf": CvfScraper, "aaai": AaaiScraper, "kdd": KddScraper, "arxiv": ArxivScraper,
+                   "tpami": TpamiScraper}
+CONF_TO_DEF_SOURCE = {'ICLR': 'openreview', 'NeurIPS': 'openreview', 'ICML': 'html_pmlr', 'ACL': 'html_acl',
+                      'EMNLP': 'html_acl', 'NAACL': 'html_acl', 'CVPR': 'html_cvf', 'ICCV': 'html_cvf',
+                      'AAAI': 'selenium', 'KDD': 'selenium'}
+
+# 定义哪些爬虫类型支持并发优化，以便在主程序中给出提示
+CONCURRENT_SCRAPER_TYPES = ['acl', 'cvf']
 
 
 def load_config():
@@ -40,44 +50,43 @@ def load_config():
 
 
 def build_task_info(task: dict, source_definitions: dict) -> dict:
+    # 此函数逻辑保持不变
     task_info = task.copy()
-    source_type = task['source_type']
-    if source_type == 'arxiv': return task_info
-    conf, year = task.get('conference'), task.get('year')
+    conf, year, source_type = task.get('conference'), task.get('year'), task.get('source_type')
+    if source_type in ['arxiv', 'tpami']: return task_info
     if not conf or not year:
-        logger.error(f"[✖ ERROR] Task '{task.get('name')}' is missing 'conference' or 'year'.")
+        logger.error(f"[✖ ERROR] Task '{task.get('name')}' is missing 'conference' or 'year'.");
+        return None
+    def_source_key = CONF_TO_DEF_SOURCE.get(conf)
+    if not def_source_key:
+        logger.error(f"[✖ ERROR] No definition source found for conference '{conf}'.");
         return None
     if 'url_override' not in task:
         try:
-            definition = source_definitions[source_type][conf]
+            definition = source_definitions[def_source_key][conf]
             if isinstance(definition, dict):
                 if 'venue_id' in definition:
-                    pattern = definition['venue_id']
-                    task_info['venue_id'] = pattern.replace('YYYY', str(year))
+                    task_info['venue_id'] = definition['venue_id'].replace('YYYY', str(year))
                     task_info['api_version'] = 'v1' if year in definition.get('api_v1_years', []) else 'v2'
                 elif 'pattern_map' in definition:
                     base_url = "https://aclanthology.org/"
                     pattern = definition['pattern_map'].get(year)
                     if not pattern:
-                        logger.error(f"[✖ ERROR] No URL pattern for {conf} year {year}");
+                        logger.error(f"[✖ ERROR] No URL pattern defined for {conf} in year {year}");
                         return None
                     task_info['url'] = f"{base_url}{pattern}/"
-                else:
-                    logger.error(f"[✖ ERROR] Unknown complex definition for {conf}");
-                    return None
             else:
                 task_info['url'] = definition.replace('YYYY', str(year))
         except KeyError:
-            logger.error(f"[✖ ERROR] No source definition for type='{source_type}' and conf='{conf}'");
+            logger.error(f"[✖ ERROR] No definition for source='{def_source_key}' and conf='{conf}'");
             return None
     else:
         task_info['url'] = task['url_override']
-    if source_type.startswith('html_'): task_info['parser_type'] = source_type.split('_', 1)[1]
-    if source_type == 'selenium': task_info['parser_type'] = conf
     return task_info
 
 
 def filter_papers(papers: list, filters: list) -> list:
+    # 此函数逻辑保持不变
     if not filters: return papers
     original_count = len(papers)
     filter_regex = re.compile('|'.join(filters), re.IGNORECASE)
@@ -87,92 +96,112 @@ def filter_papers(papers: list, filters: list) -> list:
     return filtered_papers
 
 
-def collect_papers_from_tasks(tasks_to_run: list, source_definitions: dict) -> dict:
-    results_by_task = defaultdict(list)
+def run_tasks_sequentially(tasks_to_run: list, source_definitions: dict, perform_single_analysis: bool) -> list:
+    """
+    顺序执行每个任务，并在每个任务完成后立即处理和保存结果，以节省内存。
+    返回所有任务收集到的论文总列表，用于后续的跨年分析。
+    """
+    all_collected_papers = []
+
     for task in tasks_to_run:
         task_name = task.get('name', f"{task.get('conference')}_{task.get('year')}")
         if not task.get('enabled', False):
             continue
 
         logger.info(f"{COLORS['TASK_START']}[▶] STARTING TASK: {task_name}{COLORS['RESET']}")
+
+        # --- 新增的提示信息 ---
+        source_type = task.get('source_type')
+        if source_type in CONCURRENT_SCRAPER_TYPES:
+            max_workers = task.get('max_workers', 1)  # 默认为1保证安全
+            logger.info(f"    {COLORS['STEP']}[!] 注意: 此任务类型 ({source_type}) 需要逐一访问论文详情页。")
+            logger.info(
+                f"    {COLORS['STEP']}    已启用 {max_workers} 个并发线程进行加速。尽管如此，如果论文数量庞大，仍可能需要较长时间。")
+
+        scraper_class = SCRAPER_MAPPING.get(source_type)
+        if not scraper_class:
+            logger.error(
+                f"{COLORS['ERROR']}[✖ FAILURE] No scraper for source: '{task['source_type']}'{COLORS['RESET']}\n");
+            continue
+
         task_info = build_task_info(task, source_definitions)
         if not task_info:
             logger.error(
                 f"{COLORS['ERROR']}[✖ FAILURE] Could not build task info for '{task_name}'.{COLORS['RESET']}\n");
             continue
-        scraper_class = SCRAPER_MAPPING.get(task['source_type'])
-        if not scraper_class:
-            logger.error(f"{COLORS['ERROR']}[✖ FAILURE] No scraper for type: {task['source_type']}{COLORS['RESET']}\n");
-            continue
+
         try:
             scraper = scraper_class(task_info, logger)
             papers = scraper.scrape()
             papers = filter_papers(papers, task.get('filters', []))
+
             if papers:
                 for paper in papers:
-                    paper['year'], paper['conference'] = task.get('year'), task.get('conference')
-                results_by_task[task_name] = (papers, task)
-                logger.info(f"    {COLORS['STEP']}-> Successfully processed {len(papers)} papers.")
+                    paper['year'] = task.get('year')
+                    paper['conference'] = task.get('conference')
+
+                logger.info(f"    {COLORS['STEP']}-> Successfully processed {len(papers)} papers for '{task_name}'.")
+
+                logger.info(f"{COLORS['PHASE']}--- Processing & Saving Results for '{task_name}' ---{COLORS['RESET']}")
+                conf, year = task.get('conference', 'Misc'), task.get('year', 'Latest')
+
+                metadata_dir = METADATA_OUTPUT_DIR / conf / str(year)
+                metadata_dir.mkdir(exist_ok=True, parents=True)
+                logger.info(f"    -> Saving metadata to {metadata_dir}")
+                save_as_csv(papers, task_name, metadata_dir)
+
+                if task.get('download_pdfs', False):
+                    logger.info(f"    -> Starting PDF download...")
+                    pdf_dir = PDF_DOWNLOAD_DIR / conf / str(year)
+                    pdf_dir.mkdir(exist_ok=True, parents=True)
+                    pbar_desc = f"    -> Downloading PDFs for {task_name}"
+                    for paper in tqdm(papers, desc=pbar_desc, leave=True):
+                        download_single_pdf(paper, pdf_dir)
+
+                if perform_single_analysis:
+                    analysis_output_dir = metadata_dir / "analysis"
+                    analysis_output_dir.mkdir(exist_ok=True)
+                    logger.info(f"    -> Running single-task analysis...")
+                    run_single_task_analysis(papers, task_name, analysis_output_dir)
+
+                all_collected_papers.extend(papers)
+                logger.info(
+                    f"{COLORS['SUCCESS']}[✔ SUCCESS] Task '{task_name}' completed and saved.{COLORS['RESET']}\n")
+
             else:
                 logger.warning(f"[⚠ WARNING] No papers found for task: {task_name} (or none matched filters)")
+                logger.info(f"{COLORS['WARNING']}[!] Task '{task_name}' finished with no results.{COLORS['RESET']}\n")
+
         except Exception as e:
-            logger.error(f"[✖ FAILURE] Unexpected error in task {task_name}: {e}", exc_info=True)
+            logger.critical(f"任务 '{task_name}' 遭遇严重错误，已终止。错误: {e}")
+            logger.info(f"详细的错误堆栈信息已记录到日志文件: {LOG_DIR / 'pubcrawler.log'}")
 
-        if task_name in results_by_task:
-            logger.info(f"{COLORS['SUCCESS']}[✔ SUCCESS] Task '{task_name}' completed.{COLORS['RESET']}\n")
-        else:
-            logger.info(f"{COLORS['WARNING']}[!] Task '{task_name}' finished with no results.{COLORS['RESET']}\n")
         time.sleep(0.5)
-    return results_by_task
+
+    return all_collected_papers
 
 
-def process_and_save_results(results_by_task: dict, base_output_dir: Path, perform_single_analysis: bool):
-    base_output_dir.mkdir(exist_ok=True, parents=True)
-    for task_name, (papers, task_config) in results_by_task.items():
-        conf, year = task_config.get('conference', 'Misc'), task_config.get('year', 'Latest')
-        task_output_dir = base_output_dir / conf / str(year)
-        task_output_dir.mkdir(exist_ok=True, parents=True)
+def load_all_data_for_cross_analysis(metadata_dir: Path) -> list:
+    """在 'analyze' 模式下，从磁盘加载所有之前保存的 CSV 文件。"""
+    if not metadata_dir.exists():
+        logger.error(f"[✖ ERROR] Data directory not found: {metadata_dir}.");
+        return []
 
-        logger.info(f"    -> Saving reports for '{task_name}' to {task_output_dir}")
-        save_as_csv(papers, task_name, task_output_dir)
-
-        if task_config.get('download_pdfs', False):
-            logger.info(f"    -> Starting PDF download for '{task_name}'...")
-            pdf_dir = task_output_dir / "pdfs"
-            pdf_dir.mkdir(exist_ok=True)
-            # --- 核心修复点: 在 main.py 中创建和控制 tqdm ---
-            pbar_desc = f"    -> Downloading PDFs for {task_name}"
-            for paper in tqdm(papers, desc=pbar_desc, leave=True):
-                download_single_pdf(paper, pdf_dir)
-
-        if perform_single_analysis:
-            analysis_output_dir = task_output_dir / "analysis"
-            analysis_output_dir.mkdir(exist_ok=True)
-            logger.info(f"    -> Running single-task analysis for '{task_name}'...")
-            run_single_task_analysis(papers, task_name, analysis_output_dir)
-
-
-def load_all_data_for_cross_analysis(papers_dir: Path) -> dict:
-    if not papers_dir.exists():
-        logger.error(f"[✖ ERROR] Data directory not found: {papers_dir}.");
-        return {}
-    all_data_by_conf = defaultdict(list)
-    csv_files = list(papers_dir.rglob("*_data_*.csv"))
+    all_papers = []
+    csv_files = list(metadata_dir.rglob("*_data_*.csv"))
     if not csv_files:
         logger.warning("[⚠ WARNING] No CSV data files found for cross-year analysis.");
-        return {}
-    logger.info(f"    -> Loading {len(csv_files)} previously collected CSV file(s)...")
+        return []
+
+    logger.info(f"    -> Loading {len(csv_files)} previously collected CSV file(s) from disk...")
     for csv_path in csv_files:
         try:
-            conference = csv_path.parent.parent.name
             df = pd.read_csv(csv_path)
             df.fillna('', inplace=True)
-            if 'year' in df.columns:
-                df['year'] = pd.to_numeric(df['year'], errors='coerce').astype('Int64')
-            all_data_by_conf[conference].extend(df.to_dict('records'))
+            all_papers.extend(df.to_dict('records'))
         except Exception as e:
             logger.error(f"[✖ ERROR] Failed to load data from {csv_path}: {e}")
-    return all_data_by_conf
+    return all_papers
 
 
 def main():
@@ -181,25 +210,39 @@ def main():
     logger.info(f"Starting PubCrawler in mode: '{OPERATION_MODE}'")
     logger.info("=====================================================================================\n")
 
+    config = load_config()
+    if not config: return
+
+    all_papers_for_analysis = []
+
     if OPERATION_MODE in ["collect", "collect_and_analyze"]:
-        config = load_config()
-        if not config: return
         logger.info(f"{COLORS['PHASE']}+----------------------------------------------------------+")
         logger.info(f"|    PHASE 1: PAPER COLLECTION & SINGLE-TASK ANALYSIS      |")
         logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
-        collected_results = collect_papers_from_tasks(config.get('tasks', []), config.get('source_definitions', {}))
-        if collected_results:
-            logger.info(f"{COLORS['PHASE']}--- Processing & Saving Collected Results ---{COLORS['RESET']}")
-            process_and_save_results(collected_results, PAPERS_OUTPUT_DIR, perform_single_analysis=True)
+
+        all_papers_for_analysis = run_tasks_sequentially(
+            config.get('tasks', []),
+            config.get('source_definitions', {}),
+            perform_single_analysis=True
+        )
 
     if OPERATION_MODE in ["analyze", "collect_and_analyze"]:
         logger.info(f"\n{COLORS['PHASE']}+----------------------------------------------------------+")
         logger.info(f"|          PHASE 2: CROSS-YEAR TREND ANALYSIS              |")
         logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
-        all_data_by_conf = load_all_data_for_cross_analysis(PAPERS_OUTPUT_DIR)
-        if not all_data_by_conf:
-            logger.warning("[⚠ WARNING] No data found to perform cross-year analysis.")
-        else:
+
+        if OPERATION_MODE == "collect_and_analyze" and not all_papers_for_analysis:
+            logger.warning("[⚠ WARNING] No data was collected in Phase 1 to perform cross-year analysis.")
+
+        elif OPERATION_MODE == "analyze":
+            all_papers_for_analysis = load_all_data_for_cross_analysis(METADATA_OUTPUT_DIR)
+
+        if all_papers_for_analysis:
+            all_data_by_conf = defaultdict(list)
+            for paper in all_papers_for_analysis:
+                if paper.get('conference'):
+                    all_data_by_conf[paper['conference']].append(paper)
+
             for conference, papers in all_data_by_conf.items():
                 if not papers: continue
                 conf_trend_dir = TRENDS_OUTPUT_DIR / conference

@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
 import logging
 
-from src.scrapers.base_scraper import BaseScraper
+from .base_scraper import BaseScraper
 
 
 class ArxivScraper(BaseScraper):
@@ -43,7 +43,7 @@ class ArxivScraper(BaseScraper):
                 break
 
         arxiv_id_url = _get_text('id')
-        arxiv_id = arxiv_id_url.split('/abs/')[-1]
+        arxiv_id = arxiv_id_url.split('/abs/')[-1] if arxiv_id_url else "N/A"
 
         return {"id": arxiv_id, "title": _get_text('title'), "authors": ", ".join(authors_list),
                 "abstract": _get_text('summary'), "pdf_url": pdf_url, "source_url": arxiv_id_url}

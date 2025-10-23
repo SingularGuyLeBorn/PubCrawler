@@ -71,7 +71,7 @@ source .venv/bin/activate
 3. 安装所有依赖
 ```bash
 # 建议使用国内镜像源以加速
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install -r requirements.txt -i https://pypi.tuna.tshinghua.edu.cn/simple
 ```
 
 4. 【重要】下载 NLTK 数据包
@@ -130,6 +130,35 @@ uvicorn src.app:app --reload
 
 3.  **查看成果**:
     所有产出文件都将保存在 `output/` 目录下，并以任务的 `output_folder` 或 `name` 自动创建子文件夹。
+
+## 🗺️ 论文地图 (Paper Map)
+
+本节旨在提供一个关于人工智能及其相关领域顶级学术会议和研究机构的宏观概览，为您的研究导航。
+
+### 顶级会议概览
+
+| 研究领域 | 会议列表 |
+| :--- | :--- |
+| **🤖 人工智能 (AI)** | NeurIPS, ICML, ICLR, AAAI, IJCAI, AISTATS, UAI, COLT, CoRL, AutoML, ACML, ALT |
+| **💬 计算语言学 (CL)** | ACL, EMNLP, NAACL, COLING, ARR, COLM |
+| **👁️ 计算机视觉 (CV)** | CVPR, ICCV, ECCV, WACV, BMVC, 3DV |
+| **📈 数据挖掘 (Data Mining)** | KDD |
+| **🕸️ 信息检索 (IR)** | WWW, SIGIR |
+| **🦾 机器人学 (Robotics)** | ICRA, IROS, RSS |
+| **🎨 计算机图形学 (Graphics)** | SIGGRAPH, SIGGRAPH Asia, EUROGRAPHICS |
+| **📡 计算机网络 (Networking)** | SIGCOMM |
+| **🎬 多媒体 (Multimedia)** | ACM-MM |
+
+### 顶级期刊概览 (Top Journals)
+
+| 研究领域 | 期刊列表 |
+| :--- | :--- |
+| **🤖 人工智能/机器学习** | JMLR, TPAMI, Artificial Intelligence, Machine Learning, Nature Machine Intelligence |
+| **👁️ 计算机视觉** | IJCV, TIP |
+| **💬 计算语言学** | Computational Linguistics, TACL |
+| **🦾 机器人学** | T-RO, IJRR, Science Robotics |
+| **📈 数据挖掘/工程** | TKDD, TKDE |
+| **🌐 综合/顶级** | Nature, Science, PNAS |
 
 ## 🗺️ 路线图 (Roadmap)
 

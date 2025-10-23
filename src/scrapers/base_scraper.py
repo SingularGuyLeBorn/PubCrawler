@@ -20,7 +20,6 @@ class BaseScraper(ABC):
         """
         self.task_info = task_info
         self.logger = logger
-        # 不再打印初始化信息，因为 main.py 已经打印了任务开始信息
 
     @abstractmethod
     def scrape(self) -> List[Dict[str, Any]]:

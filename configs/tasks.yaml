@@ -1,21 +1,19 @@
-# FILE: configs/tasks.yaml (已按新要求修改)
+# FILE: configs/tasks.yaml
 
 # ==============================================================================
-# PubCrawler Task Configuration v10.1
-# 修改说明:
-# - 所有任务的 download_pdfs 设置为 true。
-# - 所有任务的 limit 统一设置为 20。
+# PubCrawler Task Configuration v11.0 (Refactored)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
 # 1. DATA SOURCE DEFINITIONS ("The Encyclopedia")
 # ------------------------------------------------------------------------------
 source_definitions:
-  arxiv:
-    API: "http://export.arxiv.org/api/query?"
+  # OpenReview 定义
   openreview:
     ICLR: { venue_id: "ICLR.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022, 2023] }
     NeurIPS: { venue_id: "NeurIPS.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022] }
+
+  # HTML 定义
   html_cvf:
     CVPR: "https://openaccess.thecvf.com/CVPRYYYY?day=all"
     ICCV: "https://openaccess.thecvf.com/ICCVYYYY?day=all"
@@ -25,174 +23,293 @@ source_definitions:
     ACL: "https://aclanthology.org/volumes/YYYY.acl-long/"
     EMNLP: "https://aclanthology.org/volumes/YYYY.emnlp-main/"
     NAACL: { pattern_map: { 2019: "2019.naacl-main", 2021: "2021.naacl-main", 2022: "2022.naacl-main", 2024: "2024.naacl-long" } }
+
+  # 其他定义
   selenium:
     AAAI: "https://aaai.org/aaai-publications/aaai-conference-proceedings/"
     KDD: "https://dl.acm.org/conference/kdd/proceedings"
-  html_other:
-    JMLR: "https://jmlr.org/papers/"
+  arxiv:
+    API: "http://export.arxiv.org/api/query?"
+
 
 # ------------------------------------------------------------------------------
 # 2. TASKS TO EXECUTE ("The Battle Plan")
 # ------------------------------------------------------------------------------
 tasks:
+
+  # === TPAMI: 测试最新的 5 篇 Early Access 论文 ===
+#  - name: 'TPAMI_Latest_Test'
+#    conference: 'TPAMI'
+#    year: 2025
+#    source_type: 'tpami'
+#    enabled: true
+#    punumber: '34' #
+
+
   # === ICLR: 2022 - 2026 ===
-  - name: 'ICLR_2026'
-    conference: 'ICLR'
-    year: 2026
-    source_type: 'openreview'
-    enabled: true
-    fetch_reviews: true
-    download_pdfs: true
-    limit: 20
+
+#  - name: 'ICLR_2026'
+#    conference: 'ICLR'
+#    year: 2026
+#    source_type: 'iclr'
+#    enabled: true
+#    fetch_reviews: false
+#    download_pdfs: false
+
+
   - name: 'ICLR_2025'
     conference: 'ICLR'
     year: 2025
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
-    fetch_reviews: true
-    download_pdfs: true
-    limit: 20
+    fetch_reviews: false
+    download_pdfs: false
+
+
   - name: 'ICLR_2024'
     conference: 'ICLR'
     year: 2024
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'ICLR_2023'
     conference: 'ICLR'
     year: 2023
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'ICLR_2022'
     conference: 'ICLR'
     year: 2022
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
 
   # === NeurIPS: 2022 - 2026 ===
+
   - name: 'NeurIPS_2026'
     conference: 'NeurIPS'
     year: 2026
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
-    fetch_reviews: true
-    download_pdfs: true
-    limit: 20
+    fetch_reviews: false
+    download_pdfs: false
+
+
   - name: 'NeurIPS_2025'
     conference: 'NeurIPS'
     year: 2025
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
-    fetch_reviews: true
-    download_pdfs: true
-    limit: 20
+    fetch_reviews: false
+    download_pdfs: false
+
+
   - name: 'NeurIPS_2024'
     conference: 'NeurIPS'
     year: 2024
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'NeurIPS_2023'
     conference: 'NeurIPS'
     year: 2023
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'NeurIPS_2022'
     conference: 'NeurIPS'
     year: 2022
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
 
   # === ICML: 2022 - 2026 ===
+
   - name: 'ICML_2026'
     conference: 'ICML'
     year: 2026
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     enabled: true
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'ICML_2025'
     conference: 'ICML'
     year: 2025
-    source_type: 'html_pmlr'
+    source_type: 'icml'
+    url_override: "https://proceedings.mlr.press/v237/"
     enabled: true
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'ICML_2024'
     conference: 'ICML'
     year: 2024
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v235/"
     enabled: true
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'ICML_2023'
     conference: 'ICML'
     year: 2023
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v202/"
     enabled: true
-    download_pdfs: true
-    limit: 20
+    download_pdfs: false
+
+
   - name: 'ICML_2022'
     conference: 'ICML'
     year: 2022
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v162/"
     enabled: true
-    download_pdfs: true
-    limit: 20
-
+    download_pdfs: false
+    
   # === ACL: 2022 - 2026 ===
-  - name: 'ACL_2026'
-    conference: 'ACL'
-    year: 2026
-    source_type: 'html_acl'
-    enabled: true
-    download_pdfs: true
-    limit: 20
-  - name: 'ACL_2025'
-    conference: 'ACL'
-    year: 2025
-    source_type: 'html_acl'
-    enabled: true
-    download_pdfs: true
-    limit: 20
-  - name: 'ACL_2024'
-    conference: 'ACL'
-    year: 2024
-    source_type: 'html_acl'
-    url_override: "https://aclanthology.org/volumes/2024.acl-long/"
-    enabled: true
-    download_pdfs: true
-    limit: 20
-  - name: 'ACL_2023'
-    conference: 'ACL'
-    year: 2023
-    source_type: 'html_acl'
-    enabled: true
-    download_pdfs: true
-    limit: 20
-  - name: 'ACL_2022'
-    conference: 'ACL'
-    year: 2022
-    source_type: 'html_acl'
-    enabled: true
-    download_pdfs: true
-    limit: 20
+  # 对于 ACL, EMNLP, NAACL 等网站，由于其结构特殊，需要逐一访问论文详情页，
+  # 速度较慢。我们为此类任务引入了并发爬取优化。
+#
+#  - name: 'ACL_2026'
+#    conference: 'ACL'
+#    year: 2026
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    # 并发线程数 (推荐 8-32)。仅对 ACL, CVF 等需要逐页抓取的爬虫有效。
+#    max_workers: 24
+#    # 该任务最多爬取的论文数量上限。设置为 0 表示不限制，爬取所有找到的论文。
+#    max_papers_limit: 100
+#
+#
+#  - name: 'ACL_2025'
+#    conference: 'ACL'
+#    year: 2025
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    max_papers_limit: 100 # 0 表示不限制
+#
+#
+#  - name: 'ACL_2024'
+#    conference: 'ACL'
+#    year: 2024
+#    source_type: 'acl'
+#    url_override: "https://aclanthology.org/volumes/2024.acl-long/"
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    # 示例：如果只想爬取前500篇，可以设置为 500
+#    max_papers_limit: 500
+#
+#
+#  - name: 'ACL_2023'
+#    conference: 'ACL'
+#    year: 2023
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#
+#  - name: 'ACL_2022'
+#    conference: 'ACL'
+#    year: 2022
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#
+#  # === CVF (CVPR, ICCV): 2022 - 2026 ===
+#  # CVF 旗下会议网站与 ACL 结构类似，同样受益于并发爬取优化。
+#
+#  - name: 'CVPR_2026'
+#    conference: 'CVPR'
+#    year: 2026
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2025'
+#    conference: 'CVPR'
+#    year: 2025
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2024'
+#    conference: 'CVPR'
+#    year: 2024
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2023'
+#    conference: 'CVPR'
+#    year: 2023
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2022'
+#    conference: 'CVPR'
+#    year: 2022
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'ICCV_2025' # ICCV 为奇数年举办
+#    conference: 'ICCV'
+#    year: 2025
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'ICCV_2023' # ICCV 为奇数年举办
+#    conference: 'ICCV'
+#    year: 2023
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100

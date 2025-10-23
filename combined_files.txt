@@ -105,24 +105,22 @@ if __name__ == "__main__":
 
 ==================== Start of: configs\tasks.yaml ====================
 
-# FILE: configs/tasks.yaml (已按新要求修改)
+# FILE: configs/tasks.yaml
 
 # ==============================================================================
-# PubCrawler Task Configuration v10.1
-# 修改说明:
-# - 所有任务的 download_pdfs 设置为 true。
-# - 所有任务的 limit 统一设置为 20。
+# PubCrawler Task Configuration v11.0 (Refactored)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
 # 1. DATA SOURCE DEFINITIONS ("The Encyclopedia")
 # ------------------------------------------------------------------------------
 source_definitions:
-  arxiv:
-    API: "http://export.arxiv.org/api/query?"
+  # OpenReview 定义
   openreview:
     ICLR: { venue_id: "ICLR.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022, 2023] }
     NeurIPS: { venue_id: "NeurIPS.cc/YYYY/Conference", api_v1_years: [2019, 2020, 2021, 2022] }
+
+  # HTML 定义
   html_cvf:
     CVPR: "https://openaccess.thecvf.com/CVPRYYYY?day=all"
     ICCV: "https://openaccess.thecvf.com/ICCVYYYY?day=all"
@@ -132,177 +130,211 @@ source_definitions:
     ACL: "https://aclanthology.org/volumes/YYYY.acl-long/"
     EMNLP: "https://aclanthology.org/volumes/YYYY.emnlp-main/"
     NAACL: { pattern_map: { 2019: "2019.naacl-main", 2021: "2021.naacl-main", 2022: "2022.naacl-main", 2024: "2024.naacl-long" } }
+
+  # 其他定义
   selenium:
     AAAI: "https://aaai.org/aaai-publications/aaai-conference-proceedings/"
     KDD: "https://dl.acm.org/conference/kdd/proceedings"
-  html_other:
-    JMLR: "https://jmlr.org/papers/"
+  arxiv:
+    API: "http://export.arxiv.org/api/query?"
+
 
 # ------------------------------------------------------------------------------
 # 2. TASKS TO EXECUTE ("The Battle Plan")
 # ------------------------------------------------------------------------------
 tasks:
+
+  # === TPAMI: 测试最新的 5 篇 Early Access 论文 ===
+  - name: 'TPAMI_Latest_Test'
+    conference: 'TPAMI'
+    year: 2025
+    source_type: 'tpami'
+    enabled: true
+    punumber: '34' #
+
+
   # === ICLR: 2022 - 2026 ===
+    
   - name: 'ICLR_2026'
     conference: 'ICLR'
     year: 2026
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICLR_2025'
     conference: 'ICLR'
     year: 2025
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICLR_2024'
     conference: 'ICLR'
     year: 2024
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: false
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICLR_2023'
     conference: 'ICLR'
     year: 2023
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: false
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICLR_2022'
     conference: 'ICLR'
     year: 2022
-    source_type: 'openreview'
+    source_type: 'iclr'
     enabled: true
     fetch_reviews: false
     download_pdfs: true
-    limit: 20
+
 
   # === NeurIPS: 2022 - 2026 ===
+    
   - name: 'NeurIPS_2026'
     conference: 'NeurIPS'
     year: 2026
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'NeurIPS_2025'
     conference: 'NeurIPS'
     year: 2025
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'NeurIPS_2024'
     conference: 'NeurIPS'
     year: 2024
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: false
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'NeurIPS_2023'
     conference: 'NeurIPS'
     year: 2023
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: false
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'NeurIPS_2022'
     conference: 'NeurIPS'
     year: 2022
-    source_type: 'openreview'
+    source_type: 'neurips'
     enabled: true
     fetch_reviews: false
     download_pdfs: true
-    limit: 20
+
 
   # === ICML: 2022 - 2026 ===
+    
   - name: 'ICML_2026'
     conference: 'ICML'
     year: 2026
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICML_2025'
     conference: 'ICML'
     year: 2025
-    source_type: 'html_pmlr'
+    source_type: 'icml'
+    url_override: "https://proceedings.mlr.press/v237/"
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICML_2024'
     conference: 'ICML'
     year: 2024
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v235/"
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICML_2023'
     conference: 'ICML'
     year: 2023
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v202/"
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ICML_2022'
     conference: 'ICML'
     year: 2022
-    source_type: 'html_pmlr'
+    source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v162/"
     enabled: true
     download_pdfs: true
-    limit: 20
+
 
   # === ACL: 2022 - 2026 ===
+    
   - name: 'ACL_2026'
     conference: 'ACL'
     year: 2026
-    source_type: 'html_acl'
+    source_type: 'acl'
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ACL_2025'
     conference: 'ACL'
     year: 2025
-    source_type: 'html_acl'
+    source_type: 'acl'
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ACL_2024'
     conference: 'ACL'
     year: 2024
-    source_type: 'html_acl'
+    source_type: 'acl'
     url_override: "https://aclanthology.org/volumes/2024.acl-long/"
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ACL_2023'
     conference: 'ACL'
     year: 2023
-    source_type: 'html_acl'
+    source_type: 'acl'
     enabled: true
     download_pdfs: true
-    limit: 20
+
+    
   - name: 'ACL_2022'
     conference: 'ACL'
     year: 2022
-    source_type: 'html_acl'
+    source_type: 'acl'
     enabled: true
     download_pdfs: true
-    limit: 20
+
 
 ==================== End of: configs\tasks.yaml ====================
 
@@ -424,161 +456,6 @@ tasks:
 
 
 
-==================== Start of: src\arxiv_test.py ====================
-
-# FILE: scripts/test_arxiv.py
-import urllib.request
-import urllib.parse
-import xml.etree.ElementTree as ET
-from datetime import datetime
-
-
-def test_arxiv_api_advanced():
-    """
-    一个用于测试 arXiv API 高级查询并解析其返回结果的脚本。
-    此版本旨在提取尽可能多的详细信息，包括发表信息。
-    """
-    # API 的基础 URL
-    base_url = 'http://export.arxiv.org/api/query?'
-
-    # --- 高级查询示例 ---
-    # 目标: 查找作者 Geoffrey Hinton 在 cs.LG (机器学习) 或 cs.AI (人工智能) 分类下发表的，
-    # 并且标题中包含 capsule 或 contrastive 的论文。
-    author = 'Hinton'
-    category = '(cat:cs.LG OR cat:cs.AI)'
-    title_keyword = '(ti:capsule OR ti:contrastive)'
-
-    search_query_raw = f'au:{author} AND {category} AND {title_keyword}'
-    search_query = urllib.parse.quote(search_query_raw)
-
-    start = 0
-    max_results = 5
-
-    query_params = f'search_query={search_query}&start={start}&max_results={max_results}&sortBy=submittedDate&sortOrder=descending'
-    full_url = base_url + query_params
-
-    print(f"正在访问的 URL (解码后查询: '{search_query_raw}')")
-    print(f"完整 URL: {full_url}\n")
-
-    try:
-        with urllib.request.urlopen(full_url) as response:
-            if response.status != 200:
-                print(f"HTTP 请求失败，状态码: {response.status}")
-                return
-
-            xml_data = response.read().decode('utf-8')
-
-            print("--- API 返回的原始 XML (部分) ---")
-            print(xml_data[:1000] + "...\n")
-
-            # 定义 XML 命名空间
-            ns = {
-                'atom': 'http://www.w3.org/2005/Atom',
-                'opensearch': 'http://a9.com/-/spec/opensearch/1.1/',
-                'arxiv': 'http://arxiv.org/schemas/atom'
-            }
-
-            root = ET.fromstring(xml_data)
-
-            total_results = root.find('opensearch:totalResults', ns).text
-            print(f"查询命中总数: {total_results}\n")
-
-            entries = root.findall('atom:entry', ns)
-
-            if not entries:
-                print("未找到任何满足条件的论文。")
-                return
-
-            print(f"--- 解析到的 {len(entries)} 篇论文信息 ---\n")
-
-            for i, entry in enumerate(entries):
-                print(f"--- 论文 #{i + 1} ---")
-
-                # --- 提取字段 ---
-                entry_id = entry.find('atom:id', ns).text.strip()
-                print(f"ID: {entry_id}")
-
-                updated_str = entry.find('atom:updated', ns).text
-                updated_dt = datetime.fromisoformat(updated_str.replace('Z', '+00:00'))
-                print(f"更新时间 (Updated): {updated_dt.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-
-                published_str = entry.find('atom:published', ns).text
-                published_dt = datetime.fromisoformat(published_str.replace('Z', '+00:00'))
-                print(f"发布时间 (Published): {published_dt.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-
-                title = entry.find('atom:title', ns).text.strip().replace('\n', ' ').replace('  ', ' ')
-                print(f"标题 (Title): {title}")
-
-                summary = entry.find('atom:summary', ns).text.strip().replace('\n', ' ').replace('  ', ' ')
-                print(f"摘要 (Summary): {summary[:200]}...")
-
-                # 提取作者及所属机构
-                authors = entry.findall('atom:author', ns)
-                author_details = []
-                for author in authors:
-                    name = author.find('atom:name', ns).text
-                    affiliation_element = author.find('arxiv:affiliation', ns)
-                    if affiliation_element is not None and affiliation_element.text:
-                        affiliation = affiliation_element.text.strip()
-                        author_details.append(f"{name} ({affiliation})")
-                    else:
-                        author_details.append(name)
-                print(f"作者 (Authors): {', '.join(author_details)}")
-
-                # --- 新增：提取发表信息 ---
-
-                # 1. 期刊/会议引用 (Journal Reference)
-                journal_ref_element = entry.find('arxiv:journal_ref', ns)
-                journal_ref = journal_ref_element.text.strip() if journal_ref_element is not None else "N/A"
-                print(f"期刊/会议引用 (Journal Ref): {journal_ref}")
-
-                # 2. DOI (Digital Object Identifier)
-                doi_element = entry.find('arxiv:doi', ns)
-                doi = doi_element.text.strip() if doi_element is not None else "N/A"
-                print(f"DOI: {doi}")
-
-                # 3. 评论区 (包含额外信息)
-                comment_element = entry.find('arxiv:comment', ns)
-                comment = comment_element.text.strip() if comment_element is not None else "N/A"
-                print(f"评论 (Comment): {comment}")
-
-                # --- 其他信息 ---
-                primary_category_element = entry.find('arxiv:primary_category', ns)
-                primary_category = primary_category_element.attrib[
-                    'term'] if primary_category_element is not None else "N/A"
-                print(f"主要分类 (Primary Category): {primary_category}")
-
-                categories = entry.findall('atom:category', ns)
-                category_terms = [cat.attrib['term'] for cat in categories]
-                print(f"所有分类 (Categories): {', '.join(category_terms)}")
-
-                pdf_link = ""
-                links = entry.findall('atom:link', ns)
-                for link in links:
-                    if link.attrib.get('title') == 'pdf':
-                        pdf_link = link.attrib.get('href')
-                        break
-                print(f"PDF链接 (PDF Link): {pdf_link}")
-
-                print("\n")
-
-    except urllib.error.URLError as e:
-        print(f"访问 arXiv API 失败: {e.reason}")
-    except ET.ParseError as e:
-        print(f"XML 解析失败: {e}")
-    except Exception as e:
-        print(f"发生未知错误: {e}")
-
-
-if __name__ == '__main__':
-    test_arxiv_api_advanced()
-
-# END OF FILE: scripts/test_arxiv.py
-
-==================== End of: src\arxiv_test.py ====================
-
-
-
 ==================== Start of: src\config.py ====================
 
 # FILE: src/config.py (应用了 Tqdm 安全日志)
@@ -597,11 +474,18 @@ ROOT_DIR = Path(__file__).parent.parent
 OUTPUT_DIR = ROOT_DIR / "output"
 LOG_DIR = ROOT_DIR / "logs"
 CONFIG_FILE = ROOT_DIR / "configs" / "tasks.yaml"
+# 新增 PAPERS_OUTPUT_DIR 定义
+PAPERS_OUTPUT_DIR = OUTPUT_DIR / "papers"
+
 
 # --- Create Directories ---
 OUTPUT_DIR.mkdir(exist_ok=True)
 LOG_DIR.mkdir(exist_ok=True)
 (ROOT_DIR / "configs").mkdir(exist_ok=True)
+# 新增: 确保 papers 目录也存在
+PAPERS_OUTPUT_DIR.mkdir(exist_ok=True) # <--- 添加这一行
+# 如果您也想确保 trends 目录存在，也可以添加:
+(OUTPUT_DIR / "trends").mkdir(exist_ok=True) # <--- 可选添加
 
 
 # --- Logging Configuration ---
@@ -640,7 +524,7 @@ def get_logger(name: str, log_file: Path = LOG_DIR / "pubcrawler.log") -> loggin
 
 ==================== Start of: src\main.py ====================
 
-# FILE: src/main.py (Downloader Tqdm Integrated)
+# FILE: src/main.py
 
 import time
 import yaml
@@ -650,13 +534,19 @@ from collections import defaultdict
 from pathlib import Path
 from tqdm import tqdm
 
-from src.scrapers.html_scraper import HTMLScraper
-from src.scrapers.openreview_scraper import OpenReviewScraper
-from src.scrapers.selenium_scraper import SeleniumScraper
+# --- 导入所有独立的 Scraper ---
+from src.scrapers.iclr_scraper import IclrScraper
+from src.scrapers.neurips_scraper import NeuripsScraper
+from src.scrapers.icml_scraper import IcmlScraper
+from src.scrapers.acl_scraper import AclScraper
 from src.scrapers.arxiv_scraper import ArxivScraper
+from src.scrapers.cvf_scraper import CvfScraper
+from src.scrapers.aaai_scraper import AaaiScraper
+from src.scrapers.kdd_scraper import KddScraper
+
 from src.config import get_logger, CONFIG_FILE, OUTPUT_DIR
+from src.scrapers.tpami_scraper import TpamiScraper
 from src.utils.formatter import save_as_csv
-# --- 核心修改点: 导入单个下载函数 ---
 from src.utils.downloader import download_single_pdf
 from src.analysis.trends import run_single_task_analysis, run_cross_year_analysis
 from src.utils.console_logger import print_banner, COLORS
@@ -667,9 +557,36 @@ logger = get_logger(__name__)
 PAPERS_OUTPUT_DIR = OUTPUT_DIR / "papers"
 TRENDS_OUTPUT_DIR = OUTPUT_DIR / "trends"
 
+# --- 注册所有独立的 Scraper ---
 SCRAPER_MAPPING = {
-    "openreview": OpenReviewScraper, "html_cvf": HTMLScraper, "html_pmlr": HTMLScraper,
-    "html_acl": HTMLScraper, "html_other": HTMLScraper, "selenium": SeleniumScraper, "arxiv": ArxivScraper
+    # OpenReview-based
+    "iclr": IclrScraper,
+    "neurips": NeuripsScraper,
+    # HTML-based
+    "icml": IcmlScraper,
+    "acl": AclScraper,
+    "cvf": CvfScraper,
+    # Selenium-based
+    "aaai": AaaiScraper,
+    "kdd": KddScraper,
+    # API-based
+    "arxiv": ArxivScraper,
+    "tpami": TpamiScraper,
+}
+
+# --- 建立从会议到其定义源的映射 ---
+CONF_TO_DEF_SOURCE = {
+    'ICLR': 'openreview',
+    'NeurIPS': 'openreview',
+    'ICML': 'html_pmlr',
+    'ACL': 'html_acl',
+    'EMNLP': 'html_acl',
+    'NAACL': 'html_acl',
+    'CVPR': 'html_cvf',
+    'ICCV': 'html_cvf',
+    'AAAI': 'selenium',
+    'KDD': 'selenium',
+
 }
 
 
@@ -683,15 +600,25 @@ def load_config():
 
 def build_task_info(task: dict, source_definitions: dict) -> dict:
     task_info = task.copy()
-    source_type = task['source_type']
-    if source_type == 'arxiv': return task_info
-    conf, year = task.get('conference'), task.get('year')
+    conf = task.get('conference')
+    year = task.get('year')
+    source_type = task.get('source_type')
+
+    if source_type in ['arxiv', 'tpami']:
+        return task_info
+
     if not conf or not year:
         logger.error(f"[✖ ERROR] Task '{task.get('name')}' is missing 'conference' or 'year'.")
         return None
+
+    def_source_key = CONF_TO_DEF_SOURCE.get(conf)
+    if not def_source_key:
+        logger.error(f"[✖ ERROR] No definition source found for conference '{conf}'.")
+        return None
+
     if 'url_override' not in task:
         try:
-            definition = source_definitions[source_type][conf]
+            definition = source_definitions[def_source_key][conf]
             if isinstance(definition, dict):
                 if 'venue_id' in definition:
                     pattern = definition['venue_id']
@@ -701,21 +628,17 @@ def build_task_info(task: dict, source_definitions: dict) -> dict:
                     base_url = "https://aclanthology.org/"
                     pattern = definition['pattern_map'].get(year)
                     if not pattern:
-                        logger.error(f"[✖ ERROR] No URL pattern for {conf} year {year}");
+                        logger.error(f"[✖ ERROR] No URL pattern defined for {conf} in year {year}");
                         return None
                     task_info['url'] = f"{base_url}{pattern}/"
-                else:
-                    logger.error(f"[✖ ERROR] Unknown complex definition for {conf}");
-                    return None
             else:
                 task_info['url'] = definition.replace('YYYY', str(year))
         except KeyError:
-            logger.error(f"[✖ ERROR] No source definition for type='{source_type}' and conf='{conf}'");
+            logger.error(f"[✖ ERROR] No definition found for source='{def_source_key}' and conf='{conf}'");
             return None
     else:
         task_info['url'] = task['url_override']
-    if source_type.startswith('html_'): task_info['parser_type'] = source_type.split('_', 1)[1]
-    if source_type == 'selenium': task_info['parser_type'] = conf
+
     return task_info
 
 
@@ -737,26 +660,33 @@ def collect_papers_from_tasks(tasks_to_run: list, source_definitions: dict) -> d
             continue
 
         logger.info(f"{COLORS['TASK_START']}[▶] STARTING TASK: {task_name}{COLORS['RESET']}")
+
+        scraper_class = SCRAPER_MAPPING.get(task['source_type'])
+        if not scraper_class:
+            logger.error(
+                f"{COLORS['ERROR']}[✖ FAILURE] No scraper registered for source_type: '{task['source_type']}'{COLORS['RESET']}\n");
+            continue
+
         task_info = build_task_info(task, source_definitions)
         if not task_info:
             logger.error(
                 f"{COLORS['ERROR']}[✖ FAILURE] Could not build task info for '{task_name}'.{COLORS['RESET']}\n");
             continue
-        scraper_class = SCRAPER_MAPPING.get(task['source_type'])
-        if not scraper_class:
-            logger.error(f"{COLORS['ERROR']}[✖ FAILURE] No scraper for type: {task['source_type']}{COLORS['RESET']}\n");
-            continue
+
         try:
             scraper = scraper_class(task_info, logger)
             papers = scraper.scrape()
             papers = filter_papers(papers, task.get('filters', []))
+
             if papers:
                 for paper in papers:
-                    paper['year'], paper['conference'] = task.get('year'), task.get('conference')
+                    paper['year'] = task.get('year')
+                    paper['conference'] = task.get('conference')
                 results_by_task[task_name] = (papers, task)
                 logger.info(f"    {COLORS['STEP']}-> Successfully processed {len(papers)} papers.")
             else:
                 logger.warning(f"[⚠ WARNING] No papers found for task: {task_name} (or none matched filters)")
+
         except Exception as e:
             logger.error(f"[✖ FAILURE] Unexpected error in task {task_name}: {e}", exc_info=True)
 
@@ -765,6 +695,7 @@ def collect_papers_from_tasks(tasks_to_run: list, source_definitions: dict) -> d
         else:
             logger.info(f"{COLORS['WARNING']}[!] Task '{task_name}' finished with no results.{COLORS['RESET']}\n")
         time.sleep(0.5)
+
     return results_by_task
 
 
@@ -782,7 +713,6 @@ def process_and_save_results(results_by_task: dict, base_output_dir: Path, perfo
             logger.info(f"    -> Starting PDF download for '{task_name}'...")
             pdf_dir = task_output_dir / "pdfs"
             pdf_dir.mkdir(exist_ok=True)
-            # --- 核心修复点: 在 main.py 中创建和控制 tqdm ---
             pbar_desc = f"    -> Downloading PDFs for {task_name}"
             for paper in tqdm(papers, desc=pbar_desc, leave=True):
                 download_single_pdf(paper, pdf_dir)
@@ -823,13 +753,17 @@ def main():
     logger.info(f"Starting PubCrawler in mode: '{OPERATION_MODE}'")
     logger.info("=====================================================================================\n")
 
+    config = load_config()
+    if not config:
+        return
+
     if OPERATION_MODE in ["collect", "collect_and_analyze"]:
-        config = load_config()
-        if not config: return
         logger.info(f"{COLORS['PHASE']}+----------------------------------------------------------+")
         logger.info(f"|    PHASE 1: PAPER COLLECTION & SINGLE-TASK ANALYSIS      |")
         logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
+
         collected_results = collect_papers_from_tasks(config.get('tasks', []), config.get('source_definitions', {}))
+
         if collected_results:
             logger.info(f"{COLORS['PHASE']}--- Processing & Saving Collected Results ---{COLORS['RESET']}")
             process_and_save_results(collected_results, PAPERS_OUTPUT_DIR, perform_single_analysis=True)
@@ -838,7 +772,9 @@ def main():
         logger.info(f"\n{COLORS['PHASE']}+----------------------------------------------------------+")
         logger.info(f"|          PHASE 2: CROSS-YEAR TREND ANALYSIS              |")
         logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
+
         all_data_by_conf = load_all_data_for_cross_analysis(PAPERS_OUTPUT_DIR)
+
         if not all_data_by_conf:
             logger.warning("[⚠ WARNING] No data found to perform cross-year analysis.")
         else:
@@ -1053,333 +989,115 @@ class Processor:
 
 
 
-==================== Start of: src\reconnaissance.py ====================
+==================== Start of: src\search_local.py ====================
 
-# FILE: src/selective_recon.py
+# FILE: search_local.py
 
-import requests
-from bs4 import BeautifulSoup
-import openreview
-import openreview.api
-import pprint
-import logging
+import pandas as pd
+from pathlib import Path
 import time
-from urllib.parse import urljoin
-import os
+import textwrap
 
-# Selenium imports for advanced scraping
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-
-# --- CONFIGURATION ---
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-pp = pprint.PrettyPrinter(indent=2)
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-YEARS_TO_SCAN = range(2019, 2027)  # 2019 to 2026
+# --- 配置 ---
+# 指向您的论文数据存储目录
+PAPERS_DIR = Path(__file__).parent / "output" / "papers"
 
 
-# --- CORE BATTLE-TESTED FUNCTIONS ---
+def load_all_papers_from_csv(directory: Path) -> pd.DataFrame:
+    """
+    递归加载指定目录下所有的 _data_*.csv 文件，并将它们合并成一个 DataFrame。
+    """
+    print(f"[*] 正在从 {directory} 加载所有论文数据...")
+    csv_files = list(directory.rglob("*_data_*.csv"))
 
-def test_openreview(conf_name: str, year: int, config: dict):
-    """Deep-dives OpenReview using the appropriate API version."""
-    api_version = config.get("api", "v2")  # Default to v2
-    venue_id = config["venue_id"].format(year=year)
-    print(f"\n--- [DEEP DIVE] OpenReview (API v{api_version}): {conf_name} {year} ---")
-    print(f"Venue ID: {venue_id}")
+    if not csv_files:
+        print(f"[!] 警告: 在目录下没有找到任何 '_data_*.csv' 文件。")
+        return None
 
-    try:
-        notes_list = []
-        if api_version == "v1":
-            client = openreview.Client(baseurl='https://api.openreview.net')
-            notes_iterator = None
-            if config.get("use_blind", False):
-                invitation = f"{venue_id}/-/Blind_Submission"
-                print(f"Using Blind Submission: {invitation}")
-                notes_iterator = client.get_all_notes(invitation=invitation)
-            else:
-                notes_iterator = client.get_all_notes(content={'venueid': venue_id})
-            notes_list = list(notes_iterator)
-        else:  # API v2
-            client = openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
-            notes_iterator = client.get_all_notes(content={'venueid': venue_id})
-            notes_list = list(notes_iterator)
+    df_list = []
+    for f in csv_files:
+        try:
+            df = pd.read_csv(f)
+            # 添加一列来记录数据来源文件，方便溯源
+            df['source_file'] = f.name
+            df_list.append(df)
+        except Exception as e:
+            print(f"[!] 错误: 加载文件 {f} 失败: {e}")
 
-        if not notes_list:
-            print("[RESULT] No papers found.")
-            return
+    if not df_list:
+        return None
 
-        note = notes_list[0]
-        print(f"[SUCCESS] Found {len(notes_list)} papers. Logging first paper...")
-        print("\n--- [DEEP DIVE LOG] Full Paper Note Object ---")
-        pp.pprint(note.to_json())
+    # 合并所有的 DataFrame
+    full_df = pd.concat(df_list, ignore_index=True)
 
-    except Exception as e:
-        print(f"[ERROR] OpenReview test failed: {e}")
+    # 简单清洗，填充缺失的 'abstract' 和 'title'
+    full_df['abstract'] = full_df['abstract'].fillna('')
+    full_df['title'] = full_df['title'].fillna('')
+
+    print(f"[✔] 加载完成！共找到 {len(full_df)} 篇论文记录，来自 {len(csv_files)} 个文件。")
+    return full_df
 
 
-def test_cvf(url: str, year: int, conference: str):
-    """Deep-dives a CVF conference using a two-stage strategy."""
-    print(f"\n--- [DEEP DIVE] CVF: {conference} {year} ---")
-    print(f"Index URL: {url}")
-    try:
-        index_response = requests.get(url, headers=HEADERS, timeout=15)
-        if index_response.status_code == 404:
-            print("[RESULT] Index page not found (404 Error).")
-            return
-        index_response.raise_for_status()
-        soup = BeautifulSoup(index_response.content, 'lxml')
-        first_paper_link = soup.select_one('dt.ptitle > a[href$=".html"]')
-        if not first_paper_link:
-            print("[ERROR] Could not find any paper link on the index page.")
-            return
-        absolute_url = urljoin(url, first_paper_link['href'])
-        print(f"Found sample paper URL: {absolute_url}")
-        test_html_page(absolute_url, year, conference, 'cvf')
-    except Exception as e:
-        print(f"[ERROR] CVF test failed: {e}")
+def search_papers(df: pd.DataFrame, query: str):
+    """
+    在 DataFrame 中搜索包含查询关键词的论文。
+    """
+    print(f"\n[*] 正在搜索关键词: '{query}'...")
+    start_time = time.time()
+
+    # 在 'title' 和 'abstract' 两列中进行不区分大小写的搜索
+    # .str.contains() 是进行子字符串匹配的核心
+    results = df[
+        df['title'].str.contains(query, case=False, na=False) |
+        df['abstract'].str.contains(query, case=False, na=False)
+        ]
+
+    end_time = time.time()
+    print(f"[✔] 搜索完成，耗时 {end_time - start_time:.4f} 秒，找到 {len(results)} 个匹配项。")
+
+    if not results.empty:
+        print("\n--- 搜索结果 ---")
+        for index, row in results.iterrows():
+            print(f"\n[{index + 1}] {row['title']}")
+            print(f"  - 作者: {row.get('authors', 'N/A')}")
+            print(f"  - 会议/期刊: {row.get('conference', 'N/A')} {row.get('year', '')}")
+            # 使用 textwrap 来美化摘要的换行
+            abstract = row.get('abstract', '无摘要')
+            wrapped_abstract = textwrap.fill(abstract, width=100, initial_indent='  - 摘要: ', subsequent_indent='    ')
+            print(wrapped_abstract)
+            print(f"  - 来源文件: {row['source_file']}")
+            print("-" * 20)
 
 
-def test_html_page(url: str, year: int, conference: str, parser_type: str):
-    """Deep-dives a single HTML page for known platforms (PMLR, ACL, CVF-detail)."""
-    if parser_type != 'cvf':
-        print(f"\n--- [DEEP DIVE] HTML Page: {conference} {year} ---")
-        print(f"URL: {url}")
+def main():
+    """主函数"""
+    paper_database = load_all_papers_from_csv(PAPERS_DIR)
 
-    parsers = {
-        'cvf': {"title": "#papertitle", "authors": "#authors > b > i", "abstract": "#abstract",
-                "pdf_link": 'meta[name="citation_pdf_url"]'},
-        'pmlr': {"title": "title", "authors": "span.authors", "abstract": "div.abstract",
-                 "pdf_link": 'meta[name="citation_pdf_url"]'},
-        'acl': {"title": "h2#title > a", "authors": "p.lead", "abstract": 'div.acl-abstract > span',
-                "pdf_link": 'meta[name="citation_pdf_url"]'}
-    }
+    if paper_database is None:
+        print("\n[✖] 无法进行搜索，因为本地数据库为空。")
+        print("请先运行 'python src/main.py' 来采集论文数据。")
+        return
 
-    try:
-        response = requests.get(url, headers=HEADERS, timeout=15)
-        if response.status_code == 404:
-            print("[RESULT] Page not found (404 Error).")
-            return
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'lxml')
-        parser_map = parsers[parser_type]
-        extracted_data = {}
-        all_found = True
-        for key, selector in parser_map.items():
-            element = soup.select_one(selector)
-            if element:
-                value = element.get('content') if element.name == 'meta' and 'pdf' in key else element.get_text(
-                    strip=True)
-                extracted_data[key] = value
-            else:
-                extracted_data[key] = f"--- NOT FOUND with selector: '{selector}' ---"
-                all_found = False
+    while True:
+        try:
+            # 获取用户输入
+            user_query = input("\n请输入搜索关键词 (或输入 'exit' 退出): ")
+            if user_query.lower() == 'exit':
+                break
+            if not user_query:
+                continue
 
-        print("\n--- [DEEP DIVE LOG] Extracted Data ---")
-        pp.pprint(extracted_data)
-        print(
-            f"[{'SUCCESS' if all_found else 'FAIL'}] All elements were {'' if all_found else 'not'} found for {conference} {year}.")
-    except Exception as e:
-        print(f"[ERROR] HTML page test failed: {e}")
+            search_papers(paper_database, user_query)
+
+        except KeyboardInterrupt:
+            print("\n[👋] 收到退出信号，再见！")
+            break
 
 
-def explore_with_selenium(url: str, name: str, year: int):
-    """Uses Selenium to explore and saves the full HTML source for later analysis."""
-    print(f"\n--- [EXPLORE with Selenium] {name} {year} ---")
-    print(f"URL: {url}")
-    driver = None
-    try:
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument(f"user-agent={HEADERS['User-Agent']}")
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=chrome_options)
-
-        driver.get(url)
-        time.sleep(8)
-        title = driver.title
-
-        if "403" in title or "Forbidden" in title or "Error" in title or "Page not Found" in title:
-            print(f"[FAIL] Page access denied or not found. Title: '{title}'")
-            return
-
-        print(f"[SUCCESS] Page is accessible. Title: '{title}'")
-        filename = f"_recon_dump_{name.replace(' ', '_')}_{year}.html"
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(driver.page_source)
-        print(f"[ANALYSIS] Selenium bypassed blocks. Full HTML source saved to '{filename}' for your review.")
-    except Exception as e:
-        print(f"[FAIL] Selenium exploration failed: {e}")
-    finally:
-        if driver:
-            driver.quit()
-
-
-# ==============================================================================
-# ---  MASTER TASK DEFINITIONS "THE ENCYCLOPEDIA" ---
-# ==============================================================================
-TASK_DEFINITIONS = {
-    # --- Tier 1 Platforms (Known Good, Deep Dive Parsers Exist) ---
-    'ICLR': {"type": "openreview", "config": {"api_versions": {
-        y: ({"api": "v1", "venue_id": "ICLR.cc/{year}/Conference", "use_blind": True}) for y in range(2019, 2024)}} | {
-                                                 y: ({"api": "v2", "venue_id": f"ICLR.cc/{y}/Conference"}) for y in
-                                                 range(2024, 2027)}},
-    'NeurIPS': {"type": "openreview", "config": {"api_versions": {
-        y: ({"api": "v1", "venue_id": "NeurIPS.cc/{year}/Conference"}) for y in range(2019, 2023)}} | {
-                                                    y: ({"api": "v2", "venue_id": f"NeurIPS.cc/{y}/Conference"}) for y
-                                                    in range(2023, 2027)}},
-    'CVPR': {"type": "cvf", "url_pattern": "https://openaccess.thecvf.com/CVPR{year}?day=all"},
-    'ICCV': {"type": "cvf", "url_pattern": "https://openaccess.thecvf.com/ICCV{year}?day=all"},
-    'ICML': {"type": "pmlr", "url_samples": {2019: "https://proceedings.mlr.press/v97/acharya19a.html",
-                                             2020: "https://proceedings.mlr.press/v119/agrawal20a.html",
-                                             2021: "https://proceedings.mlr.press/v139/agarwal21a.html",
-                                             2022: "https://proceedings.mlr.press/v162/abbe22a.html",
-                                             2023: "https://proceedings.mlr.press/v202/zhang23y.html",
-                                             2024: "https://proceedings.mlr.press/v235/acharya24a.html"}},
-    'AISTATS': {"type": "pmlr", "url_samples": {2019: "https://proceedings.mlr.press/v89/aba-abdaoui19a.html",
-                                                2020: "https://proceedings.mlr.press/v108/abad20a.html",
-                                                2021: "https://proceedings.mlr.press/v130/aher21a.html",
-                                                2022: "https://proceedings.mlr.press/v151/abbas22a.html",
-                                                2023: "https://proceedings.mlr.press/v206/sakaue23a.html",
-                                                2024: "https://proceedings.mlr.press/v238/abbas24a.html"}},
-    'ACL': {"type": "acl", "url_pattern": "https://aclanthology.org/{year}.acl-long.1/"},
-    'EMNLP': {"type": "acl", "url_pattern": "https://aclanthology.org/{year}.emnlp-main.1/"},
-    'NAACL': {"type": "acl_special",
-              "patterns": {2019: "2019.naacl-main.1", 2021: "2021.naacl-main.1", 2022: "2022.naacl-main.1",
-                           2024: "2024.naacl-long.1", 2025: "2025.naacl-long.1"}},
-
-    # --- Tier 2 Platforms (Selenium Required for Exploration) ---
-    'TPAMI': {"type": "selenium", "url_pattern": "https://www.computer.org/csdl/journal/tp/past-issues/{year}"},
-    'IJCV': {"type": "selenium", "url_pattern": "https://link.springer.com/journal/11263/volumes-and-issues"},
-    'ECCV': {"type": "selenium", "url_pattern": "https://link.springer.com/conference/eccv"},
-    'AAAI': {"type": "selenium", "url_pattern": "https://aaai.org/aaai-publications/aaai-conference-proceedings/"},
-    'KDD': {"type": "selenium", "url_pattern": "https://dl.acm.org/conference/kdd/proceedings"},
-    'SIGIR': {"type": "selenium", "url_pattern": "https://dl.acm.org/conference/sigir/proceedings"},
-    'WWW': {"type": "selenium", "url_pattern": "https://dl.acm.org/conference/www/proceedings"},
-    'CHI': {"type": "selenium", "url_pattern": "https://dl.acm.org/conference/chi/proceedings"},
-    'ICRA': {"type": "selenium", "url_pattern": "https://ieeexplore.ieee.org/xpl/conhome/all-proceedings.html"},
-
-    # --- Tier 3 Platforms (Static HTML, Need New Parsers) ---
-    'JMLR': {"type": "static_html", "url_pattern": "https://jmlr.org/papers/v{vol}/",
-             "vol_map": {y: 20 + (y - 2019) for y in YEARS_TO_SCAN}},
-    'TACL': {"type": "static_html", "url_pattern": "https://aclanthology.org/venues/tacl/"},
-    'IJCAI': {"type": "static_html", "url_pattern": "https://www.ijcai.org/proceedings/{year}/"},
-    'MLSys': {"type": "static_html", "url_pattern": "https://mlsys.org/virtual/{year}/papers.html"},
-}
-
-# ==============================================================================
-# ---  THE BATTLE PLAN ---
-# ==============================================================================
-# INSTRUCTIONS:
-# 1. Uncomment or add the 'Conference_Year' keys you want to test below.
-# 2. This list is your command center. What you enable here is what gets run.
-# ==============================================================================
-BATTLE_PLAN = [
-    # --- Your Core Targets ---
-    # 'ICLR_2019', 'ICLR_2020', 'ICLR_2021', 'ICLR_2022', 'ICLR_2023', 'ICLR_2024', 'ICLR_2025', 'ICLR_2026',
-    # 'NeurIPS_2019', 'NeurIPS_2020', 'NeurIPS_2021', 'NeurIPS_2022', 'NeurIPS_2023', 'NeurIPS_2024', 'NeurIPS_2025',
-    # 'NeurIPS_2026',  # Use NeurIPS or NIPS, both work
-    'ICML_2019', 'ICML_2020', 'ICML_2021', 'ICML_2022', 'ICML_2023', 'ICML_2024', 'ICML_2025', 'ICML_2026',
-    'ACL_2019', 'ACL_2020', 'ACL_2021', 'ACL_2022', 'ACL_2023', 'ACL_2024', 'ACL_2025', 'ACL_2026',
-
-    # --- THE GRAND MENU (Copy from here to the list above) ---
-    # 'CVPR_2019', 'CVPR_2020', 'CVPR_2021', 'CVPR_2022', 'CVPR_2023', 'CVPR_2024', 'CVPR_2025', 'CVPR_2026',
-    # 'ICCV_2019', 'ICCV_2021', 'ICCV_2023', 'ICCV_2025', # Note: Biennial
-    # 'EMNLP_2019', 'EMNLP_2020', 'EMNLP_2021', 'EMNLP_2022', 'EMNLP_2023', 'EMNLP_2024', 'EMNLP_2025', 'EMNLP_2026',
-    # 'NAACL_2019', 'NAACL_2021', 'NAACL_2022', 'NAACL_2024', # Note: Irregular years
-    # 'AISTATS_2019', 'AISTATS_2020', 'AISTATS_2021', 'AISTATS_2022', 'AISTATS_2023', 'AISTATS_2024', 'AISTATS_2025', 'AISTATS_2026',
-
-    # --- Tier 2 (Selenium required) ---
-    # 'TPAMI_2024', 'IJCV_2024', 'ECCV_2024', 'AAAI_2024', 'KDD_2024', 'SIGIR_2024', 'WWW_2024', 'CHI_2024', 'ICRA_2024',
-
-    # --- Tier 3 (New parser needed) ---
-    # 'JMLR_2024', 'TACL_2024', 'IJCAI_2024', 'MLSys_2024',
-]
-
-# ==============================================================================
-# ---  MAIN EXECUTION BLOCK  ---
-# ==============================================================================
 if __name__ == "__main__":
-    print("=" * 80)
-    print("=      PubCrawler Checklist-Driven Reconnaissance      =")
-    print(f"=    Executing {len(BATTLE_PLAN)} selected tasks from your battle plan...     =")
-    print("=" * 80)
+    main()
 
-    for task_key in BATTLE_PLAN:
-        parts = task_key.split('_')
-        if len(parts) != 2 or not parts[1].isdigit():
-            print(f"\n[ERROR] Invalid task key format: '{task_key}'. Should be 'Conference_Year'. Skipping.")
-            continue
-
-        conf_name, year_str = parts
-        year = int(year_str)
-
-        base_conf_name = 'NeurIPS' if conf_name.upper() in ['NIPS', 'NEURIPS'] else conf_name
-
-        if base_conf_name not in TASK_DEFINITIONS:
-            print(f"\n[ERROR] No configuration found for conference: '{base_conf_name}'. Skipping task '{task_key}'.")
-            continue
-
-        config = TASK_DEFINITIONS[base_conf_name]
-        job_type = config["type"]
-
-        if job_type == "openreview":
-            if year in config["config"]["api_versions"]:
-                api_config = config["config"]["api_versions"][year]
-                test_openreview(base_conf_name, year, api_config)
-            else:
-                print(f"\n[INFO] No OpenReview API configuration for {base_conf_name} {year}. Skipping.")
-
-        elif job_type == "cvf":
-            url = config["url_pattern"].format(year=year)
-            test_cvf(url, year, base_conf_name)
-
-        elif job_type == "pmlr":
-            if year in config["url_samples"]:
-                url = config["url_samples"][year]
-                test_html_page(url, year, base_conf_name, 'pmlr')
-            else:
-                print(f"\n[INFO] No sample URL configured for {base_conf_name} {year}. Skipping.")
-
-        elif job_type == "acl":
-            url = config["url_pattern"].format(year=year)
-            test_html_page(url, year, base_conf_name, 'acl')
-
-        elif job_type == "acl_special":
-            if year in config["patterns"]:
-                pattern = config["patterns"][year]
-                url = f"https://aclanthology.org/{pattern}/"
-                test_html_page(url, year, base_conf_name, 'acl')
-            else:
-                print(f"\n[INFO] No URL pattern configured for {base_conf_name} {year}. Skipping.")
-
-        elif job_type in ["selenium", "static_html"]:
-            url = config["url_pattern"]
-            if "{year}" in url:
-                url = url.format(year=year)
-            elif "vol_map" in config:
-                vol = config["vol_map"].get(year)
-                if not vol:
-                    print(f"\n[INFO] No volume mapping for {base_conf_name} {year}. Skipping.")
-                    continue
-                url = url.format(vol=vol)
-
-            if job_type == "selenium":
-                explore_with_selenium(url, base_conf_name, year)
-            else:  # static_html
-                test_html_page(url, year, base_conf_name, 'generic')
-
-    print("\n" + "=" * 80)
-    print("All selected tasks from the Battle Plan are complete.")
-    print("=" * 80)
-
-# END OF FILE: src/selective_recon.py
-
-==================== End of: src\reconnaissance.py ====================
+==================== End of: src\search_local.py ====================
 
 
 
@@ -1484,7 +1202,7 @@ def generate_wordcloud_from_papers(papers: list, output_path: Path) -> bool:
 
 ==================== Start of: src\analysis\trends.py ====================
 
-# FILE: src/analysis/trends.py (全新重构版 - 最终修复)
+# FILE: src/analysis/trends.py
 
 import yaml
 import re
@@ -1503,8 +1221,6 @@ sns.set_theme(style="whitegrid", context="talk")
 plt.rcParams['figure.dpi'] = 300
 
 
-# --- Helper Functions (内部使用) ---
-
 def _load_trend_config():
     if not TREND_CONFIG_FILE.exists():
         logger.error(f"Trend config file not found: {TREND_CONFIG_FILE}")
@@ -1522,7 +1238,6 @@ def _classify_paper_subfields(paper: dict, trend_config: dict) -> list:
         if 'sub_fields' not in data: continue
         for sub_field, keywords in data.get('sub_fields', {}).items():
             if not isinstance(keywords, list): continue
-            # 使用 \b 来进行全词匹配，提高准确性
             keyword_pattern = r'\b(' + '|'.join(re.escape(k) for k in keywords) + r')\b'
             if re.search(keyword_pattern, text, re.IGNORECASE):
                 matched.add(sub_field)
@@ -1530,26 +1245,19 @@ def _classify_paper_subfields(paper: dict, trend_config: dict) -> list:
 
 
 def _create_analysis_df(df: pd.DataFrame, trend_config: dict) -> pd.DataFrame:
-    """
-    一个更健壮的函数，用于创建分析DataFrame，不再依赖'id'列。
-    """
     df['sub_fields'] = df.apply(lambda row: _classify_paper_subfields(row, trend_config), axis=1)
     df_exploded = df.explode('sub_fields').dropna(subset=['sub_fields'])
     if df_exploded.empty:
         return pd.DataFrame()
 
-    # --- 核心修复点: 使用 .size() 代替 .agg(('id', 'count')) ---
-    # .size() 直接计算每个组的行数，不依赖任何特定列。
     stats = df_exploded.groupby('sub_fields').size().reset_index(name='paper_count')
 
-    # 仅在 'avg_rating' 列存在时，才计算平均分并合并
     if 'avg_rating' in df_exploded.columns and not df_exploded['avg_rating'].isnull().all():
         avg_ratings = df_exploded.groupby('sub_fields')['avg_rating'].mean().reset_index()
         stats = pd.merge(stats, avg_ratings, on='sub_fields', how='left')
 
     analysis_df = stats
 
-    # 仅在 'decision' 列存在时，才计算决策分布和接收率
     if 'decision' in df_exploded.columns:
         decisions = df_exploded.groupby(['sub_fields', 'decision']).size().unstack(fill_value=0)
         analysis_df = pd.merge(analysis_df, decisions, on='sub_fields', how='left').fillna(0)
@@ -1560,22 +1268,22 @@ def _create_analysis_df(df: pd.DataFrame, trend_config: dict) -> pd.DataFrame:
 
         accepted = analysis_df.get('Oral', 0) + analysis_df.get('Spotlight', 0) + analysis_df.get('Poster', 0)
         total_decision = accepted + analysis_df.get('Reject', 0)
-        # 增加一个保护，防止除以零
         analysis_df['acceptance_rate'] = (accepted / total_decision.where(total_decision != 0, np.nan)).fillna(0)
 
     analysis_df.rename(columns={'sub_fields': 'Topic_Name'}, inplace=True)
     return analysis_df
 
 
-# --- Plotting Functions (内部使用) ---
-
-def _plot_topic_ranking(df, metric, title, path, top_n=65):
+def _plot_topic_ranking(df, metric, title, path, top_n=40):
     if metric not in df.columns:
         logger.warning(f"Metric '{metric}' not in DataFrame. Skipping plot: {title}")
         return
     df_sorted = df.dropna(subset=[metric]).sort_values(by=metric, ascending=False).head(top_n)
     if df_sorted.empty: return
-    height = max(10, len(df_sorted) * 0.4)
+
+    # --- 核心修复点: 为这个函数也添加最大高度限制 ---
+    height = min(30, max(10, len(df_sorted) * 0.4))
+
     plt.figure(figsize=(16, height))
     palette = 'viridis' if metric == 'paper_count' else 'plasma_r'
     sns.barplot(x=metric, y='Topic_Name', data=df_sorted, hue='Topic_Name', palette=palette, legend=False)
@@ -1588,7 +1296,7 @@ def _plot_topic_ranking(df, metric, title, path, top_n=65):
     plt.close()
 
 
-def _plot_decision_breakdown(df, title, path, top_n=65):
+def _plot_decision_breakdown(df, title, path, top_n=40):
     if 'acceptance_rate' not in df.columns:
         logger.warning(f"Acceptance rate not available. Skipping plot: {title}")
         return
@@ -1597,7 +1305,10 @@ def _plot_decision_breakdown(df, title, path, top_n=65):
     cols = ['Oral', 'Spotlight', 'Poster', 'Reject', 'N/A']
     plot_data = df_sorted.set_index('Topic_Name')[[c for c in cols if c in df_sorted.columns]]
     plot_norm = plot_data.div(plot_data.sum(axis=1), axis=0)
-    height = max(12, len(plot_norm) * 0.5)
+
+    # --- 核心修复点: 确保这个函数也保留了最大高度限制 ---
+    height = min(30, max(12, len(plot_norm) * 0.5))
+
     fig, ax = plt.subplots(figsize=(20, height))
     plot_norm.plot(kind='barh', stacked=True, colormap='viridis', width=0.85, ax=ax)
     count_map = df_sorted.set_index('Topic_Name')['paper_count']
@@ -1657,10 +1368,7 @@ def _plot_cross_year_trends(df, title, path):
     plt.close()
 
 
-# --- Public API Functions (被 main.py 调用) ---
-
 def run_single_task_analysis(papers: list, task_name: str, output_dir: Path):
-    """为单个任务（单会议/单年份）执行深入分析。"""
     trend_config = _load_trend_config()
     if not trend_config or not papers: return
 
@@ -1670,10 +1378,8 @@ def run_single_task_analysis(papers: list, task_name: str, output_dir: Path):
         logger.warning(f"No topics matched for {task_name}, skipping analysis plots.")
         return
 
-    # 基础分析（总是运行）
     _plot_topic_ranking(analysis_df, 'paper_count', f"Topic Hotness at {task_name}", output_dir / "1_topic_hotness.png")
 
-    # 高级分析（仅当有审稿数据时运行）
     has_review_data = 'avg_rating' in analysis_df.columns and 'acceptance_rate' in analysis_df.columns
     if has_review_data:
         _plot_topic_ranking(analysis_df, 'avg_rating', f"Topic Quality at {task_name}",
@@ -1682,13 +1388,13 @@ def run_single_task_analysis(papers: list, task_name: str, output_dir: Path):
                                  output_dir / "3_decision_breakdown.png")
         _save_summary_table(analysis_df, f"Summary Table for {task_name}", output_dir / "4_summary_table")
     else:
-        logger.warning(f"Skipping review-based analysis for {task_name}: missing review data.")
+        # 这个日志只会在没有审稿数据的任务中打印，是正常的
+        logger.info(f"Skipping review-based analysis for {task_name}: missing review data.")
 
     logger.info(f"Single-task analysis for {task_name} completed.")
 
 
 def run_cross_year_analysis(papers: list, conference_name: str, output_dir: Path):
-    """为单个会议的所有年份数据执行跨年趋势分析。"""
     trend_config = _load_trend_config()
     if not trend_config or not papers: return
 
@@ -1723,6 +1429,183 @@ def run_cross_year_analysis(papers: list, conference_name: str, output_dir: Path
 
 
 
+==================== Start of: src\scrapers\aaai_scraper.py ====================
+
+# FILE: src/scrapers/aaai_scraper.py
+
+import time
+from typing import List, Dict, Any
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+
+from .base_scraper import BaseScraper
+
+
+class AaaiScraper(BaseScraper):
+    """专门用于 AAAI 网站的爬虫 (使用 Selenium)。"""
+
+    def scrape(self) -> List[Dict[str, Any]]:
+        url = self.task_info["url"]
+        limit = self.task_info.get("limit")
+
+        # AAAI 特定的选择器
+        paper_link_selector = 'h5.toc-title > a'
+
+        self.logger.info(f"    -> 正在启动 Selenium 访问 (AAAI): {url}")
+        driver = None
+        try:
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--no-sandbox")
+            chrome_options.add_argument("--disable-dev-shm-usage")
+            chrome_options.add_argument(
+                'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
+
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=chrome_options)
+
+            driver.get(url)
+            self.logger.info("    -> 页面已加载. 等待 10 秒以处理动态内容...")
+            time.sleep(10)
+
+            link_elements = driver.find_elements(By.CSS_SELECTOR, paper_link_selector)
+            if not link_elements:
+                self.logger.warning(f"    -> Selenium 未找到任何论文链接，使用的选择器是: '{paper_link_selector}'")
+                return []
+
+            self.logger.info(f"    -> 找到了 {len(link_elements)} 个潜在的论文链接。")
+            if limit and len(link_elements) > limit:
+                self.logger.info(f"    -> 应用限制：处理前 {limit} 个链接。")
+                link_elements = link_elements[:limit]
+
+            papers = []
+            for i, link_elem in enumerate(link_elements):
+                paper_url = link_elem.get_attribute('href')
+                paper_title = link_elem.text
+                if paper_url and paper_title:
+                    papers.append({
+                        'id': f"aaai_{self.task_info['year']}_{i}",
+                        'title': paper_title.strip(),
+                        'authors': 'N/A (AAAI Selenium)',
+                        'abstract': 'N/A (AAAI Selenium)',
+                        'pdf_url': None,
+                        'source_url': paper_url
+                    })
+            return papers
+
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] AAAI Selenium 抓取失败 {url}: {e}", exc_info=True)
+            return []
+        finally:
+            if driver:
+                driver.quit()
+
+==================== End of: src\scrapers\aaai_scraper.py ====================
+
+
+
+==================== Start of: src\scrapers\acl_scraper.py ====================
+
+# FILE: src/scrapers/acl_scraper.py
+
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from tqdm import tqdm
+import time
+from typing import List, Dict, Optional, Any
+from bs4.element import Tag
+
+from .base_scraper import BaseScraper
+
+
+class AclScraper(BaseScraper):
+    """专门用于 ACL Anthology 网站的爬虫。"""
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+
+    def scrape(self) -> List[Dict[str, Any]]:
+        index_url = self.task_info["url"]
+        limit = self.task_info.get("limit")
+        papers = []
+
+        self.logger.info(f"    -> 正在抓取 ACL 索引页: {index_url}")
+        try:
+            response = requests.get(index_url, headers=self.HEADERS, timeout=20)
+            if response.status_code == 404:
+                self.logger.warning(f"    -> 页面未找到 (404): {index_url}")
+                return []
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'lxml')
+
+            link_tags = soup.select('p.d-sm-flex strong a.align-middle')
+            self.logger.info(f"    -> 找到了 {len(link_tags)} 篇论文。")
+
+            if limit:
+                link_tags = link_tags[:limit]
+                self.logger.info(f"    -> 应用限制：处理前 {limit} 篇论文。")
+
+            pbar_desc = f"    -> 正在解析 {self.task_info.get('conference')} 页面"
+            for link_tag in tqdm(link_tags, desc=pbar_desc, leave=True):
+                details_url = urljoin(index_url, link_tag['href'])
+                paper_data = self._scrape_details_page(details_url)
+                if paper_data:
+                    papers.append(paper_data)
+                time.sleep(0.1)
+
+            return papers
+
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"    [✖ ERROR] 获取 ACL 索引页失败: {e}")
+            return []
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] 解析 ACL 页面时发生未知错误: {e}", exc_info=True)
+            return []
+
+    def _scrape_details_page(self, url: str) -> Optional[Dict[str, Any]]:
+        """抓取并解析 ACL 论文详情页。"""
+        try:
+            response = requests.get(url, headers=self.HEADERS, timeout=15)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'lxml')
+
+            title_tag = soup.select_one("h2#title")
+            title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+            author_tags = soup.select("p.lead a")
+            authors = ", ".join([a.get_text(strip=True) for a in author_tags]) if author_tags else "N/A"
+
+            abstract_tag = soup.select_one("div.acl-abstract > span")
+            abstract = abstract_tag.get_text(strip=True) if abstract_tag else "N/A"
+
+            pdf_url_tag = soup.select_one('meta[name="citation_pdf_url"]')
+            pdf_url = pdf_url_tag['content'] if pdf_url_tag else None
+            if pdf_url and not pdf_url.startswith('http'):
+                pdf_url = urljoin(url, pdf_url)
+
+            paper_id = url.strip('/').split('/')[-1]
+
+            return {
+                'id': paper_id,
+                'title': title,
+                'authors': authors,
+                'abstract': abstract,
+                'pdf_url': pdf_url,
+                'source_url': url
+            }
+        except Exception as e:
+            self.logger.debug(f"    -> 解析 ACL 详情页失败 {url}: {e}")
+            return None
+
+==================== End of: src\scrapers\acl_scraper.py ====================
+
+
+
 ==================== Start of: src\scrapers\arxiv_scraper.py ====================
 
 # FILE: src/scrapers/arxiv_scraper.py
@@ -1733,7 +1616,7 @@ import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
 import logging
 
-from src.scrapers.base_scraper import BaseScraper
+from .base_scraper import BaseScraper
 
 
 class ArxivScraper(BaseScraper):
@@ -1770,7 +1653,7 @@ class ArxivScraper(BaseScraper):
                 break
 
         arxiv_id_url = _get_text('id')
-        arxiv_id = arxiv_id_url.split('/abs/')[-1]
+        arxiv_id = arxiv_id_url.split('/abs/')[-1] if arxiv_id_url else "N/A"
 
         return {"id": arxiv_id, "title": _get_text('title'), "authors": ", ".join(authors_list),
                 "abstract": _get_text('summary'), "pdf_url": pdf_url, "source_url": arxiv_id_url}
@@ -1823,7 +1706,6 @@ class BaseScraper(ABC):
         """
         self.task_info = task_info
         self.logger = logger
-        # 不再打印初始化信息，因为 main.py 已经打印了任务开始信息
 
     @abstractmethod
     def scrape(self) -> List[Dict[str, Any]]:
@@ -1842,144 +1724,106 @@ class BaseScraper(ABC):
 
 
 
-==================== Start of: src\scrapers\html_scraper.py ====================
+==================== Start of: src\scrapers\cvf_scraper.py ====================
 
-# FILE: src/scrapers/html_scraper.py (已根据 reconnaissance.py 的测试结果进行最终修正)
+# FILE: src/scrapers/cvf_scraper.py
 
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from tqdm import tqdm
 import time
-import logging
-from typing import List, Dict, Any
+from typing import List, Dict, Optional, Any
 
-from src.scrapers.base_scraper import BaseScraper
+from .base_scraper import BaseScraper
 
 
-class HTMLScraper(BaseScraper):
-    """Scraper for conferences with static HTML pages (e.g., CVF, PMLR, ACL)."""
+class CvfScraper(BaseScraper):
+    """专门用于 CVF (CVPR, ICCV) 网站的爬虫。"""
     HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-
-    # --- 核心修复点: 完全对齐 reconnaissance.py 经过验证的 ACL 选择器 ---
-    PARSER_CONFIGS = {
-        'cvf': {
-            "index_paper_links": 'dt.ptitle > a[href$=".html"]',
-            "title": "#papertitle", "authors": "#authors > b > i", "abstract": "#abstract",
-            "pdf_link": 'meta[name="citation_pdf_url"]'
-        },
-        'pmlr': {
-            "index_paper_links": 'div.paper .links a:nth-of-type(1)[href$=".html"]',
-            "title": "h1.title", "authors": "span.authors", "abstract": "div.abstract",
-            "pdf_link_from_html_url": True
-        },
-        'acl': {
-            # 索引页选择器 (来自上一轮修复, 已被证明是正确的)
-            "index_paper_links": 'h5.card-title > a[href*=".long"], h5.card-title > a[href*=".main"]',
-
-            # 详情页选择器 (根据 reconnaissance.py 的成功测试进行对齐)
-            "title": "h2#title > a",
-            "authors": "p.lead",
-            "abstract": 'div.acl-abstract > span',  # 简化为 reconnaissance.py 中的版本
-            "pdf_link": 'meta[name="citation_pdf_url"]'  # **关键修改**: 使用 meta 标签获取 PDF 链接
-        }
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
     }
-
-    def __init__(self, task_info: Dict[str, Any], logger: logging.Logger):
-        super().__init__(task_info, logger)
 
     def scrape(self) -> List[Dict[str, Any]]:
         index_url = self.task_info["url"]
-        parser_type = self.task_info["parser_type"]
         limit = self.task_info.get("limit")
+        papers = []
 
-        if parser_type not in self.PARSER_CONFIGS:
-            self.logger.error(f"    [✖ ERROR] Unknown parser type '{parser_type}' for URL: {index_url}")
-            return []
-
-        self.logger.info(f"    -> Scraping HTML index page: {index_url} using '{parser_type}' parser")
+        self.logger.info(f"    -> 正在抓取 CVF 索引页: {index_url}")
         try:
-            index_response = requests.get(index_url, headers=self.HEADERS, timeout=20)
-            if index_response.status_code == 404:
-                self.logger.warning(f"    -> Page not found (404): {index_url}")
+            response = requests.get(index_url, headers=self.HEADERS, timeout=20)
+            if response.status_code == 404:
+                self.logger.warning(f"    -> 页面未找到 (404): {index_url}")
                 return []
-            index_response.raise_for_status()
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'lxml')
 
-            soup = BeautifulSoup(index_response.content, 'lxml')
-            paper_links = soup.select(self.PARSER_CONFIGS[parser_type]["index_paper_links"])
+            link_tags = soup.select('dt.ptitle > a[href$=".html"]')
+            self.logger.info(f"    -> 找到了 {len(link_tags)} 篇论文。")
 
-            if not paper_links:
-                self.logger.warning(
-                    f"    -> Could not find any paper links on index page with selector '{self.PARSER_CONFIGS[parser_type]['index_paper_links']}'")
-                return []
+            if limit:
+                link_tags = link_tags[:limit]
+                self.logger.info(f"    -> 应用限制：处理前 {limit} 篇论文。")
 
-            self.logger.info(f"    -> Found {len(paper_links)} potential paper links.")
-            if limit is not None and len(paper_links) > limit:
-                self.logger.info(f"    -> Applying limit: processing first {limit} papers.")
-                paper_links = paper_links[:limit]
+            pbar_desc = f"    -> 正在解析 {self.task_info.get('conference')} 页面"
+            for link_tag in tqdm(link_tags, desc=pbar_desc, leave=True):
+                details_url = urljoin(index_url, link_tag['href'])
+                paper_data = self._scrape_details_page(details_url)
+                if paper_data:
+                    papers.append(paper_data)
+                time.sleep(0.1)
 
-            papers = []
-            pbar_desc = f"    -> Scraping {parser_type} pages"
-            for link_tag in tqdm(paper_links, desc=pbar_desc, leave=True):
-                try:
-                    paper_url = urljoin(index_url, link_tag['href'])
-                    paper_details = self._scrape_paper_page(paper_url, parser_type)
-                    if paper_details: papers.append(paper_details)
-                    time.sleep(0.1)  # Be polite to the server
-                except Exception as e:
-                    self.logger.debug(f"    -> Failed to scrape detail page {link_tag.get('href', '')}: {e}")
-                    continue
             return papers
+
         except requests.exceptions.RequestException as e:
-            self.logger.error(f"    [✖ ERROR] Failed to fetch index page {index_url}: {e}")
+            self.logger.error(f"    [✖ ERROR] 获取 CVF 索引页失败: {e}")
+            return []
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] 解析 CVF 页面时发生未知错误: {e}", exc_info=True)
             return []
 
-    def _scrape_paper_page(self, url: str, parser_type: str) -> Dict[str, Any]:
+    def _scrape_details_page(self, url: str) -> Optional[Dict[str, Any]]:
+        """抓取并解析 CVF 论文详情页。"""
         try:
             response = requests.get(url, headers=self.HEADERS, timeout=15)
             response.raise_for_status()
             soup = BeautifulSoup(response.content, 'lxml')
-            parser_map = self.PARSER_CONFIGS[parser_type]
 
-            # --- 使用经过验证的选择器 ---
-            title = soup.select_one(parser_map['title']).get_text(strip=True) if soup.select_one(
-                parser_map['title']) else 'N/A'
+            title_tag = soup.select_one("#papertitle")
+            title = title_tag.get_text(strip=True) if title_tag else "N/A"
 
-            # 作者字段可能包含多个标签，所以使用 select
-            authors_tags = soup.select(parser_map['authors'])
-            authors = ", ".join(
-                [tag.get_text(strip=True).replace("\n", "").strip() for tag in authors_tags]) if authors_tags else 'N/A'
+            author_tags = soup.select("#authors > b > i")
+            authors = ", ".join([a.get_text(strip=True) for a in author_tags]) if author_tags else "N/A"
 
-            abstract_tag = soup.select_one(parser_map['abstract'])
-            abstract = abstract_tag.get_text(strip=True) if abstract_tag else 'N/A'
+            abstract_tag = soup.select_one("#abstract")
+            abstract = abstract_tag.get_text(strip=True) if abstract_tag else "N/A"
 
-            pdf_url = None
-            if parser_map.get("pdf_link_from_html_url"):
-                pdf_url = url.replace('.html', '.pdf')
-            else:
-                pdf_link_tag = soup.select_one(parser_map['pdf_link'])
-                if pdf_link_tag:
-                    # 'meta' 标签用 'content' 属性, 'a' 标签用 'href'
-                    pdf_url = pdf_link_tag.get('content') or pdf_link_tag.get('href')
-                    if pdf_url and not pdf_url.startswith('http'):
-                        pdf_url = urljoin(url, pdf_url)
+            pdf_url_tag = soup.select_one('meta[name="citation_pdf_url"]')
+            pdf_url = pdf_url_tag['content'] if pdf_url_tag else None
+            if pdf_url and not pdf_url.startswith('http'):
+                pdf_url = urljoin(url, pdf_url)
 
-            paper_id = url.split('/')[-1].replace('.html', '').replace('.pdf', '')
+            paper_id = url.strip('/').split('/')[-1].replace('.html', '')
 
-            return {'id': paper_id, 'title': title, 'authors': authors, 'abstract': abstract, 'pdf_url': pdf_url,
-                    'source_url': url}
+            return {
+                'id': paper_id,
+                'title': title,
+                'authors': authors,
+                'abstract': abstract,
+                'pdf_url': pdf_url,
+                'source_url': url
+            }
         except Exception as e:
-            self.logger.debug(f"    -> Error parsing paper page {url}: {e}")
+            self.logger.debug(f"    -> 解析 CVF 详情页失败 {url}: {e}")
             return None
 
-==================== End of: src\scrapers\html_scraper.py ====================
+==================== End of: src\scrapers\cvf_scraper.py ====================
 
 
 
-==================== Start of: src\scrapers\openreview_scraper.py ====================
+==================== Start of: src\scrapers\iclr_scraper.py ====================
 
-# FILE: src/scrapers/openreview_scraper.py
+# FILE: src/scrapers/iclr_scraper.py
 
 import openreview
 import openreview.api
@@ -1988,17 +1832,13 @@ import numpy as np
 from tqdm import tqdm
 from itertools import islice
 import time
-import logging
 from typing import List, Dict, Any
 
-from src.scrapers.base_scraper import BaseScraper
+from .base_scraper import BaseScraper
 
 
-class OpenReviewScraper(BaseScraper):
-    """Scraper for conferences hosted on OpenReview, supporting both v1 and v2 APIs and optional review data fetching."""
-
-    def __init__(self, task_info: Dict[str, Any], logger: logging.Logger):
-        super().__init__(task_info, logger)
+class IclrScraper(BaseScraper):
+    """专门用于 ICLR (OpenReview) 的爬虫。"""
 
     def scrape(self) -> List[Dict[str, Any]]:
         api_version = self.task_info.get("api_version", "v2")
@@ -2006,58 +1846,45 @@ class OpenReviewScraper(BaseScraper):
         limit = self.task_info.get("limit")
         fetch_reviews = self.task_info.get("fetch_reviews", False)
 
-        self.logger.info(f"    -> Using OpenReview API v{api_version} for venue: {venue_id}")
+        self.logger.info(f"    -> 使用 OpenReview API v{api_version} for venue: {venue_id}")
         if fetch_reviews:
-            self.logger.info("    -> Review fetching is ENABLED. This will be slower due to API rate limits.")
+            self.logger.info("    -> 已启用审稿信息获取。由于API速率限制，速度会变慢。")
 
         try:
+            notes_list = []
             if api_version == "v1":
-                notes_list = self._scrape_v1(venue_id, limit)
-            else:
-                notes_list = self._scrape_v2(venue_id, limit)
+                client = openreview.Client(baseurl='https://api.openreview.net')
+                notes_iterator = client.get_all_notes(content={'venueid': venue_id})
+                notes_list = list(islice(notes_iterator, limit)) if limit else list(notes_iterator)
+            else:  # API v2
+                client = openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
+                notes_list = client.get_notes(content={'venueid': venue_id}, limit=limit) if limit else list(
+                    client.get_all_notes(content={'venueid': venue_id}))
 
             if not notes_list:
                 return []
 
-            self.logger.info(f"    -> Found {len(notes_list)} submissions to process.")
-
+            self.logger.info(f"    -> 找到了 {len(notes_list)} 份提交进行处理。")
             papers = []
-            client_v2 = openreview.api.OpenReviewClient(
+            client_v2_for_reviews = openreview.api.OpenReviewClient(
                 baseurl='https://api2.openreview.net') if fetch_reviews else None
 
-            # --- 核心修复点: `leave=True` ---
-            pbar_desc = f"    -> Parsing {self.task_info.get('conference', 'papers')}"
+            pbar_desc = f"    -> 正在解析 ICLR 论文"
             for note in tqdm(notes_list, desc=pbar_desc, leave=True):
                 paper_details = self._parse_note(note)
-                if fetch_reviews and client_v2:
-                    forum_id = note.id
-                    time.sleep(0.3)  # Rate limit
-                    review_details = self._fetch_review_details(client_v2, forum_id)
+                if fetch_reviews and client_v2_for_reviews:
+                    time.sleep(0.3)
+                    review_details = self._fetch_review_details(client_v2_for_reviews, note.id)
                     paper_details.update(review_details)
                 papers.append(paper_details)
             return papers
 
         except Exception as e:
-            self.logger.error(f"    [✖ ERROR] Failed to scrape OpenReview for {venue_id}: {e}", exc_info=True)
+            self.logger.error(f"    [✖ ERROR] ICLR OpenReview 抓取失败: {e}", exc_info=True)
             return []
 
-    def _scrape_v1(self, venue_id, limit):
-        client_v1 = openreview.Client(baseurl='https://api.openreview.net')
-        notes_iterator = client_v1.get_all_notes(content={'venueid': venue_id})
-        if limit:
-            self.logger.info(f"    -> Applying limit: processing first {limit} papers.")
-            return list(islice(notes_iterator, limit))
-        return list(notes_iterator)
-
-    def _scrape_v2(self, venue_id, limit):
-        client_v2 = openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
-        if limit:
-            self.logger.info(f"    -> Applying limit: fetching first {limit} papers using API limit.")
-            return client_v2.get_notes(content={'venueid': venue_id}, limit=limit)
-        notes_iterator = client_v2.get_all_notes(content={'venueid': venue_id})
-        return list(notes_iterator)
-
-    def _parse_note(self, note):
+    def _parse_note(self, note: Any) -> Dict[str, Any]:
+        """解析单个 OpenReview note 对象。"""
         content = note.content
 
         def get_field_robust(field_name, default_value):
@@ -2071,51 +1898,132 @@ class OpenReviewScraper(BaseScraper):
             'title': get_field_robust('title', 'N/A'),
             'authors': ', '.join(get_field_robust('authors', [])),
             'abstract': get_field_robust('abstract', 'N/A'),
-            'keywords': ', '.join(get_field_robust('keywords', [])),
             'pdf_url': f"https://openreview.net/pdf?id={note.id}",
             'source_url': f"https://openreview.net/forum?id={note.id}"
         }
 
-    def _fetch_review_details(self, client, forum_id):
+    def _fetch_review_details(self, client: openreview.api.OpenReviewClient, forum_id: str) -> Dict[str, Any]:
+        """获取单个论文的审稿信息。"""
+        ratings, decision = [], 'N/A'
         try:
             related_notes = client.get_notes(forum=forum_id)
-        except Exception:
-            return {'decision': 'N/A', 'avg_rating': None, 'review_ratings': []}
-        ratings, decision = [], 'N/A'
-        for note in related_notes:
-            if any(re.search(r'/Decision', inv, re.IGNORECASE) for inv in note.invitations):
-                decision_value = note.content.get('decision', {}).get('value')
-                if decision_value: decision = self._clean_decision(decision_value)
-        for note in related_notes:
-            if any(re.search(r'/Review|/Official_Review', inv, re.IGNORECASE) for inv in note.invitations):
-                rating_value = note.content.get('rating', {}).get('value')
-                if isinstance(rating_value, str):
-                    match = re.search(r'^\d+', rating_value)
-                    if match: ratings.append(int(match.group(0)))
-                elif isinstance(rating_value, (int, float)):
-                    ratings.append(int(rating_value))
+            for note in related_notes:
+                if any(re.search(r'/Decision', inv, re.IGNORECASE) for inv in note.invitations):
+                    decision_value = note.content.get('decision', {}).get('value')
+                    if decision_value: decision = str(decision_value)
+                if any(re.search(r'/Review|/Official_Review', inv, re.IGNORECASE) for inv in note.invitations):
+                    rating_val = note.content.get('rating', {}).get('value')
+                    if isinstance(rating_val, str):
+                        match = re.search(r'^\d+', rating_val)
+                        if match: ratings.append(int(match.group(0)))
+                    elif isinstance(rating_val, (int, float)):
+                        ratings.append(int(rating_val))
+        except Exception as e:
+            self.logger.debug(f"获取审稿信息失败 forum_id={forum_id}: {e}")
+
         return {'decision': decision, 'avg_rating': round(np.mean(ratings), 2) if ratings else None,
                 'review_ratings': ratings}
 
-    def _clean_decision(self, decision_str):
-        decision_str = str(decision_str).lower()
-        if 'oral' in decision_str: return 'Oral'
-        if 'spotlight' in decision_str: return 'Spotlight'
-        if 'poster' in decision_str: return 'Poster'
-        if 'reject' in decision_str: return 'Reject'
-        return 'Accept'
-
-==================== End of: src\scrapers\openreview_scraper.py ====================
+==================== End of: src\scrapers\iclr_scraper.py ====================
 
 
 
-==================== Start of: src\scrapers\selenium_scraper.py ====================
+==================== Start of: src\scrapers\icml_scraper.py ====================
 
-# FILE: src/scrapers/selenium_scraper.py
+# FILE: src/scrapers/icml_scraper.py
+
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from tqdm import tqdm
+from typing import List, Dict, Optional, Any
+from bs4.element import Tag
+
+from .base_scraper import BaseScraper
+
+
+class IcmlScraper(BaseScraper):
+    """专门用于 ICML (PMLR) 网站的爬虫。"""
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
+
+    def scrape(self) -> List[Dict[str, Any]]:
+        index_url = self.task_info["url"]
+        limit = self.task_info.get("limit")
+        papers = []
+
+        self.logger.info(f"    -> 正在抓取 ICML 索引页: {index_url}")
+        try:
+            response = requests.get(index_url, headers=self.HEADERS, timeout=20)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'lxml')
+
+            paper_containers = soup.select('div.paper')
+            self.logger.info(f"    -> 找到了 {len(paper_containers)} 篇论文。")
+
+            if limit:
+                paper_containers = paper_containers[:limit]
+                self.logger.info(f"    -> 应用限制：处理前 {limit} 篇论文。")
+
+            pbar_desc = f"    -> 正在解析 {self.task_info.get('conference')} 页面"
+            for paper_div in tqdm(paper_containers, desc=pbar_desc, leave=True):
+                paper_data = self._parse_paper_div(paper_div, index_url)
+                if paper_data:
+                    papers.append(paper_data)
+
+            return papers
+
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"    [✖ ERROR] 获取 ICML 索引页失败: {e}")
+            return []
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] 解析 ICML 页面时发生未知错误: {e}", exc_info=True)
+            return []
+
+    def _parse_paper_div(self, paper_div: Tag, base_url: str) -> Optional[Dict[str, Any]]:
+        """从单个 <div class="paper"> 中解析出所有信息。"""
+        try:
+            title_tag = paper_div.select_one('p.title')
+            title = title_tag.get_text(strip=True) if title_tag else "N/A"
+
+            authors_tag = paper_div.select_one('p.details span.authors')
+            authors = authors_tag.get_text(strip=True).replace(';', ', ') if authors_tag else "N/A"
+
+            links_p = paper_div.select_one('p.links')
+            if not links_p:
+                return None
+
+            source_url_tag = links_p.select_one('a:contains("abs")')
+            source_url = urljoin(base_url, source_url_tag['href']) if source_url_tag else 'N/A'
+
+            pdf_url_tag = links_p.select_one('a:contains("Download PDF")')
+            pdf_url = urljoin(base_url, pdf_url_tag['href']) if pdf_url_tag else 'N/A'
+
+            paper_id = source_url.split('/')[-1].replace('.html', '') if source_url != 'N/A' else title
+            abstract = "N/A (摘要需访问详情页)"
+
+            return {
+                'id': paper_id,
+                'title': title,
+                'authors': authors,
+                'abstract': abstract,
+                'pdf_url': pdf_url,
+                'source_url': source_url
+            }
+        except Exception as e:
+            self.logger.debug(f"    -> 从 ICML 容器解析失败: {e}")
+            return None
+
+==================== End of: src\scrapers\icml_scraper.py ====================
+
+
+
+==================== Start of: src\scrapers\kdd_scraper.py ====================
+
+# FILE: src/scrapers/kdd_scraper.py
 
 import time
-from urllib.parse import urljoin
-import logging
 from typing import List, Dict, Any
 
 from selenium import webdriver
@@ -2124,27 +2032,20 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
-from src.scrapers.base_scraper import BaseScraper
+from .base_scraper import BaseScraper
 
 
-class SeleniumScraper(BaseScraper):
-    """Scraper for dynamic websites. Primarily a reconnaissance tool."""
-    SITE_CONFIGS = {
-        'IJCAI': {
-            'paper_link_selector': 'div.paper_wrapper > div.details > a[href^="https://www.ijcai.org/proceedings"]'},
-        'default': {'paper_link_selector': 'a[href*="paper"], a[href*="article"], a[href*="abs"]'}
-    }
-
-    def __init__(self, task_info: Dict[str, Any], logger: logging.Logger):
-        super().__init__(task_info, logger)
+class KddScraper(BaseScraper):
+    """专门用于 KDD 网站的爬虫 (使用 Selenium)。"""
 
     def scrape(self) -> List[Dict[str, Any]]:
         url = self.task_info["url"]
-        parser_type = self.task_info.get("parser_type", "default")
         limit = self.task_info.get("limit")
-        site_config = self.SITE_CONFIGS.get(parser_type, self.SITE_CONFIGS['default'])
 
-        self.logger.info(f"    -> Starting Selenium for URL: {url}")
+        # KDD 特定的选择器
+        paper_link_selector = 'a.item-title'
+
+        self.logger.info(f"    -> 正在启动 Selenium 访问 (KDD): {url}")
         driver = None
         try:
             chrome_options = Options()
@@ -2154,27 +2055,21 @@ class SeleniumScraper(BaseScraper):
             chrome_options.add_argument(
                 'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
 
-            try:
-                service = Service(ChromeDriverManager().install())
-                driver = webdriver.Chrome(service=service, options=chrome_options)
-            except Exception as e:
-                self.logger.error(
-                    f"    [✖ ERROR] Failed to initialize WebDriver. Check your Chrome/ChromeDriver installation. Error: {e}")
-                return []
+            service = Service(ChromeDriverManager().install())
+            driver = webdriver.Chrome(service=service, options=chrome_options)
 
             driver.get(url)
-            self.logger.info("    -> Page loaded. Waiting 10s for dynamic content...")
+            self.logger.info("    -> 页面已加载. 等待 10 秒以处理动态内容...")
             time.sleep(10)
 
-            link_elements = driver.find_elements(By.CSS_SELECTOR, site_config['paper_link_selector'])
+            link_elements = driver.find_elements(By.CSS_SELECTOR, paper_link_selector)
             if not link_elements:
-                self.logger.warning(
-                    f"    -> Selenium found no paper links with selector '{site_config['paper_link_selector']}'")
+                self.logger.warning(f"    -> Selenium 未找到任何论文链接，使用的选择器是: '{paper_link_selector}'")
                 return []
 
-            self.logger.info(f"    -> Found {len(link_elements)} potential paper links.")
-            if limit is not None and len(link_elements) > limit:
-                self.logger.info(f"    -> Applying limit: processing first {limit} papers.")
+            self.logger.info(f"    -> 找到了 {len(link_elements)} 个潜在的论文链接。")
+            if limit and len(link_elements) > limit:
+                self.logger.info(f"    -> 应用限制：处理前 {limit} 个链接。")
                 link_elements = link_elements[:limit]
 
             papers = []
@@ -2182,19 +2077,256 @@ class SeleniumScraper(BaseScraper):
                 paper_url = link_elem.get_attribute('href')
                 paper_title = link_elem.text
                 if paper_url and paper_title:
-                    papers.append({'id': f"selenium_{parser_type}_{i}", 'title': paper_title.strip(),
-                                   'authors': 'N/A (Selenium Recon)', 'abstract': 'N/A (Selenium Recon)',
-                                   'pdf_url': None, 'source_url': paper_url})
+                    papers.append({
+                        'id': f"kdd_{self.task_info['year']}_{i}",
+                        'title': paper_title.strip(),
+                        'authors': 'N/A (KDD Selenium)',
+                        'abstract': 'N/A (KDD Selenium)',
+                        'pdf_url': None,
+                        'source_url': paper_url
+                    })
             return papers
 
         except Exception as e:
-            self.logger.error(f"    [✖ ERROR] Selenium scraping failed for {url}: {e}", exc_info=True)
+            self.logger.error(f"    [✖ ERROR] KDD Selenium 抓取失败 {url}: {e}", exc_info=True)
             return []
         finally:
             if driver:
                 driver.quit()
 
-==================== End of: src\scrapers\selenium_scraper.py ====================
+==================== End of: src\scrapers\kdd_scraper.py ====================
+
+
+
+==================== Start of: src\scrapers\neurips_scraper.py ====================
+
+# FILE: src/scrapers/neurips_scraper.py
+
+import openreview
+import openreview.api
+import re
+import numpy as np
+from tqdm import tqdm
+from itertools import islice
+import time
+from typing import List, Dict, Any
+
+from .base_scraper import BaseScraper
+
+
+class NeuripsScraper(BaseScraper):
+    """专门用于 NeurIPS (OpenReview) 的爬虫。"""
+
+    def scrape(self) -> List[Dict[str, Any]]:
+        api_version = self.task_info.get("api_version", "v2")
+        venue_id = self.task_info["venue_id"]
+        limit = self.task_info.get("limit")
+        fetch_reviews = self.task_info.get("fetch_reviews", False)
+
+        self.logger.info(f"    -> 使用 OpenReview API v{api_version} for venue: {venue_id}")
+        if fetch_reviews:
+            self.logger.info("    -> 已启用审稿信息获取。由于API速率限制，速度会变慢。")
+
+        try:
+            notes_list = []
+            if api_version == "v1":
+                client = openreview.Client(baseurl='https://api.openreview.net')
+                notes_iterator = client.get_all_notes(content={'venueid': venue_id})
+                notes_list = list(islice(notes_iterator, limit)) if limit else list(notes_iterator)
+            else:  # API v2
+                client = openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
+                notes_list = client.get_notes(content={'venueid': venue_id}, limit=limit) if limit else list(
+                    client.get_all_notes(content={'venueid': venue_id}))
+
+            if not notes_list:
+                return []
+
+            self.logger.info(f"    -> 找到了 {len(notes_list)} 份提交进行处理。")
+            papers = []
+            client_v2_for_reviews = openreview.api.OpenReviewClient(
+                baseurl='https://api2.openreview.net') if fetch_reviews else None
+
+            pbar_desc = f"    -> 正在解析 NeurIPS 论文"
+            for note in tqdm(notes_list, desc=pbar_desc, leave=True):
+                paper_details = self._parse_note(note)
+                if fetch_reviews and client_v2_for_reviews:
+                    time.sleep(0.3)
+                    review_details = self._fetch_review_details(client_v2_for_reviews, note.id)
+                    paper_details.update(review_details)
+                papers.append(paper_details)
+            return papers
+
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] NeurIPS OpenReview 抓取失败: {e}", exc_info=True)
+            return []
+
+    def _parse_note(self, note: Any) -> Dict[str, Any]:
+        """解析单个 OpenReview note 对象。"""
+        content = note.content
+
+        def get_field_robust(field_name, default_value):
+            field_data = content.get(field_name)
+            if isinstance(field_data, dict):
+                return field_data.get('value', default_value)
+            return field_data if field_data is not None else default_value
+
+        return {
+            'id': note.id,
+            'title': get_field_robust('title', 'N/A'),
+            'authors': ', '.join(get_field_robust('authors', [])),
+            'abstract': get_field_robust('abstract', 'N/A'),
+            'pdf_url': f"https://openreview.net/pdf?id={note.id}",
+            'source_url': f"https://openreview.net/forum?id={note.id}"
+        }
+
+    def _fetch_review_details(self, client: openreview.api.OpenReviewClient, forum_id: str) -> Dict[str, Any]:
+        """获取单个论文的审稿信息。"""
+        ratings, decision = [], 'N/A'
+        try:
+            related_notes = client.get_notes(forum=forum_id)
+            for note in related_notes:
+                if any(re.search(r'/Decision', inv, re.IGNORECASE) for inv in note.invitations):
+                    decision_value = note.content.get('decision', {}).get('value')
+                    if decision_value: decision = str(decision_value)
+                if any(re.search(r'/Review|/Official_Review', inv, re.IGNORECASE) for inv in note.invitations):
+                    rating_val = note.content.get('rating', {}).get('value')
+                    if isinstance(rating_val, str):
+                        match = re.search(r'^\d+', rating_val)
+                        if match: ratings.append(int(match.group(0)))
+                    elif isinstance(rating_val, (int, float)):
+                        ratings.append(int(rating_val))
+        except Exception as e:
+            self.logger.debug(f"获取审稿信息失败 forum_id={forum_id}: {e}")
+
+        return {'decision': decision, 'avg_rating': round(np.mean(ratings), 2) if ratings else None,
+                'review_ratings': ratings}
+
+==================== End of: src\scrapers\neurips_scraper.py ====================
+
+
+
+==================== Start of: src\scrapers\tpami_scraper.py ====================
+
+# FILE: src/scrapers/tpami_scraper.py (API Version)
+
+import requests
+import json
+from typing import List, Dict, Any
+from tqdm import tqdm
+import time
+
+from .base_scraper import BaseScraper
+
+
+class TpamiScraper(BaseScraper):
+    """
+    专门用于 IEEE TPAMI 期刊的爬虫 (使用后台 API)。
+    这是一个更稳定、更高效的方案，取代了 Selenium。
+    """
+    BASE_URL = "https://ieeexplore.ieee.org"
+
+    def _get_issue_number(self, punumber: str) -> str:
+        """
+        第一步: 调用 metadata API 获取最新的 'issueNumber'。
+        这个 issueNumber 是获取论文列表的关键。
+        """
+        metadata_url = f"{self.BASE_URL}/rest/publication/home/metadata?pubid={punumber}"
+        headers = {
+            # 关键请求头，模拟从期刊主页发起的请求
+            'Referer': f'{self.BASE_URL}/xpl/conhome/{punumber}/proceeding',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        self.logger.info(f"    -> 正在获取 issue number from: {metadata_url}")
+        try:
+            response = requests.get(metadata_url, headers=headers, timeout=20)
+            response.raise_for_status()
+            data = response.json()
+            # issueNumber 可以是 'Early Access' 的 ID，也可以是最新一期的 ID
+            issue_number = str(data['currentIssue']['issueNumber'])
+            self.logger.info(f"    -> 成功获取 issue number: {issue_number}")
+            return issue_number
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] 获取 issue number 失败: {e}")
+            return None
+
+    def scrape(self) -> List[Dict[str, Any]]:
+        punumber = self.task_info.get("punumber")
+        if not punumber:
+            self.logger.error("    [✖ ERROR] TPAMI task in YAML must have a 'punumber'. For TPAMI, it's '34'.")
+            return []
+
+        limit = self.task_info.get("limit")
+
+        issue_number = self._get_issue_number(punumber)
+        if not issue_number:
+            return []
+
+        papers = []
+        page_number = 1
+        total_records = 0
+        total_pages = 1  # 先假设只有一页
+
+        self.logger.info("    -> 开始逐页获取论文列表...")
+        pbar = tqdm(total=total_records or limit or 25, desc=f"    -> Scraping TPAMI page {page_number}")
+
+        while True:
+            toc_url = f"{self.BASE_URL}/rest/search/pub/{punumber}/issue/{issue_number}/toc"
+            payload = {
+                "pageNumber": str(page_number),
+                "punumber": str(punumber),
+                "isnumber": str(issue_number)
+            }
+            headers = {
+                'Referer': f'{self.BASE_URL}/xpl/conhome/{punumber}/proceeding?pageNumber={page_number}',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Content-Type': 'application/json;charset=UTF-8'
+            }
+
+            try:
+                response = requests.post(toc_url, headers=headers, data=json.dumps(payload), timeout=20)
+                response.raise_for_status()
+                data = response.json()
+
+                if page_number == 1:
+                    total_records = data.get('totalRecords', 0)
+                    total_pages = data.get('totalPages', 1)
+                    pbar.total = limit if limit and limit < total_records else total_records
+                    self.logger.info(f"    -> 共发现 {total_records} 篇论文，分布在 {total_pages} 页。")
+
+                records = data.get('records', [])
+                if not records:
+                    self.logger.info("    -> 当前页没有更多论文，抓取结束。")
+                    break
+
+                for record in records:
+                    papers.append({
+                        'id': record.get('articleNumber', ''),
+                        'title': record.get('highlightedTitle', 'N/A').replace('<br>', ' '),
+                        'authors': ', '.join([author['name'] for author in record.get('authors', [])]),
+                        'abstract': record.get('abstract', 'N/A'),
+                        'pdf_url': f"请访问源页面查看PDF（可能需要订阅）",
+                        'source_url': self.BASE_URL + record.get('documentLink', ''),
+                        'conference': 'TPAMI'
+                    })
+                    pbar.update(1)
+                    if limit and len(papers) >= limit:
+                        break
+
+                if (limit and len(papers) >= limit) or page_number >= total_pages:
+                    break
+
+                page_number += 1
+                pbar.set_description(f"    -> Scraping TPAMI page {page_number}")
+                time.sleep(1)  # 友好访问
+
+            except Exception as e:
+                self.logger.error(f"    [✖ ERROR] 在第 {page_number} 页抓取失败: {e}")
+                break
+
+        pbar.close()
+        return papers
+
+==================== End of: src\scrapers\tpami_scraper.py ====================
 
 
 
