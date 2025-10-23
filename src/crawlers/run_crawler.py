@@ -18,7 +18,7 @@ from src.scrapers.cvf_scraper import CvfScraper
 from src.scrapers.aaai_scraper import AaaiScraper
 from src.scrapers.kdd_scraper import KddScraper
 
-from src.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, LOG_DIR
+from src.crawlers.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, LOG_DIR
 from src.scrapers.tpami_scraper import TpamiScraper
 from src.utils.formatter import save_as_csv
 from src.utils.downloader import download_single_pdf

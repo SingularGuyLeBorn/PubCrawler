@@ -145,195 +145,281 @@ source_definitions:
 tasks:
 
   # === TPAMI: 测试最新的 5 篇 Early Access 论文 ===
-  - name: 'TPAMI_Latest_Test'
-    conference: 'TPAMI'
-    year: 2025
-    source_type: 'tpami'
-    enabled: true
-    punumber: '34' #
+#  - name: 'TPAMI_Latest_Test'
+#    conference: 'TPAMI'
+#    year: 2025
+#    source_type: 'tpami'
+#    enabled: true
+#    punumber: '34' #
 
 
   # === ICLR: 2022 - 2026 ===
-    
-  - name: 'ICLR_2026'
-    conference: 'ICLR'
-    year: 2026
-    source_type: 'iclr'
-    enabled: true
-    fetch_reviews: true
-    download_pdfs: true
 
-    
+#  - name: 'ICLR_2026'
+#    conference: 'ICLR'
+#    year: 2026
+#    source_type: 'iclr'
+#    enabled: true
+#    fetch_reviews: false
+#    download_pdfs: false
+
+
   - name: 'ICLR_2025'
     conference: 'ICLR'
     year: 2025
     source_type: 'iclr'
     enabled: true
-    fetch_reviews: true
-    download_pdfs: true
+    fetch_reviews: false
+    download_pdfs: false
 
-    
+
   - name: 'ICLR_2024'
     conference: 'ICLR'
     year: 2024
     source_type: 'iclr'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'ICLR_2023'
     conference: 'ICLR'
     year: 2023
     source_type: 'iclr'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'ICLR_2022'
     conference: 'ICLR'
     year: 2022
     source_type: 'iclr'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
+    download_pdfs: false
 
 
   # === NeurIPS: 2022 - 2026 ===
-    
+
   - name: 'NeurIPS_2026'
     conference: 'NeurIPS'
     year: 2026
     source_type: 'neurips'
     enabled: true
-    fetch_reviews: true
-    download_pdfs: true
+    fetch_reviews: false
+    download_pdfs: false
 
-    
+
   - name: 'NeurIPS_2025'
     conference: 'NeurIPS'
     year: 2025
     source_type: 'neurips'
     enabled: true
-    fetch_reviews: true
-    download_pdfs: true
+    fetch_reviews: false
+    download_pdfs: false
 
-    
+
   - name: 'NeurIPS_2024'
     conference: 'NeurIPS'
     year: 2024
     source_type: 'neurips'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'NeurIPS_2023'
     conference: 'NeurIPS'
     year: 2023
     source_type: 'neurips'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'NeurIPS_2022'
     conference: 'NeurIPS'
     year: 2022
     source_type: 'neurips'
     enabled: true
     fetch_reviews: false
-    download_pdfs: true
+    download_pdfs: false
 
 
   # === ICML: 2022 - 2026 ===
-    
+
   - name: 'ICML_2026'
     conference: 'ICML'
     year: 2026
     source_type: 'icml'
     enabled: true
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'ICML_2025'
     conference: 'ICML'
     year: 2025
     source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v237/"
     enabled: true
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'ICML_2024'
     conference: 'ICML'
     year: 2024
     source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v235/"
     enabled: true
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'ICML_2023'
     conference: 'ICML'
     year: 2023
     source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v202/"
     enabled: true
-    download_pdfs: true
+    download_pdfs: false
 
-    
+
   - name: 'ICML_2022'
     conference: 'ICML'
     year: 2022
     source_type: 'icml'
     url_override: "https://proceedings.mlr.press/v162/"
     enabled: true
-    download_pdfs: true
-
-
+    download_pdfs: false
+    
   # === ACL: 2022 - 2026 ===
-    
-  - name: 'ACL_2026'
-    conference: 'ACL'
-    year: 2026
-    source_type: 'acl'
-    enabled: true
-    download_pdfs: true
-
-    
-  - name: 'ACL_2025'
-    conference: 'ACL'
-    year: 2025
-    source_type: 'acl'
-    enabled: true
-    download_pdfs: true
-
-    
-  - name: 'ACL_2024'
-    conference: 'ACL'
-    year: 2024
-    source_type: 'acl'
-    url_override: "https://aclanthology.org/volumes/2024.acl-long/"
-    enabled: true
-    download_pdfs: true
-
-    
-  - name: 'ACL_2023'
-    conference: 'ACL'
-    year: 2023
-    source_type: 'acl'
-    enabled: true
-    download_pdfs: true
-
-    
-  - name: 'ACL_2022'
-    conference: 'ACL'
-    year: 2022
-    source_type: 'acl'
-    enabled: true
-    download_pdfs: true
+  # 对于 ACL, EMNLP, NAACL 等网站，由于其结构特殊，需要逐一访问论文详情页，
+  # 速度较慢。我们为此类任务引入了并发爬取优化。
+#
+#  - name: 'ACL_2026'
+#    conference: 'ACL'
+#    year: 2026
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    # 并发线程数 (推荐 8-32)。仅对 ACL, CVF 等需要逐页抓取的爬虫有效。
+#    max_workers: 24
+#    # 该任务最多爬取的论文数量上限。设置为 0 表示不限制，爬取所有找到的论文。
+#    max_papers_limit: 100
+#
+#
+#  - name: 'ACL_2025'
+#    conference: 'ACL'
+#    year: 2025
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    max_papers_limit: 100 # 0 表示不限制
+#
+#
+#  - name: 'ACL_2024'
+#    conference: 'ACL'
+#    year: 2024
+#    source_type: 'acl'
+#    url_override: "https://aclanthology.org/volumes/2024.acl-long/"
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    # 示例：如果只想爬取前500篇，可以设置为 500
+#    max_papers_limit: 500
+#
+#
+#  - name: 'ACL_2023'
+#    conference: 'ACL'
+#    year: 2023
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#
+#  - name: 'ACL_2022'
+#    conference: 'ACL'
+#    year: 2022
+#    source_type: 'acl'
+#    enabled: true
+#    download_pdfs: false
+#    # --- 并发优化参数 ---
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#
+#  # === CVF (CVPR, ICCV): 2022 - 2026 ===
+#  # CVF 旗下会议网站与 ACL 结构类似，同样受益于并发爬取优化。
+#
+#  - name: 'CVPR_2026'
+#    conference: 'CVPR'
+#    year: 2026
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2025'
+#    conference: 'CVPR'
+#    year: 2025
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2024'
+#    conference: 'CVPR'
+#    year: 2024
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2023'
+#    conference: 'CVPR'
+#    year: 2023
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'CVPR_2022'
+#    conference: 'CVPR'
+#    year: 2022
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'ICCV_2025' # ICCV 为奇数年举办
+#    conference: 'ICCV'
+#    year: 2025
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
+#
+#  - name: 'ICCV_2023' # ICCV 为奇数年举办
+#    conference: 'ICCV'
+#    year: 2023
+#    source_type: 'cvf'
+#    enabled: true
+#    download_pdfs: false
+#    max_workers: 24
+#    max_papers_limit: 100
 
 
 ==================== End of: configs\tasks.yaml ====================
@@ -456,651 +542,6 @@ tasks:
 
 
 
-==================== Start of: src\config.py ====================
-
-# FILE: src/config.py (应用了 Tqdm 安全日志)
-
-import logging
-import sys
-from pathlib import Path
-
-# 导入新的 Tqdm 日志处理器
-from src.utils.tqdm_logger import TqdmLoggingHandler
-# 保留彩色格式化器，因为它将被 Tqdm 处理器使用
-from src.utils.console_logger import ColoredFormatter
-
-# --- Project Structure ---
-ROOT_DIR = Path(__file__).parent.parent
-OUTPUT_DIR = ROOT_DIR / "output"
-LOG_DIR = ROOT_DIR / "logs"
-CONFIG_FILE = ROOT_DIR / "configs" / "tasks.yaml"
-# 新增 PAPERS_OUTPUT_DIR 定义
-PAPERS_OUTPUT_DIR = OUTPUT_DIR / "papers"
-
-
-# --- Create Directories ---
-OUTPUT_DIR.mkdir(exist_ok=True)
-LOG_DIR.mkdir(exist_ok=True)
-(ROOT_DIR / "configs").mkdir(exist_ok=True)
-# 新增: 确保 papers 目录也存在
-PAPERS_OUTPUT_DIR.mkdir(exist_ok=True) # <--- 添加这一行
-# 如果您也想确保 trends 目录存在，也可以添加:
-(OUTPUT_DIR / "trends").mkdir(exist_ok=True) # <--- 可选添加
-
-
-# --- Logging Configuration ---
-def get_logger(name: str, log_file: Path = LOG_DIR / "pubcrawler.log") -> logging.Logger:
-    """Configures and returns a logger with TQDM-safe colored console output."""
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        logger.setLevel(logging.INFO)
-
-        # --- 核心修改点: 使用 TqdmLoggingHandler ---
-
-        # 1. 控制台处理器 (使用 Tqdm 安全处理器和彩色格式)
-        tqdm_handler = TqdmLoggingHandler()
-        tqdm_handler.setLevel(logging.INFO)
-        console_format = '%(message)s'
-        console_formatter = ColoredFormatter(console_format)
-        tqdm_handler.setFormatter(console_formatter)
-
-        # 2. 文件处理器 (保持不变)
-        file_handler = logging.FileHandler(log_file, encoding='utf-8')
-        file_handler.setLevel(logging.INFO)
-        file_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        file_formatter = logging.Formatter(file_format)
-        file_handler.setFormatter(file_formatter)
-
-        logger.addHandler(tqdm_handler)
-        logger.addHandler(file_handler)
-
-        logger.propagate = False
-
-    return logger
-
-==================== End of: src\config.py ====================
-
-
-
-==================== Start of: src\main.py ====================
-
-# FILE: src/main.py
-
-import time
-import yaml
-import re
-import pandas as pd
-from collections import defaultdict
-from pathlib import Path
-from tqdm import tqdm
-
-# --- 导入所有独立的 Scraper ---
-from src.scrapers.iclr_scraper import IclrScraper
-from src.scrapers.neurips_scraper import NeuripsScraper
-from src.scrapers.icml_scraper import IcmlScraper
-from src.scrapers.acl_scraper import AclScraper
-from src.scrapers.arxiv_scraper import ArxivScraper
-from src.scrapers.cvf_scraper import CvfScraper
-from src.scrapers.aaai_scraper import AaaiScraper
-from src.scrapers.kdd_scraper import KddScraper
-
-from src.config import get_logger, CONFIG_FILE, OUTPUT_DIR
-from src.scrapers.tpami_scraper import TpamiScraper
-from src.utils.formatter import save_as_csv
-from src.utils.downloader import download_single_pdf
-from src.analysis.trends import run_single_task_analysis, run_cross_year_analysis
-from src.utils.console_logger import print_banner, COLORS
-
-OPERATION_MODE = "collect_and_analyze"
-
-logger = get_logger(__name__)
-PAPERS_OUTPUT_DIR = OUTPUT_DIR / "papers"
-TRENDS_OUTPUT_DIR = OUTPUT_DIR / "trends"
-
-# --- 注册所有独立的 Scraper ---
-SCRAPER_MAPPING = {
-    # OpenReview-based
-    "iclr": IclrScraper,
-    "neurips": NeuripsScraper,
-    # HTML-based
-    "icml": IcmlScraper,
-    "acl": AclScraper,
-    "cvf": CvfScraper,
-    # Selenium-based
-    "aaai": AaaiScraper,
-    "kdd": KddScraper,
-    # API-based
-    "arxiv": ArxivScraper,
-    "tpami": TpamiScraper,
-}
-
-# --- 建立从会议到其定义源的映射 ---
-CONF_TO_DEF_SOURCE = {
-    'ICLR': 'openreview',
-    'NeurIPS': 'openreview',
-    'ICML': 'html_pmlr',
-    'ACL': 'html_acl',
-    'EMNLP': 'html_acl',
-    'NAACL': 'html_acl',
-    'CVPR': 'html_cvf',
-    'ICCV': 'html_cvf',
-    'AAAI': 'selenium',
-    'KDD': 'selenium',
-
-}
-
-
-def load_config():
-    if not CONFIG_FILE.exists():
-        logger.error(f"[✖ ERROR] Config file not found at {CONFIG_FILE}")
-        return None
-    with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
-def build_task_info(task: dict, source_definitions: dict) -> dict:
-    task_info = task.copy()
-    conf = task.get('conference')
-    year = task.get('year')
-    source_type = task.get('source_type')
-
-    if source_type in ['arxiv', 'tpami']:
-        return task_info
-
-    if not conf or not year:
-        logger.error(f"[✖ ERROR] Task '{task.get('name')}' is missing 'conference' or 'year'.")
-        return None
-
-    def_source_key = CONF_TO_DEF_SOURCE.get(conf)
-    if not def_source_key:
-        logger.error(f"[✖ ERROR] No definition source found for conference '{conf}'.")
-        return None
-
-    if 'url_override' not in task:
-        try:
-            definition = source_definitions[def_source_key][conf]
-            if isinstance(definition, dict):
-                if 'venue_id' in definition:
-                    pattern = definition['venue_id']
-                    task_info['venue_id'] = pattern.replace('YYYY', str(year))
-                    task_info['api_version'] = 'v1' if year in definition.get('api_v1_years', []) else 'v2'
-                elif 'pattern_map' in definition:
-                    base_url = "https://aclanthology.org/"
-                    pattern = definition['pattern_map'].get(year)
-                    if not pattern:
-                        logger.error(f"[✖ ERROR] No URL pattern defined for {conf} in year {year}");
-                        return None
-                    task_info['url'] = f"{base_url}{pattern}/"
-            else:
-                task_info['url'] = definition.replace('YYYY', str(year))
-        except KeyError:
-            logger.error(f"[✖ ERROR] No definition found for source='{def_source_key}' and conf='{conf}'");
-            return None
-    else:
-        task_info['url'] = task['url_override']
-
-    return task_info
-
-
-def filter_papers(papers: list, filters: list) -> list:
-    if not filters: return papers
-    original_count = len(papers)
-    filter_regex = re.compile('|'.join(filters), re.IGNORECASE)
-    filtered_papers = [p for p in papers if filter_regex.search(p.get('title', '') + ' ' + p.get('abstract', ''))]
-    logger.info(
-        f"    {COLORS['STEP']}-> Filtered papers: {original_count} -> {len(filtered_papers)} using filters: {filters}")
-    return filtered_papers
-
-
-def collect_papers_from_tasks(tasks_to_run: list, source_definitions: dict) -> dict:
-    results_by_task = defaultdict(list)
-    for task in tasks_to_run:
-        task_name = task.get('name', f"{task.get('conference')}_{task.get('year')}")
-        if not task.get('enabled', False):
-            continue
-
-        logger.info(f"{COLORS['TASK_START']}[▶] STARTING TASK: {task_name}{COLORS['RESET']}")
-
-        scraper_class = SCRAPER_MAPPING.get(task['source_type'])
-        if not scraper_class:
-            logger.error(
-                f"{COLORS['ERROR']}[✖ FAILURE] No scraper registered for source_type: '{task['source_type']}'{COLORS['RESET']}\n");
-            continue
-
-        task_info = build_task_info(task, source_definitions)
-        if not task_info:
-            logger.error(
-                f"{COLORS['ERROR']}[✖ FAILURE] Could not build task info for '{task_name}'.{COLORS['RESET']}\n");
-            continue
-
-        try:
-            scraper = scraper_class(task_info, logger)
-            papers = scraper.scrape()
-            papers = filter_papers(papers, task.get('filters', []))
-
-            if papers:
-                for paper in papers:
-                    paper['year'] = task.get('year')
-                    paper['conference'] = task.get('conference')
-                results_by_task[task_name] = (papers, task)
-                logger.info(f"    {COLORS['STEP']}-> Successfully processed {len(papers)} papers.")
-            else:
-                logger.warning(f"[⚠ WARNING] No papers found for task: {task_name} (or none matched filters)")
-
-        except Exception as e:
-            logger.error(f"[✖ FAILURE] Unexpected error in task {task_name}: {e}", exc_info=True)
-
-        if task_name in results_by_task:
-            logger.info(f"{COLORS['SUCCESS']}[✔ SUCCESS] Task '{task_name}' completed.{COLORS['RESET']}\n")
-        else:
-            logger.info(f"{COLORS['WARNING']}[!] Task '{task_name}' finished with no results.{COLORS['RESET']}\n")
-        time.sleep(0.5)
-
-    return results_by_task
-
-
-def process_and_save_results(results_by_task: dict, base_output_dir: Path, perform_single_analysis: bool):
-    base_output_dir.mkdir(exist_ok=True, parents=True)
-    for task_name, (papers, task_config) in results_by_task.items():
-        conf, year = task_config.get('conference', 'Misc'), task_config.get('year', 'Latest')
-        task_output_dir = base_output_dir / conf / str(year)
-        task_output_dir.mkdir(exist_ok=True, parents=True)
-
-        logger.info(f"    -> Saving reports for '{task_name}' to {task_output_dir}")
-        save_as_csv(papers, task_name, task_output_dir)
-
-        if task_config.get('download_pdfs', False):
-            logger.info(f"    -> Starting PDF download for '{task_name}'...")
-            pdf_dir = task_output_dir / "pdfs"
-            pdf_dir.mkdir(exist_ok=True)
-            pbar_desc = f"    -> Downloading PDFs for {task_name}"
-            for paper in tqdm(papers, desc=pbar_desc, leave=True):
-                download_single_pdf(paper, pdf_dir)
-
-        if perform_single_analysis:
-            analysis_output_dir = task_output_dir / "analysis"
-            analysis_output_dir.mkdir(exist_ok=True)
-            logger.info(f"    -> Running single-task analysis for '{task_name}'...")
-            run_single_task_analysis(papers, task_name, analysis_output_dir)
-
-
-def load_all_data_for_cross_analysis(papers_dir: Path) -> dict:
-    if not papers_dir.exists():
-        logger.error(f"[✖ ERROR] Data directory not found: {papers_dir}.");
-        return {}
-    all_data_by_conf = defaultdict(list)
-    csv_files = list(papers_dir.rglob("*_data_*.csv"))
-    if not csv_files:
-        logger.warning("[⚠ WARNING] No CSV data files found for cross-year analysis.");
-        return {}
-    logger.info(f"    -> Loading {len(csv_files)} previously collected CSV file(s)...")
-    for csv_path in csv_files:
-        try:
-            conference = csv_path.parent.parent.name
-            df = pd.read_csv(csv_path)
-            df.fillna('', inplace=True)
-            if 'year' in df.columns:
-                df['year'] = pd.to_numeric(df['year'], errors='coerce').astype('Int64')
-            all_data_by_conf[conference].extend(df.to_dict('records'))
-        except Exception as e:
-            logger.error(f"[✖ ERROR] Failed to load data from {csv_path}: {e}")
-    return all_data_by_conf
-
-
-def main():
-    print_banner()
-    logger.info("=====================================================================================")
-    logger.info(f"Starting PubCrawler in mode: '{OPERATION_MODE}'")
-    logger.info("=====================================================================================\n")
-
-    config = load_config()
-    if not config:
-        return
-
-    if OPERATION_MODE in ["collect", "collect_and_analyze"]:
-        logger.info(f"{COLORS['PHASE']}+----------------------------------------------------------+")
-        logger.info(f"|    PHASE 1: PAPER COLLECTION & SINGLE-TASK ANALYSIS      |")
-        logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
-
-        collected_results = collect_papers_from_tasks(config.get('tasks', []), config.get('source_definitions', {}))
-
-        if collected_results:
-            logger.info(f"{COLORS['PHASE']}--- Processing & Saving Collected Results ---{COLORS['RESET']}")
-            process_and_save_results(collected_results, PAPERS_OUTPUT_DIR, perform_single_analysis=True)
-
-    if OPERATION_MODE in ["analyze", "collect_and_analyze"]:
-        logger.info(f"\n{COLORS['PHASE']}+----------------------------------------------------------+")
-        logger.info(f"|          PHASE 2: CROSS-YEAR TREND ANALYSIS              |")
-        logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
-
-        all_data_by_conf = load_all_data_for_cross_analysis(PAPERS_OUTPUT_DIR)
-
-        if not all_data_by_conf:
-            logger.warning("[⚠ WARNING] No data found to perform cross-year analysis.")
-        else:
-            for conference, papers in all_data_by_conf.items():
-                if not papers: continue
-                conf_trend_dir = TRENDS_OUTPUT_DIR / conference
-                conf_trend_dir.mkdir(exist_ok=True, parents=True)
-                logger.info(f"{COLORS['TASK_START']}[▶] Analyzing trends for: {conference}{COLORS['RESET']}")
-                run_cross_year_analysis(papers, conference, conf_trend_dir)
-                logger.info(
-                    f"{COLORS['SUCCESS']}[✔ SUCCESS] Cross-year analysis for '{conference}' completed.{COLORS['RESET']}\n")
-
-    logger.info("=====================================================================================")
-    logger.info("PubCrawler run finished successfully.")
-    logger.info("=====================================================================================")
-
-
-if __name__ == "__main__":
-    main()
-
-==================== End of: src\main.py ====================
-
-
-
-==================== Start of: src\models.py ====================
-
-# FILE: src/models.py
-
-from dataclasses import dataclass, field
-from typing import List, Optional
-
-
-@dataclass
-class Paper:
-    """
-    一个用于存储论文信息的数据类，确保所有 scraper 返回统一的结构。
-    """
-    id: str
-    title: str
-    authors: List[str]
-    summary: str
-    published_date: str
-    updated_date: str
-
-    pdf_url: Optional[str] = None
-    categories: List[str] = field(default_factory=list)
-    primary_category: Optional[str] = None
-
-    # 发表信息
-    journal_ref: Optional[str] = None
-    doi: Optional[str] = None
-
-    # 额外备注，例如项目主页
-    comment: Optional[str] = None
-
-    # 作者及其单位的详细信息
-    author_details: List[str] = field(default_factory=list)
-
-# END OF FILE: src/models.py
-
-==================== End of: src\models.py ====================
-
-
-
-==================== Start of: src\processor.py ====================
-
-# FILE: src/processor.py
-
-import logging
-import os
-import requests
-import zipfile
-import re
-from typing import Iterator, Dict, Any
-from tqdm import tqdm
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-class Processor:
-    """
-    Processes a stream of paper data to generate output files.
-    - A summary.txt file for LLM analysis.
-    - A compressed .zip file containing all downloaded PDFs.
-    """
-
-    def __init__(self, output_dir: str = 'output', download_pdfs: bool = False):
-        self.output_dir = output_dir
-        self.download_pdfs = download_pdfs
-        self.summary_path = os.path.join(self.output_dir, 'summary.txt')
-        self.zip_path = os.path.join(self.output_dir, 'papers.zip')
-
-        # Ensure output directory exists
-        os.makedirs(self.output_dir, exist_ok=True)
-
-    def _sanitize_filename(self, title: str) -> str:
-        """Creates a safe filename from a paper title."""
-        # Remove invalid characters
-        sanitized = re.sub(r'[\\/*?:"<>|]', "", title)
-        # Truncate to a reasonable length
-        return (sanitized[:100] + '.pdf') if len(sanitized) > 100 else (sanitized + '.pdf')
-
-    def _format_summary_entry(self, paper_data: Dict[str, Any]) -> str:
-        """Formats a single paper's data into the specified text format."""
-        # Safely get all required fields
-        title = paper_data.get('title', 'N/A')
-        authors = ", ".join(paper_data.get('authors', []))
-        conference = paper_data.get('conference', 'N/A')
-        year = paper_data.get('year', 'N/A')
-        source_url = paper_data.get('source_url', 'N/A')
-        pdf_link = paper_data.get('pdf_link', 'N/A')
-        abstract = paper_data.get('abstract', 'No abstract available.')
-        reviews = paper_data.get('reviews', [])
-
-        # Build the entry string
-        entry = []
-        entry.append("=" * 80)
-        entry.append(f"Title: {title}")
-        entry.append(f"Authors: {authors}")
-        entry.append(f"Conference: {conference} {year}")
-        entry.append(f"Source URL: {source_url}")
-        entry.append(f"PDF Link: {pdf_link}")
-        entry.append("\n--- Abstract ---")
-        entry.append(abstract)
-
-        if reviews:
-            entry.append(f"\n--- Reviews ({len(reviews)}) ---")
-            for i, review in enumerate(reviews, 1):
-                review_title = review.get('title', 'N/A')
-                review_comment = review.get('comment', 'No comment.')
-                review_decision = review.get('decision', None)
-                review_rating = review.get('rating', None)
-
-                entry.append(f"\n[Review {i}]")
-                entry.append(f"Title: {review_title}")
-                if review_decision:
-                    entry.append(f"Decision: {review_decision}")
-                if review_rating:
-                    entry.append(f"Rating: {review_rating}")
-                entry.append(f"Comment: {review_comment}")
-
-        entry.append("=" * 80 + "\n\n")
-        return "\n".join(entry)
-
-    def _download_pdf(self, pdf_url: str, filename: str, zip_file: zipfile.ZipFile):
-        """Downloads a PDF in streaming fashion and adds it to the zip archive."""
-        if not pdf_url:
-            logging.warning(f"Skipping download for '{filename}' due to missing URL.")
-            return
-
-        temp_pdf_path = os.path.join(self.output_dir, filename)
-        try:
-            logging.info(f"Downloading: {pdf_url}")
-            with requests.get(pdf_url, stream=True, timeout=30, headers=HEADERS) as r:
-                r.raise_for_status()
-                with open(temp_pdf_path, 'wb') as f:
-                    # Download in chunks to keep memory usage low
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
-
-            # Add the downloaded file to the zip archive
-            zip_file.write(temp_pdf_path, arcname=filename)
-            logging.info(f"Added to zip: {filename}")
-
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to download {pdf_url}: {e}")
-        except Exception as e:
-            logging.error(f"An error occurred while handling {filename}: {e}")
-        finally:
-            # Clean up the temporary PDF file
-            if os.path.exists(temp_pdf_path):
-                os.remove(temp_pdf_path)
-
-    def process_papers(self, papers_iterator: Iterator[Dict[str, Any]], total: int):
-        """
-        The main processing pipeline. Iterates through papers and writes to files.
-        """
-        logging.info("Starting paper processing pipeline...")
-        logging.info(f"Summary will be saved to: {self.summary_path}")
-        if self.download_pdfs:
-            logging.info(f"PDFs will be saved to: {self.zip_path}")
-        else:
-            logging.info("PDF download is disabled.")
-
-        # Clear summary file at the start of a run
-        with open(self.summary_path, 'w', encoding='utf-8') as f:
-            f.write("--- PubCrawler Summary ---\n\n")
-
-        try:
-            with zipfile.ZipFile(self.zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                # Use tqdm for a nice progress bar
-                pbar = tqdm(papers_iterator, total=total, desc="Processing papers")
-                for paper_data in pbar:
-                    # 1. Format and append to summary.txt
-                    summary_entry = self._format_summary_entry(paper_data)
-                    with open(self.summary_path, 'a', encoding='utf-8') as f:
-                        f.write(summary_entry)
-
-                    # 2. Download PDF if enabled
-                    if self.download_pdfs:
-                        filename = self._sanitize_filename(paper_data.get('title', 'untitled'))
-                        self._download_pdf(paper_data.get('pdf_link'), filename, zipf)
-
-        except Exception as e:
-            logging.error(f"A critical error occurred during processing: {e}")
-
-        logging.info("Processing pipeline complete.")
-
-# END OF FILE: src/processor.py
-
-==================== End of: src\processor.py ====================
-
-
-
-==================== Start of: src\search_local.py ====================
-
-# FILE: search_local.py
-
-import pandas as pd
-from pathlib import Path
-import time
-import textwrap
-
-# --- 配置 ---
-# 指向您的论文数据存储目录
-PAPERS_DIR = Path(__file__).parent / "output" / "papers"
-
-
-def load_all_papers_from_csv(directory: Path) -> pd.DataFrame:
-    """
-    递归加载指定目录下所有的 _data_*.csv 文件，并将它们合并成一个 DataFrame。
-    """
-    print(f"[*] 正在从 {directory} 加载所有论文数据...")
-    csv_files = list(directory.rglob("*_data_*.csv"))
-
-    if not csv_files:
-        print(f"[!] 警告: 在目录下没有找到任何 '_data_*.csv' 文件。")
-        return None
-
-    df_list = []
-    for f in csv_files:
-        try:
-            df = pd.read_csv(f)
-            # 添加一列来记录数据来源文件，方便溯源
-            df['source_file'] = f.name
-            df_list.append(df)
-        except Exception as e:
-            print(f"[!] 错误: 加载文件 {f} 失败: {e}")
-
-    if not df_list:
-        return None
-
-    # 合并所有的 DataFrame
-    full_df = pd.concat(df_list, ignore_index=True)
-
-    # 简单清洗，填充缺失的 'abstract' 和 'title'
-    full_df['abstract'] = full_df['abstract'].fillna('')
-    full_df['title'] = full_df['title'].fillna('')
-
-    print(f"[✔] 加载完成！共找到 {len(full_df)} 篇论文记录，来自 {len(csv_files)} 个文件。")
-    return full_df
-
-
-def search_papers(df: pd.DataFrame, query: str):
-    """
-    在 DataFrame 中搜索包含查询关键词的论文。
-    """
-    print(f"\n[*] 正在搜索关键词: '{query}'...")
-    start_time = time.time()
-
-    # 在 'title' 和 'abstract' 两列中进行不区分大小写的搜索
-    # .str.contains() 是进行子字符串匹配的核心
-    results = df[
-        df['title'].str.contains(query, case=False, na=False) |
-        df['abstract'].str.contains(query, case=False, na=False)
-        ]
-
-    end_time = time.time()
-    print(f"[✔] 搜索完成，耗时 {end_time - start_time:.4f} 秒，找到 {len(results)} 个匹配项。")
-
-    if not results.empty:
-        print("\n--- 搜索结果 ---")
-        for index, row in results.iterrows():
-            print(f"\n[{index + 1}] {row['title']}")
-            print(f"  - 作者: {row.get('authors', 'N/A')}")
-            print(f"  - 会议/期刊: {row.get('conference', 'N/A')} {row.get('year', '')}")
-            # 使用 textwrap 来美化摘要的换行
-            abstract = row.get('abstract', '无摘要')
-            wrapped_abstract = textwrap.fill(abstract, width=100, initial_indent='  - 摘要: ', subsequent_indent='    ')
-            print(wrapped_abstract)
-            print(f"  - 来源文件: {row['source_file']}")
-            print("-" * 20)
-
-
-def main():
-    """主函数"""
-    paper_database = load_all_papers_from_csv(PAPERS_DIR)
-
-    if paper_database is None:
-        print("\n[✖] 无法进行搜索，因为本地数据库为空。")
-        print("请先运行 'python src/main.py' 来采集论文数据。")
-        return
-
-    while True:
-        try:
-            # 获取用户输入
-            user_query = input("\n请输入搜索关键词 (或输入 'exit' 退出): ")
-            if user_query.lower() == 'exit':
-                break
-            if not user_query:
-                continue
-
-            search_papers(paper_database, user_query)
-
-        except KeyboardInterrupt:
-            print("\n[👋] 收到退出信号，再见！")
-            break
-
-
-if __name__ == "__main__":
-    main()
-
-==================== End of: src\search_local.py ====================
-
-
-
 ==================== Start of: src\__init__.py ====================
 
 # FILE: src/__init__.py
@@ -1213,7 +654,7 @@ import seaborn as sns
 from pathlib import Path
 import matplotlib.ticker as mtick
 
-from src.config import ROOT_DIR, get_logger
+from src.crawlers.config import ROOT_DIR, get_logger
 
 logger = get_logger(__name__)
 TREND_CONFIG_FILE = ROOT_DIR / "configs" / "trends.yaml"
@@ -1429,6 +870,540 @@ def run_cross_year_analysis(papers: list, conference_name: str, output_dir: Path
 
 
 
+==================== Start of: src\crawlers\config.py ====================
+
+# FILE: src/config.py (Structured Logging)
+
+import logging
+from pathlib import Path
+
+# 导入 Tqdm 日志处理器和彩色格式化器
+from src.utils.tqdm_logger import TqdmLoggingHandler
+from src.utils.console_logger import ColoredFormatter, COLORS
+
+# --- Project Structure ---
+# --- 【核心修复点】 ---
+# 多加一个 .parent 就能正确地回到项目根目录
+ROOT_DIR = Path(__file__).parent.parent.parent
+
+OUTPUT_DIR = ROOT_DIR / "output"
+LOG_DIR = ROOT_DIR / "logs" # <-- 现在这个 logs 路径也正确了
+CONFIG_FILE = ROOT_DIR / "configs" / "tasks.yaml" # <-- 现在这个 configs 路径也正确了
+
+METADATA_OUTPUT_DIR = OUTPUT_DIR / "metadata"
+PDF_DOWNLOAD_DIR = OUTPUT_DIR / "pdfs"
+TRENDS_OUTPUT_DIR = OUTPUT_DIR / "trends"
+
+# --- Create Directories ---
+# 这部分代码现在可以正常工作了
+OUTPUT_DIR.mkdir(exist_ok=True)
+LOG_DIR.mkdir(exist_ok=True)
+
+
+# --- Logging Configuration (核心修改点) ---
+def get_logger(name: str, log_file: Path = LOG_DIR / "pubcrawler.log") -> logging.Logger:
+    """
+    配置并返回一个日志记录器。
+    - 控制台输出: 简洁、彩色、结构化的信息。
+    - 文件输出: 包含完整 Traceback 的详细信息，用于调试。
+    """
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+
+        # 1. 控制台处理器 (使用 Tqdm 安全处理器和新的结构化彩色格式)
+        tqdm_handler = TqdmLoggingHandler()
+        tqdm_handler.setLevel(logging.INFO)
+        # --- 新的结构化格式 ---
+        # %(levelname)s 会被 ColoredFormatter 转换成带颜色的标识
+        console_format = f"{COLORS['STEP']}[%(levelname)s]{COLORS['RESET']} %(message)s"
+        console_formatter = ColoredFormatter(console_format)
+        tqdm_handler.setFormatter(console_formatter)
+
+        # 2. 文件处理器 (保持不变，用于记录全部细节)
+        file_handler = logging.FileHandler(log_file, 'a', encoding='utf-8') # 使用 'a' 模式追加日志
+        file_handler.setLevel(logging.INFO)
+        file_format = '%(asctime)s - %(name)s - [%(levelname)s] - %(message)s'
+        file_formatter = logging.Formatter(file_format)
+        file_handler.setFormatter(file_formatter)
+
+        logger.addHandler(tqdm_handler)
+        logger.addHandler(file_handler)
+
+        logger.propagate = False # 防止日志向上传播到 root logger
+
+    return logger
+
+==================== End of: src\crawlers\config.py ====================
+
+
+
+==================== Start of: src\crawlers\models.py ====================
+
+# FILE: src/models.py
+
+from dataclasses import dataclass, field
+from typing import List, Optional
+
+
+@dataclass
+class Paper:
+    """
+    一个用于存储论文信息的数据类，确保所有 scraper 返回统一的结构。
+    """
+    id: str
+    title: str
+    authors: List[str]
+    summary: str
+    published_date: str
+    updated_date: str
+
+    pdf_url: Optional[str] = None
+    categories: List[str] = field(default_factory=list)
+    primary_category: Optional[str] = None
+
+    # 发表信息
+    journal_ref: Optional[str] = None
+    doi: Optional[str] = None
+
+    # 额外备注，例如项目主页
+    comment: Optional[str] = None
+
+    # 作者及其单位的详细信息
+    author_details: List[str] = field(default_factory=list)
+
+# END OF FILE: src/models.py
+
+==================== End of: src\crawlers\models.py ====================
+
+
+
+==================== Start of: src\crawlers\processor.py ====================
+
+# FILE: src/processor.py
+
+import logging
+import os
+import requests
+import zipfile
+import re
+from typing import Iterator, Dict, Any
+from tqdm import tqdm
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
+class Processor:
+    """
+    Processes a stream of paper data to generate output files.
+    - A summary.txt file for LLM analysis.
+    - A compressed .zip file containing all downloaded PDFs.
+    """
+
+    def __init__(self, output_dir: str = 'output', download_pdfs: bool = False):
+        self.output_dir = output_dir
+        self.download_pdfs = download_pdfs
+        self.summary_path = os.path.join(self.output_dir, 'summary.txt')
+        self.zip_path = os.path.join(self.output_dir, 'papers.zip')
+
+        # Ensure output directory exists
+        os.makedirs(self.output_dir, exist_ok=True)
+
+    def _sanitize_filename(self, title: str) -> str:
+        """Creates a safe filename from a paper title."""
+        # Remove invalid characters
+        sanitized = re.sub(r'[\\/*?:"<>|]', "", title)
+        # Truncate to a reasonable length
+        return (sanitized[:100] + '.pdf') if len(sanitized) > 100 else (sanitized + '.pdf')
+
+    def _format_summary_entry(self, paper_data: Dict[str, Any]) -> str:
+        """Formats a single paper's data into the specified text format."""
+        # Safely get all required fields
+        title = paper_data.get('title', 'N/A')
+        authors = ", ".join(paper_data.get('authors', []))
+        conference = paper_data.get('conference', 'N/A')
+        year = paper_data.get('year', 'N/A')
+        source_url = paper_data.get('source_url', 'N/A')
+        pdf_link = paper_data.get('pdf_link', 'N/A')
+        abstract = paper_data.get('abstract', 'No abstract available.')
+        reviews = paper_data.get('reviews', [])
+
+        # Build the entry string
+        entry = []
+        entry.append("=" * 80)
+        entry.append(f"Title: {title}")
+        entry.append(f"Authors: {authors}")
+        entry.append(f"Conference: {conference} {year}")
+        entry.append(f"Source URL: {source_url}")
+        entry.append(f"PDF Link: {pdf_link}")
+        entry.append("\n--- Abstract ---")
+        entry.append(abstract)
+
+        if reviews:
+            entry.append(f"\n--- Reviews ({len(reviews)}) ---")
+            for i, review in enumerate(reviews, 1):
+                review_title = review.get('title', 'N/A')
+                review_comment = review.get('comment', 'No comment.')
+                review_decision = review.get('decision', None)
+                review_rating = review.get('rating', None)
+
+                entry.append(f"\n[Review {i}]")
+                entry.append(f"Title: {review_title}")
+                if review_decision:
+                    entry.append(f"Decision: {review_decision}")
+                if review_rating:
+                    entry.append(f"Rating: {review_rating}")
+                entry.append(f"Comment: {review_comment}")
+
+        entry.append("=" * 80 + "\n\n")
+        return "\n".join(entry)
+
+    def _download_pdf(self, pdf_url: str, filename: str, zip_file: zipfile.ZipFile):
+        """Downloads a PDF in streaming fashion and adds it to the zip archive."""
+        if not pdf_url:
+            logging.warning(f"Skipping download for '{filename}' due to missing URL.")
+            return
+
+        temp_pdf_path = os.path.join(self.output_dir, filename)
+        try:
+            logging.info(f"Downloading: {pdf_url}")
+            with requests.get(pdf_url, stream=True, timeout=30, headers=HEADERS) as r:
+                r.raise_for_status()
+                with open(temp_pdf_path, 'wb') as f:
+                    # Download in chunks to keep memory usage low
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+
+            # Add the downloaded file to the zip archive
+            zip_file.write(temp_pdf_path, arcname=filename)
+            logging.info(f"Added to zip: {filename}")
+
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Failed to download {pdf_url}: {e}")
+        except Exception as e:
+            logging.error(f"An error occurred while handling {filename}: {e}")
+        finally:
+            # Clean up the temporary PDF file
+            if os.path.exists(temp_pdf_path):
+                os.remove(temp_pdf_path)
+
+    def process_papers(self, papers_iterator: Iterator[Dict[str, Any]], total: int):
+        """
+        The main processing pipeline. Iterates through papers and writes to files.
+        """
+        logging.info("Starting paper processing pipeline...")
+        logging.info(f"Summary will be saved to: {self.summary_path}")
+        if self.download_pdfs:
+            logging.info(f"PDFs will be saved to: {self.zip_path}")
+        else:
+            logging.info("PDF download is disabled.")
+
+        # Clear summary file at the start of a run
+        with open(self.summary_path, 'w', encoding='utf-8') as f:
+            f.write("--- PubCrawler Summary ---\n\n")
+
+        try:
+            with zipfile.ZipFile(self.zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                # Use tqdm for a nice progress bar
+                pbar = tqdm(papers_iterator, total=total, desc="Processing papers")
+                for paper_data in pbar:
+                    # 1. Format and append to summary.txt
+                    summary_entry = self._format_summary_entry(paper_data)
+                    with open(self.summary_path, 'a', encoding='utf-8') as f:
+                        f.write(summary_entry)
+
+                    # 2. Download PDF if enabled
+                    if self.download_pdfs:
+                        filename = self._sanitize_filename(paper_data.get('title', 'untitled'))
+                        self._download_pdf(paper_data.get('pdf_link'), filename, zipf)
+
+        except Exception as e:
+            logging.error(f"A critical error occurred during processing: {e}")
+
+        logging.info("Processing pipeline complete.")
+
+# END OF FILE: src/processor.py
+
+==================== End of: src\crawlers\processor.py ====================
+
+
+
+==================== Start of: src\crawlers\run_crawler.py ====================
+
+# FILE: src/main.py (Optimized for Memory)
+
+import time
+import yaml
+import re
+import pandas as pd
+from collections import defaultdict
+from pathlib import Path
+from tqdm import tqdm
+
+# --- 导入所有独立的 Scraper ---
+from src.scrapers.iclr_scraper import IclrScraper
+from src.scrapers.neurips_scraper import NeuripsScraper
+from src.scrapers.icml_scraper import IcmlScraper
+from src.scrapers.acl_scraper import AclScraper
+from src.scrapers.arxiv_scraper import ArxivScraper
+from src.scrapers.cvf_scraper import CvfScraper
+from src.scrapers.aaai_scraper import AaaiScraper
+from src.scrapers.kdd_scraper import KddScraper
+
+from src.crawlers.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, LOG_DIR
+from src.scrapers.tpami_scraper import TpamiScraper
+from src.utils.formatter import save_as_csv
+from src.utils.downloader import download_single_pdf
+from src.analysis.trends import run_single_task_analysis, run_cross_year_analysis
+from src.utils.console_logger import print_banner, COLORS
+
+OPERATION_MODE = "collect_and_analyze"
+
+logger = get_logger(__name__)
+
+# --- Scraper 和 Conference 定义 (保持不变) ---
+SCRAPER_MAPPING = {"iclr": IclrScraper, "neurips": NeuripsScraper, "icml": IcmlScraper, "acl": AclScraper,
+                   "cvf": CvfScraper, "aaai": AaaiScraper, "kdd": KddScraper, "arxiv": ArxivScraper,
+                   "tpami": TpamiScraper}
+CONF_TO_DEF_SOURCE = {'ICLR': 'openreview', 'NeurIPS': 'openreview', 'ICML': 'html_pmlr', 'ACL': 'html_acl',
+                      'EMNLP': 'html_acl', 'NAACL': 'html_acl', 'CVPR': 'html_cvf', 'ICCV': 'html_cvf',
+                      'AAAI': 'selenium', 'KDD': 'selenium'}
+
+# 定义哪些爬虫类型支持并发优化，以便在主程序中给出提示
+CONCURRENT_SCRAPER_TYPES = ['acl', 'cvf']
+
+
+def load_config():
+    if not CONFIG_FILE.exists():
+        logger.error(f"[✖ ERROR] Config file not found at {CONFIG_FILE}")
+        return None
+    with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+
+def build_task_info(task: dict, source_definitions: dict) -> dict:
+    # 此函数逻辑保持不变
+    task_info = task.copy()
+    conf, year, source_type = task.get('conference'), task.get('year'), task.get('source_type')
+    if source_type in ['arxiv', 'tpami']: return task_info
+    if not conf or not year:
+        logger.error(f"[✖ ERROR] Task '{task.get('name')}' is missing 'conference' or 'year'.");
+        return None
+    def_source_key = CONF_TO_DEF_SOURCE.get(conf)
+    if not def_source_key:
+        logger.error(f"[✖ ERROR] No definition source found for conference '{conf}'.");
+        return None
+    if 'url_override' not in task:
+        try:
+            definition = source_definitions[def_source_key][conf]
+            if isinstance(definition, dict):
+                if 'venue_id' in definition:
+                    task_info['venue_id'] = definition['venue_id'].replace('YYYY', str(year))
+                    task_info['api_version'] = 'v1' if year in definition.get('api_v1_years', []) else 'v2'
+                elif 'pattern_map' in definition:
+                    base_url = "https://aclanthology.org/"
+                    pattern = definition['pattern_map'].get(year)
+                    if not pattern:
+                        logger.error(f"[✖ ERROR] No URL pattern defined for {conf} in year {year}");
+                        return None
+                    task_info['url'] = f"{base_url}{pattern}/"
+            else:
+                task_info['url'] = definition.replace('YYYY', str(year))
+        except KeyError:
+            logger.error(f"[✖ ERROR] No definition for source='{def_source_key}' and conf='{conf}'");
+            return None
+    else:
+        task_info['url'] = task['url_override']
+    return task_info
+
+
+def filter_papers(papers: list, filters: list) -> list:
+    # 此函数逻辑保持不变
+    if not filters: return papers
+    original_count = len(papers)
+    filter_regex = re.compile('|'.join(filters), re.IGNORECASE)
+    filtered_papers = [p for p in papers if filter_regex.search(p.get('title', '') + ' ' + p.get('abstract', ''))]
+    logger.info(
+        f"    {COLORS['STEP']}-> Filtered papers: {original_count} -> {len(filtered_papers)} using filters: {filters}")
+    return filtered_papers
+
+
+def run_tasks_sequentially(tasks_to_run: list, source_definitions: dict, perform_single_analysis: bool) -> list:
+    """
+    顺序执行每个任务，并在每个任务完成后立即处理和保存结果，以节省内存。
+    返回所有任务收集到的论文总列表，用于后续的跨年分析。
+    """
+    all_collected_papers = []
+
+    for task in tasks_to_run:
+        task_name = task.get('name', f"{task.get('conference')}_{task.get('year')}")
+        if not task.get('enabled', False):
+            continue
+
+        logger.info(f"{COLORS['TASK_START']}[▶] STARTING TASK: {task_name}{COLORS['RESET']}")
+
+        # --- 新增的提示信息 ---
+        source_type = task.get('source_type')
+        if source_type in CONCURRENT_SCRAPER_TYPES:
+            max_workers = task.get('max_workers', 1)  # 默认为1保证安全
+            logger.info(f"    {COLORS['STEP']}[!] 注意: 此任务类型 ({source_type}) 需要逐一访问论文详情页。")
+            logger.info(
+                f"    {COLORS['STEP']}    已启用 {max_workers} 个并发线程进行加速。尽管如此，如果论文数量庞大，仍可能需要较长时间。")
+
+        scraper_class = SCRAPER_MAPPING.get(source_type)
+        if not scraper_class:
+            logger.error(
+                f"{COLORS['ERROR']}[✖ FAILURE] No scraper for source: '{task['source_type']}'{COLORS['RESET']}\n");
+            continue
+
+        task_info = build_task_info(task, source_definitions)
+        if not task_info:
+            logger.error(
+                f"{COLORS['ERROR']}[✖ FAILURE] Could not build task info for '{task_name}'.{COLORS['RESET']}\n");
+            continue
+
+        try:
+            scraper = scraper_class(task_info, logger)
+            papers = scraper.scrape()
+            papers = filter_papers(papers, task.get('filters', []))
+
+            if papers:
+                for paper in papers:
+                    paper['year'] = task.get('year')
+                    paper['conference'] = task.get('conference')
+
+                logger.info(f"    {COLORS['STEP']}-> Successfully processed {len(papers)} papers for '{task_name}'.")
+
+                logger.info(f"{COLORS['PHASE']}--- Processing & Saving Results for '{task_name}' ---{COLORS['RESET']}")
+                conf, year = task.get('conference', 'Misc'), task.get('year', 'Latest')
+
+                metadata_dir = METADATA_OUTPUT_DIR / conf / str(year)
+                metadata_dir.mkdir(exist_ok=True, parents=True)
+                logger.info(f"    -> Saving metadata to {metadata_dir}")
+                save_as_csv(papers, task_name, metadata_dir)
+
+                if task.get('download_pdfs', False):
+                    logger.info(f"    -> Starting PDF download...")
+                    pdf_dir = PDF_DOWNLOAD_DIR / conf / str(year)
+                    pdf_dir.mkdir(exist_ok=True, parents=True)
+                    pbar_desc = f"    -> Downloading PDFs for {task_name}"
+                    for paper in tqdm(papers, desc=pbar_desc, leave=True):
+                        download_single_pdf(paper, pdf_dir)
+
+                if perform_single_analysis:
+                    analysis_output_dir = metadata_dir / "analysis"
+                    analysis_output_dir.mkdir(exist_ok=True)
+                    logger.info(f"    -> Running single-task analysis...")
+                    run_single_task_analysis(papers, task_name, analysis_output_dir)
+
+                all_collected_papers.extend(papers)
+                logger.info(
+                    f"{COLORS['SUCCESS']}[✔ SUCCESS] Task '{task_name}' completed and saved.{COLORS['RESET']}\n")
+
+            else:
+                logger.warning(f"[⚠ WARNING] No papers found for task: {task_name} (or none matched filters)")
+                logger.info(f"{COLORS['WARNING']}[!] Task '{task_name}' finished with no results.{COLORS['RESET']}\n")
+
+        except Exception as e:
+            logger.critical(f"任务 '{task_name}' 遭遇严重错误，已终止。错误: {e}")
+            logger.info(f"详细的错误堆栈信息已记录到日志文件: {LOG_DIR / 'pubcrawler.log'}")
+
+        time.sleep(0.5)
+
+    return all_collected_papers
+
+
+def load_all_data_for_cross_analysis(metadata_dir: Path) -> list:
+    """在 'analyze' 模式下，从磁盘加载所有之前保存的 CSV 文件。"""
+    if not metadata_dir.exists():
+        logger.error(f"[✖ ERROR] Data directory not found: {metadata_dir}.");
+        return []
+
+    all_papers = []
+    csv_files = list(metadata_dir.rglob("*_data_*.csv"))
+    if not csv_files:
+        logger.warning("[⚠ WARNING] No CSV data files found for cross-year analysis.");
+        return []
+
+    logger.info(f"    -> Loading {len(csv_files)} previously collected CSV file(s) from disk...")
+    for csv_path in csv_files:
+        try:
+            df = pd.read_csv(csv_path)
+            df.fillna('', inplace=True)
+            all_papers.extend(df.to_dict('records'))
+        except Exception as e:
+            logger.error(f"[✖ ERROR] Failed to load data from {csv_path}: {e}")
+    return all_papers
+
+
+def main():
+    print_banner()
+    logger.info("=====================================================================================")
+    logger.info(f"Starting PubCrawler in mode: '{OPERATION_MODE}'")
+    logger.info("=====================================================================================\n")
+
+    config = load_config()
+    if not config: return
+
+    all_papers_for_analysis = []
+
+    if OPERATION_MODE in ["collect", "collect_and_analyze"]:
+        logger.info(f"{COLORS['PHASE']}+----------------------------------------------------------+")
+        logger.info(f"|    PHASE 1: PAPER COLLECTION & SINGLE-TASK ANALYSIS      |")
+        logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
+
+        all_papers_for_analysis = run_tasks_sequentially(
+            config.get('tasks', []),
+            config.get('source_definitions', {}),
+            perform_single_analysis=True
+        )
+
+    if OPERATION_MODE in ["analyze", "collect_and_analyze"]:
+        logger.info(f"\n{COLORS['PHASE']}+----------------------------------------------------------+")
+        logger.info(f"|          PHASE 2: CROSS-YEAR TREND ANALYSIS              |")
+        logger.info(f"+----------------------------------------------------------+{COLORS['RESET']}\n")
+
+        if OPERATION_MODE == "collect_and_analyze" and not all_papers_for_analysis:
+            logger.warning("[⚠ WARNING] No data was collected in Phase 1 to perform cross-year analysis.")
+
+        elif OPERATION_MODE == "analyze":
+            all_papers_for_analysis = load_all_data_for_cross_analysis(METADATA_OUTPUT_DIR)
+
+        if all_papers_for_analysis:
+            all_data_by_conf = defaultdict(list)
+            for paper in all_papers_for_analysis:
+                if paper.get('conference'):
+                    all_data_by_conf[paper['conference']].append(paper)
+
+            for conference, papers in all_data_by_conf.items():
+                if not papers: continue
+                conf_trend_dir = TRENDS_OUTPUT_DIR / conference
+                conf_trend_dir.mkdir(exist_ok=True, parents=True)
+                logger.info(f"{COLORS['TASK_START']}[▶] Analyzing trends for: {conference}{COLORS['RESET']}")
+                run_cross_year_analysis(papers, conference, conf_trend_dir)
+                logger.info(
+                    f"{COLORS['SUCCESS']}[✔ SUCCESS] Cross-year analysis for '{conference}' completed.{COLORS['RESET']}\n")
+
+    logger.info("=====================================================================================")
+    logger.info("PubCrawler run finished successfully.")
+    logger.info("=====================================================================================")
+
+
+if __name__ == "__main__":
+    main()
+
+==================== End of: src\crawlers\run_crawler.py ====================
+
+
+
+==================== Start of: src\crawlers\__init__.py ====================
+
+
+
+==================== End of: src\crawlers\__init__.py ====================
+
+
+
 ==================== Start of: src\scrapers\aaai_scraper.py ====================
 
 # FILE: src/scrapers/aaai_scraper.py
@@ -1510,68 +1485,34 @@ class AaaiScraper(BaseScraper):
 
 ==================== Start of: src\scrapers\acl_scraper.py ====================
 
-# FILE: src/scrapers/acl_scraper.py
+# FILE: src/scrapers/acl_scraper.py (Concurrent Version)
 
-import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from tqdm import tqdm
-import time
 from typing import List, Dict, Optional, Any
-from bs4.element import Tag
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .base_scraper import BaseScraper
+from src.utils.network_utils import robust_get
 
 
 class AclScraper(BaseScraper):
-    """专门用于 ACL Anthology 网站的爬虫。"""
-    HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-
-    def scrape(self) -> List[Dict[str, Any]]:
-        index_url = self.task_info["url"]
-        limit = self.task_info.get("limit")
-        papers = []
-
-        self.logger.info(f"    -> 正在抓取 ACL 索引页: {index_url}")
-        try:
-            response = requests.get(index_url, headers=self.HEADERS, timeout=20)
-            if response.status_code == 404:
-                self.logger.warning(f"    -> 页面未找到 (404): {index_url}")
-                return []
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, 'lxml')
-
-            link_tags = soup.select('p.d-sm-flex strong a.align-middle')
-            self.logger.info(f"    -> 找到了 {len(link_tags)} 篇论文。")
-
-            if limit:
-                link_tags = link_tags[:limit]
-                self.logger.info(f"    -> 应用限制：处理前 {limit} 篇论文。")
-
-            pbar_desc = f"    -> 正在解析 {self.task_info.get('conference')} 页面"
-            for link_tag in tqdm(link_tags, desc=pbar_desc, leave=True):
-                details_url = urljoin(index_url, link_tag['href'])
-                paper_data = self._scrape_details_page(details_url)
-                if paper_data:
-                    papers.append(paper_data)
-                time.sleep(0.1)
-
-            return papers
-
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"    [✖ ERROR] 获取 ACL 索引页失败: {e}")
-            return []
-        except Exception as e:
-            self.logger.error(f"    [✖ ERROR] 解析 ACL 页面时发生未知错误: {e}", exc_info=True)
-            return []
+    """
+    专门用于 ACL Anthology 网站的爬虫。
+    此版本经过优化，使用多线程并发获取论文详情，以大幅提高速度。
+    """
 
     def _scrape_details_page(self, url: str) -> Optional[Dict[str, Any]]:
-        """抓取并解析 ACL 论文详情页。"""
+        """
+        抓取并解析单个 ACL 论文详情页。这是将被并发执行的核心工作函数。
+        """
+        response = robust_get(url, timeout=20)
+        if not response:
+            self.logger.debug(f"    -> 请求详情页失败 (已重试): {url}")
+            return None
+
         try:
-            response = requests.get(url, headers=self.HEADERS, timeout=15)
-            response.raise_for_status()
             soup = BeautifulSoup(response.content, 'lxml')
 
             title_tag = soup.select_one("h2#title")
@@ -1590,17 +1531,66 @@ class AclScraper(BaseScraper):
 
             paper_id = url.strip('/').split('/')[-1]
 
-            return {
-                'id': paper_id,
-                'title': title,
-                'authors': authors,
-                'abstract': abstract,
-                'pdf_url': pdf_url,
-                'source_url': url
-            }
+            return {'id': paper_id, 'title': title, 'authors': authors, 'abstract': abstract, 'pdf_url': pdf_url,
+                    'source_url': url}
         except Exception as e:
             self.logger.debug(f"    -> 解析 ACL 详情页失败 {url}: {e}")
             return None
+
+    def scrape(self) -> List[Dict[str, Any]]:
+        index_url = self.task_info["url"]
+
+        # 从配置中读取并发参数，并提供安全的默认值
+        max_workers = self.task_info.get("max_workers", 1)
+        max_papers_limit = self.task_info.get("max_papers_limit", 0)
+
+        # 1. 首先，获取包含所有论文链接的索引页
+        self.logger.info(f"    -> 正在抓取 ACL 索引页: {index_url}")
+        response = robust_get(index_url)
+        if not response:
+            return []
+
+        if response.status_code == 404:
+            self.logger.warning(f"    -> 页面未找到 (404): {index_url}")
+            return []
+
+        try:
+            soup = BeautifulSoup(response.content, 'lxml')
+            link_tags = soup.select('p.d-sm-flex strong a.align-middle')
+
+            detail_urls = [urljoin(index_url, tag['href']) for tag in link_tags if
+                           f'{self.task_info["year"]}.acl-long.0' not in tag['href']]
+            self.logger.info(f"    -> 索引页解析完成，共找到 {len(detail_urls)} 篇有效论文。")
+
+            # 2. 应用数量限制
+            urls_to_crawl = detail_urls
+            if max_papers_limit > 0:
+                # 智能限制：取用户设置和实际数量中的较小值
+                actual_limit = min(max_papers_limit, len(detail_urls))
+                urls_to_crawl = detail_urls[:actual_limit]
+                self.logger.info(f"    -> 已应用数量限制，将爬取前 {len(urls_to_crawl)} 篇论文。")
+
+            if not urls_to_crawl:
+                return []
+
+            # 3. 使用 ThreadPoolExecutor 进行并发爬取
+            papers = []
+            pbar_desc = f"    -> 并发解析 {self.task_info.get('conference')} 详情页"
+
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_url = {executor.submit(self._scrape_details_page, url): url for url in urls_to_crawl}
+
+                # 使用 tqdm 显示进度
+                for future in tqdm(as_completed(future_to_url), total=len(urls_to_crawl), desc=pbar_desc, leave=True):
+                    result = future.result()
+                    if result:
+                        papers.append(result)
+
+            return papers
+
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] 解析 ACL 页面时发生未知错误: {e}", exc_info=True)
+            return []
 
 ==================== End of: src\scrapers\acl_scraper.py ====================
 
@@ -1726,67 +1716,34 @@ class BaseScraper(ABC):
 
 ==================== Start of: src\scrapers\cvf_scraper.py ====================
 
-# FILE: src/scrapers/cvf_scraper.py
+# FILE: src/scrapers/cvf_scraper.py (Concurrent Version)
 
-import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from tqdm import tqdm
-import time
 from typing import List, Dict, Optional, Any
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .base_scraper import BaseScraper
+from src.utils.network_utils import robust_get
 
 
 class CvfScraper(BaseScraper):
-    """专门用于 CVF (CVPR, ICCV) 网站的爬虫。"""
-    HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
-
-    def scrape(self) -> List[Dict[str, Any]]:
-        index_url = self.task_info["url"]
-        limit = self.task_info.get("limit")
-        papers = []
-
-        self.logger.info(f"    -> 正在抓取 CVF 索引页: {index_url}")
-        try:
-            response = requests.get(index_url, headers=self.HEADERS, timeout=20)
-            if response.status_code == 404:
-                self.logger.warning(f"    -> 页面未找到 (404): {index_url}")
-                return []
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, 'lxml')
-
-            link_tags = soup.select('dt.ptitle > a[href$=".html"]')
-            self.logger.info(f"    -> 找到了 {len(link_tags)} 篇论文。")
-
-            if limit:
-                link_tags = link_tags[:limit]
-                self.logger.info(f"    -> 应用限制：处理前 {limit} 篇论文。")
-
-            pbar_desc = f"    -> 正在解析 {self.task_info.get('conference')} 页面"
-            for link_tag in tqdm(link_tags, desc=pbar_desc, leave=True):
-                details_url = urljoin(index_url, link_tag['href'])
-                paper_data = self._scrape_details_page(details_url)
-                if paper_data:
-                    papers.append(paper_data)
-                time.sleep(0.1)
-
-            return papers
-
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"    [✖ ERROR] 获取 CVF 索引页失败: {e}")
-            return []
-        except Exception as e:
-            self.logger.error(f"    [✖ ERROR] 解析 CVF 页面时发生未知错误: {e}", exc_info=True)
-            return []
+    """
+    专门用于 CVF (CVPR, ICCV) 网站的爬虫。
+    此版本经过优化，使用多线程并发获取论文详情，以大幅提高速度。
+    """
 
     def _scrape_details_page(self, url: str) -> Optional[Dict[str, Any]]:
-        """抓取并解析 CVF 论文详情页。"""
+        """
+        抓取并解析单个 CVF 论文详情页。这是将被并发执行的核心工作函数。
+        """
+        response = robust_get(url, timeout=20)
+        if not response:
+            self.logger.debug(f"    -> 请求详情页失败 (已重试): {url}")
+            return None
+
         try:
-            response = requests.get(url, headers=self.HEADERS, timeout=15)
-            response.raise_for_status()
             soup = BeautifulSoup(response.content, 'lxml')
 
             title_tag = soup.select_one("#papertitle")
@@ -1805,17 +1762,58 @@ class CvfScraper(BaseScraper):
 
             paper_id = url.strip('/').split('/')[-1].replace('.html', '')
 
-            return {
-                'id': paper_id,
-                'title': title,
-                'authors': authors,
-                'abstract': abstract,
-                'pdf_url': pdf_url,
-                'source_url': url
-            }
+            return {'id': paper_id, 'title': title, 'authors': authors, 'abstract': abstract, 'pdf_url': pdf_url,
+                    'source_url': url}
         except Exception as e:
             self.logger.debug(f"    -> 解析 CVF 详情页失败 {url}: {e}")
             return None
+
+    def scrape(self) -> List[Dict[str, Any]]:
+        index_url = self.task_info["url"]
+        max_workers = self.task_info.get("max_workers", 1)
+        max_papers_limit = self.task_info.get("max_papers_limit", 0)
+
+        self.logger.info(f"    -> 正在抓取 CVF 索引页: {index_url}")
+        response = robust_get(index_url)
+        if not response:
+            return []
+
+        if response.status_code == 404:
+            self.logger.warning(f"    -> 页面未找到 (404): {index_url}")
+            return []
+
+        try:
+            soup = BeautifulSoup(response.content, 'lxml')
+            link_tags = soup.select('dt.ptitle > a[href$=".html"]')
+
+            detail_urls = [urljoin(index_url, tag['href']) for tag in link_tags]
+            self.logger.info(f"    -> 索引页解析完成，共找到 {len(detail_urls)} 篇论文。")
+
+            urls_to_crawl = detail_urls
+            if max_papers_limit > 0:
+                actual_limit = min(max_papers_limit, len(detail_urls))
+                urls_to_crawl = detail_urls[:actual_limit]
+                self.logger.info(f"    -> 已应用数量限制，将爬取前 {len(urls_to_crawl)} 篇论文。")
+
+            if not urls_to_crawl:
+                return []
+
+            papers = []
+            pbar_desc = f"    -> 并发解析 {self.task_info.get('conference')} 详情页"
+
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_url = {executor.submit(self._scrape_details_page, url): url for url in urls_to_crawl}
+
+                for future in tqdm(as_completed(future_to_url), total=len(urls_to_crawl), desc=pbar_desc, leave=True):
+                    result = future.result()
+                    if result:
+                        papers.append(result)
+
+            return papers
+
+        except Exception as e:
+            self.logger.error(f"    [✖ ERROR] 解析 CVF 页面时发生未知错误: {e}", exc_info=True)
+            return []
 
 ==================== End of: src\scrapers\cvf_scraper.py ====================
 
@@ -1836,9 +1834,24 @@ from typing import List, Dict, Any
 
 from .base_scraper import BaseScraper
 
-
 class IclrScraper(BaseScraper):
     """专门用于 ICLR (OpenReview) 的爬虫。"""
+
+    def _get_v1_notes_with_retry(self, client, venue_id, limit, max_retries=3):
+        """为 openreview v1 的 get_all_notes 添加简单的重试逻辑。"""
+        for attempt in range(max_retries):
+            try:
+                self.logger.info(f"    -> [V1 API] 正在尝试获取笔记 (第 {attempt + 1}/{max_retries} 次)...")
+                notes_iterator = client.get_all_notes(content={'venueid': venue_id})
+                notes_list = list(islice(notes_iterator, limit)) if limit else list(notes_iterator)
+                return notes_list
+            except Exception as e:
+                self.logger.warning(f"    -> [V1 API] 第 {attempt + 1} 次尝试失败: {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(5 * (attempt + 1))  # 等待时间逐渐增加
+                else:
+                    self.logger.error(f"    -> [V1 API] 达到最大重试次数，获取失败。")
+                    raise e # 抛出最终的异常
 
     def scrape(self) -> List[Dict[str, Any]]:
         api_version = self.task_info.get("api_version", "v2")
@@ -1854,10 +1867,11 @@ class IclrScraper(BaseScraper):
             notes_list = []
             if api_version == "v1":
                 client = openreview.Client(baseurl='https://api.openreview.net')
-                notes_iterator = client.get_all_notes(content={'venueid': venue_id})
-                notes_list = list(islice(notes_iterator, limit)) if limit else list(notes_iterator)
+                # <-- 使用带重试的函数
+                notes_list = self._get_v1_notes_with_retry(client, venue_id, limit)
             else:  # API v2
                 client = openreview.api.OpenReviewClient(baseurl='https://api2.openreview.net')
+                # V2 API 通常更稳定，但也可以为其添加重试
                 notes_list = client.get_notes(content={'venueid': venue_id}, limit=limit) if limit else list(
                     client.get_all_notes(content={'venueid': venue_id}))
 
@@ -1886,21 +1900,12 @@ class IclrScraper(BaseScraper):
     def _parse_note(self, note: Any) -> Dict[str, Any]:
         """解析单个 OpenReview note 对象。"""
         content = note.content
-
         def get_field_robust(field_name, default_value):
             field_data = content.get(field_name)
             if isinstance(field_data, dict):
                 return field_data.get('value', default_value)
             return field_data if field_data is not None else default_value
-
-        return {
-            'id': note.id,
-            'title': get_field_robust('title', 'N/A'),
-            'authors': ', '.join(get_field_robust('authors', [])),
-            'abstract': get_field_robust('abstract', 'N/A'),
-            'pdf_url': f"https://openreview.net/pdf?id={note.id}",
-            'source_url': f"https://openreview.net/forum?id={note.id}"
-        }
+        return {'id': note.id, 'title': get_field_robust('title', 'N/A'), 'authors': ', '.join(get_field_robust('authors', [])), 'abstract': get_field_robust('abstract', 'N/A'), 'pdf_url': f"https://openreview.net/pdf?id={note.id}", 'source_url': f"https://openreview.net/forum?id={note.id}"}
 
     def _fetch_review_details(self, client: openreview.api.OpenReviewClient, forum_id: str) -> Dict[str, Any]:
         """获取单个论文的审稿信息。"""
@@ -1920,9 +1925,7 @@ class IclrScraper(BaseScraper):
                         ratings.append(int(rating_val))
         except Exception as e:
             self.logger.debug(f"获取审稿信息失败 forum_id={forum_id}: {e}")
-
-        return {'decision': decision, 'avg_rating': round(np.mean(ratings), 2) if ratings else None,
-                'review_ratings': ratings}
+        return {'decision': decision, 'avg_rating': round(np.mean(ratings), 2) if ratings else None, 'review_ratings': ratings}
 
 ==================== End of: src\scrapers\iclr_scraper.py ====================
 
@@ -1932,7 +1935,6 @@ class IclrScraper(BaseScraper):
 
 # FILE: src/scrapers/icml_scraper.py
 
-import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from tqdm import tqdm
@@ -1940,13 +1942,11 @@ from typing import List, Dict, Optional, Any
 from bs4.element import Tag
 
 from .base_scraper import BaseScraper
+from src.utils.network_utils import robust_get  # <-- 导入新的工具函数
 
 
 class IcmlScraper(BaseScraper):
     """专门用于 ICML (PMLR) 网站的爬虫。"""
-    HEADERS = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
 
     def scrape(self) -> List[Dict[str, Any]]:
         index_url = self.task_info["url"]
@@ -1954,11 +1954,13 @@ class IcmlScraper(BaseScraper):
         papers = []
 
         self.logger.info(f"    -> 正在抓取 ICML 索引页: {index_url}")
-        try:
-            response = requests.get(index_url, headers=self.HEADERS, timeout=20)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.content, 'lxml')
 
+        response = robust_get(index_url, timeout=45)  # <-- 使用 robust_get 并增加超时
+        if not response:
+            return []
+
+        try:
+            soup = BeautifulSoup(response.content, 'lxml')
             paper_containers = soup.select('div.paper')
             self.logger.info(f"    -> 找到了 {len(paper_containers)} 篇论文。")
 
@@ -1974,9 +1976,6 @@ class IcmlScraper(BaseScraper):
 
             return papers
 
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"    [✖ ERROR] 获取 ICML 索引页失败: {e}")
-            return []
         except Exception as e:
             self.logger.error(f"    [✖ ERROR] 解析 ICML 页面时发生未知错误: {e}", exc_info=True)
             return []
@@ -1994,23 +1993,17 @@ class IcmlScraper(BaseScraper):
             if not links_p:
                 return None
 
-            source_url_tag = links_p.select_one('a:contains("abs")')
+            source_url_tag = links_p.select_one('a:-soup-contains("abs")')
             source_url = urljoin(base_url, source_url_tag['href']) if source_url_tag else 'N/A'
 
-            pdf_url_tag = links_p.select_one('a:contains("Download PDF")')
+            pdf_url_tag = links_p.select_one('a:-soup-contains("Download PDF")')
             pdf_url = urljoin(base_url, pdf_url_tag['href']) if pdf_url_tag else 'N/A'
 
             paper_id = source_url.split('/')[-1].replace('.html', '') if source_url != 'N/A' else title
             abstract = "N/A (摘要需访问详情页)"
 
-            return {
-                'id': paper_id,
-                'title': title,
-                'authors': authors,
-                'abstract': abstract,
-                'pdf_url': pdf_url,
-                'source_url': source_url
-            }
+            return {'id': paper_id, 'title': title, 'authors': authors, 'abstract': abstract, 'pdf_url': pdf_url,
+                    'source_url': source_url}
         except Exception as e:
             self.logger.debug(f"    -> 从 ICML 容器解析失败: {e}")
             return None
@@ -2342,9 +2335,866 @@ class TpamiScraper(BaseScraper):
 
 
 
+==================== Start of: src\search\embedder.py ====================
+
+# FILE: src/search/embedder.py (API Version with .env)
+# 【已修改】添加了更强的速率限制和智能重试逻辑
+
+import sqlite3
+import numpy as np
+import requests
+import time
+from pathlib import Path
+from tqdm import tqdm
+import os
+from dotenv import load_dotenv
+
+# --- 配置 ---
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DB_PATH = PROJECT_ROOT / "papers.db"
+API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+
+# --- 【核心修改】从 .env 文件加载环境变量 ---
+load_dotenv(dotenv_path=PROJECT_ROOT / '.env')
+HF_API_TOKEN = os.getenv("HF_API_TOKEN")
+
+if not HF_API_TOKEN:
+    print("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！")
+    print("错误: 未能从 .env 文件中加载 HF_API_TOKEN。")
+    print("请确保在项目根目录创建了 .env 文件，并写入 HF_API_TOKEN=\"hf_...\"")
+    print("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！")
+    exit()
+
+HEADERS = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+
+
+def create_embeddings_table(conn):
+    cursor = conn.cursor()
+    cursor.execute("""
+                   CREATE TABLE IF NOT EXISTS embeddings
+                   (
+                       paper_id
+                       INTEGER
+                       PRIMARY
+                       KEY,
+                       embedding
+                       BLOB
+                       NOT
+                       NULL
+                   )
+                   """)
+    conn.commit()
+
+
+def get_embedding_from_api(text: str, max_retries=5):
+    payload = {"inputs": text, "options": {"wait_for_model": True}}
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(API_URL, headers=HEADERS, json=payload, timeout=60)
+            if response.status_code == 429:
+                wait_time = 60
+                print(f"\n[警告] 速率限制 (429)。暂停 {wait_time} 秒...")
+                time.sleep(wait_time)
+                continue
+            if response.status_code in [404, 401, 403]:
+                print(f"\n[致命] 错误 {response.status_code}: 检查 URL/Token。响应: {response.text}")
+                return None
+            response.raise_for_status()
+            result = response.json()
+            if isinstance(result, list) and isinstance(result[0], list):
+                return np.array(result[0], dtype=np.float32)
+            else:
+                if 'error' in result:
+                    print(f"\n[警告] 错误: {result['error']}. 重试...")
+                    time.sleep(15 * (attempt + 1))
+                    continue
+                raise ValueError(f"意外格式: {result}")
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries - 1:
+                wait_time = 10 * (attempt + 1)
+                print(f"\n[警告] 失败 ({e})。重试 {wait_time} 秒...")
+                time.sleep(wait_time)
+            else:
+                print("\n[错误] 最大重试失败。")
+                return None
+        except (ValueError, KeyError) as e:
+            print(f"\n[错误] 处理响应出错: {e}")
+            return None
+    return None
+
+
+def generate_and_store_embeddings():
+    if not DB_PATH.exists():
+        print(f"[!] 错误: 数据库文件 {DB_PATH} 不存在。")
+        return
+
+    print("[*] 开始通过 API 生成语义向量 (已启用限速模式)...")
+    conn = sqlite3.connect(str(DB_PATH))
+    create_embeddings_table(conn)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT rowid, title, abstract FROM papers_fts")
+    papers = cursor.fetchall()
+    if not papers:
+        print("[!] 数据库中没有论文。")
+        conn.close()
+        return
+
+    print(f"[*] 共找到 {len(papers)} 篇论文，开始逐一请求 API 生成向量...")
+
+    embedding_data = []
+    failed_papers = 0
+
+    for paper in tqdm(papers, desc="生成向量 (API限速)"):
+        paper_id, title, abstract = paper
+        text_to_embed = f"{title}. {abstract}"
+
+        embedding = get_embedding_from_api(text_to_embed)
+
+        if embedding is not None:
+            embedding_blob = embedding.tobytes()
+            embedding_data.append((paper_id, embedding_blob))
+        else:
+            failed_papers += 1
+
+        # --- [核心修复 2]：主动限速 ---
+        # 0.1秒太快了！免费API绝对会封禁你。
+        # 我们在每次请求后强制等待 3 秒，以尊重API限制。
+        time.sleep(1)
+
+    print(f"[*] 向量生成完毕，正在存入数据库... (成功: {len(embedding_data)}, 失败: {failed_papers})")
+
+    if embedding_data:
+        cursor.executemany(
+            "INSERT OR REPLACE INTO embeddings (paper_id, embedding) VALUES (?, ?)",
+            embedding_data
+        )
+        conn.commit()
+
+    conn.close()
+
+    print(f"\n[✔] 任务完成！")
+
+
+if __name__ == "__main__":
+    generate_and_store_embeddings()
+
+==================== End of: src\search\embedder.py ====================
+
+
+
+==================== Start of: src\search\indexer.py ====================
+
+# FILE: src/search/indexer.py
+
+import sqlite3
+import pandas as pd
+from pathlib import Path
+from tqdm import tqdm
+import time
+
+# --- 配置 ---
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+METADATA_DIR = PROJECT_ROOT / "output" / "metadata"
+DB_PATH = PROJECT_ROOT / "papers.db"  # 数据库文件将保存在项目根目录
+
+# 定义需要的列，与数据库表结构对应
+REQUIRED_COLUMNS = ['title', 'authors', 'abstract', 'conference', 'year', 'pdf_url', 'source_file']
+
+
+def create_fts_table(conn):
+    """创建支持全文搜索的 FTS5 虚拟表"""
+    cursor = conn.cursor()
+    # 如果表已存在，先删除它，确保每次重建索引都是最新的
+    cursor.execute("DROP TABLE IF EXISTS papers_fts")
+    # 创建 FTS5 表。这里定义了我们想对其进行全文搜索的所有字段。
+    cursor.execute("""
+        CREATE VIRTUAL TABLE papers_fts USING fts5(
+            title,
+            authors,
+            abstract,
+            conference UNINDEXED,  -- UNINDEXED 表示这个字段存储但不建立全文索引(节省空间)，因为我们通常不需要全文搜它
+            year UNINDEXED,
+            pdf_url UNINDEXED,
+            source_file UNINDEXED,
+            tokenize='porter'      -- 使用 porter 分词器，支持英文词干提取(例如搜 searching 能匹配 search)
+        )
+    """)
+    conn.commit()
+
+
+def index_csv_files():
+    print(f"[*] 开始构建索引...")
+    print(f"    - 数据源目录: {METADATA_DIR}")
+    print(f"    - 数据库路径: {DB_PATH}")
+
+    csv_files = list(METADATA_DIR.rglob("*_data_*.csv"))
+    if not csv_files:
+        print("[!] 错误: 没有找到任何 CSV 文件。请先运行爬虫采集数据。")
+        return
+
+    conn = sqlite3.connect(str(DB_PATH))
+    create_fts_table(conn)
+
+    total_files = len(csv_files)
+    total_papers = 0
+    start_time = time.time()
+
+    print(f"[*] 发现 {total_files} 个文件，开始处理...")
+
+    for i, csv_path in enumerate(csv_files, 1):
+        try:
+            # 使用 chunksize 分块读取，核心内存优化点！
+            # 每次只读 5000 行到内存，处理完就释放，绝不爆内存。
+            chunk_iterator = pd.read_csv(csv_path, chunksize=5000, dtype=str)
+
+            for chunk_df in chunk_iterator:
+                if chunk_df.empty: continue
+
+                # 数据清洗和标准化
+                chunk_df = chunk_df.fillna('')
+                if 'source_file' not in chunk_df.columns:
+                    chunk_df['source_file'] = csv_path.name
+
+                # 确保所有需要的列都存在
+                for col in REQUIRED_COLUMNS:
+                    if col not in chunk_df.columns:
+                        chunk_df[col] = ''
+
+                # 选取并排序特定的列以匹配数据库结构
+                data_to_insert = chunk_df[REQUIRED_COLUMNS].values.tolist()
+
+                # 批量插入数据
+                conn.executemany(
+                    "INSERT INTO papers_fts(title, authors, abstract, conference, year, pdf_url, source_file) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    data_to_insert
+                )
+                total_papers += len(data_to_insert)
+
+            print(f"    [{i}/{total_files}] 已索引: {csv_path.name}")
+
+        except Exception as e:
+            print(f"    [!] 处理文件失败 {csv_path.name}: {e}")
+
+    # 提交事务并进行优化
+    print("[*] 正在提交并优化数据库 (可能需要一点时间)...")
+    conn.commit()
+    # Optimize 命令会重组数据库文件，使其在搜索时更快
+    conn.execute("INSERT INTO papers_fts(papers_fts) VALUES('optimize')")
+    conn.close()
+
+    end_time = time.time()
+    print(f"\n[✔] 索引构建完成！")
+    print(f"    - 总计索引论文: {total_papers} 篇")
+    print(f"    - 总耗时: {end_time - start_time:.2f} 秒")
+    print(f"    - 数据库文件大小: {DB_PATH.stat().st_size / (1024 * 1024):.2f} MB")
+
+
+if __name__ == "__main__":
+    index_csv_files()
+
+==================== End of: src\search\indexer.py ====================
+
+
+
+==================== Start of: src\search\search_local.py ====================
+
+# FILE: src/search/search_local.py (v4.3 - .env & sem: disabled)
+
+import sqlite3
+import numpy as np
+import requests
+import time
+from sklearn.metrics.pairwise import cosine_similarity
+from pathlib import Path
+import textwrap
+from datetime import datetime
+import re
+import sys
+import math
+import os
+from dotenv import load_dotenv
+
+# --- 配置 ---
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DB_PATH = PROJECT_ROOT / "papers.db"
+SEARCH_RESULTS_DIR = PROJECT_ROOT / "search_results"
+SEARCH_RESULTS_DIR.mkdir(exist_ok=True)
+PAPERS_PER_FILE = 100
+RESULTS_PER_PAGE = 10
+
+# --- 【核心修改】修正了 API_URL (v4.3) ---
+# 移除了无效的 /pipeline/feature-extraction/ 路径
+# 即使暂时禁用, 也保持 URL 正确, 以便未来启用
+API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+
+# --- 从 .env 文件加载环境变量 ---
+load_dotenv(dotenv_path=PROJECT_ROOT / '.env')
+HF_API_TOKEN = os.getenv("HF_API_TOKEN")
+HEADERS = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+
+
+# --- 颜色代码 (与之前版本相同) ---
+class Colors:
+    HEADER = '\033[95m';
+    OKBLUE = '\033[94m';
+    OKCYAN = '\033[96m';
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m';
+    FAIL = '\033[91m';
+    ENDC = '\033[0m';
+    BOLD = '\033[1m';
+    UNDERLINE = '\033[4m'
+
+
+# --- 辅助函数 ---
+def print_colored(text, color):
+    if sys.stdout.isatty():
+        print(f"{color}{text}{Colors.ENDC}")
+    else:
+        print(text)
+
+
+def print_banner():
+    # --- 【修改】更新了 Banner 版本号 ---
+    banner_text = ["╔══════════════════════════════════════════════════════════════╗",
+                   "║    ____              __            ____                       ║",
+                   "║   / __ \\____  / /______/ __ \\__  ______  ____ _____ ___    ║",
+                   "║  / /_/ / __ \\/ / ___/ / / / / / / / __ \\/ __ `/ __ `__ \\   ║",
+                   "║ / ____/ /_/ / / /__/ / /_/ / /_/ / / / / /_/ / / / / / /   ║",
+                   "║/_/    \\____/_/\\___/_/\\___\\_\\__,_/_/ /_/\\__,_/_/ /_/ /_/    ║",
+                   "║                                                          ║",
+                   "║          Your Local Paper Search Engine v4.3 (.env)        ║",
+                   "╚══════════════════════════════════════════════════════════════╝"]
+    for line in banner_text: print_colored(line, Colors.HEADER)
+    print()
+
+
+def parse_advanced_query(query: str):
+    # FTS5 支持 AND 和 NOT (但 + 和 - 更方便)
+    query = query.replace(' +', ' AND ').replace(' -', ' NOT ')
+
+    # 将用户友好的 author: 映射到数据库字段 authors:
+    # FTS5 会自动处理 'authors:hinton' 这样的语法
+    # --- 【修改】增加了 re.IGNORECASE ---
+    query = re.sub(r'author:(\S+)', r'authors:\1', query, flags=re.IGNORECASE)
+    query = re.sub(r'title:(\S+)', r'title:\1', query, flags=re.IGNORECASE)
+    return query
+
+
+def keyword_search_db(conn, raw_query):
+    advanced_query = parse_advanced_query(raw_query)
+    print(f"[*] 正在执行关键词搜索: '{advanced_query}'...")
+    start_t = time.time()
+    try:
+        cursor = conn.execute(
+            "SELECT title, authors, abstract, conference, year, pdf_url, source_file FROM papers_fts WHERE papers_fts MATCH ? ORDER BY rank",
+            (advanced_query,))
+        results = cursor.fetchall()
+        end_t = time.time()
+        count = len(results)
+        print(f"[✔] 耗时 {end_t - start_t:.4f} 秒，找到 {Colors.BOLD}{Colors.OKGREEN}{count}{Colors.ENDC} 个结果。")
+        return results
+    except sqlite3.OperationalError as e:
+        # --- 【修改】增加了更详细的错误提示 ---
+        print_colored(f"[!] 搜索语法错误: {e}", Colors.FAIL)
+        print_colored("    提示: 确保 AND/NOT/OR 逻辑正确，或字段名(title:/author:)后有内容。", Colors.WARNING)
+        return []
+
+
+def get_embedding_from_api(text: str):
+    """(此函数在 v4.3 中未被 main() 调用)"""
+    payload = {"inputs": text, "options": {"wait_for_model": True}}
+    try:
+        response = requests.post(API_URL, headers=HEADERS, json=payload, timeout=20)
+
+        # --- 【修改】增加了更明确的错误处理 ---
+        if response.status_code == 401:
+            print_colored("\n[!] API 错误: 401 - Token 无效。请检查 .env 文件中的 HF_API_TOKEN。", Colors.FAIL)
+            return None
+        if response.status_code == 404:
+            print_colored(f"\n[!] API 错误: 404 - 未找到模型。请检查 API_URL: {API_URL}", Colors.FAIL)
+            return None
+
+        response.raise_for_status()  # 捕获 429 (限速), 5xx (服务器错误) 等
+
+        result = response.json()
+        if isinstance(result, list) and isinstance(result[0], list):
+            return np.array(result[0], dtype=np.float32)
+
+    except requests.exceptions.RequestException as e:
+        print_colored(f"\n[!] API 请求失败: {e}", Colors.FAIL)
+        return None
+    except Exception as e:
+        print_colored(f"\n[!] API 响应处理失败: {e}", Colors.FAIL)
+        return None
+    return None
+
+
+def semantic_search_db(conn, query, top_k=50):
+    """(此函数在 v4.3 中未被 main() 调用)"""
+    print(f"[*] 正在执行语义搜索: '{query}'...")
+    start_t = time.time()
+
+    query_embedding = get_embedding_from_api(query)
+    if query_embedding is None:
+        print_colored("[!] 错误: 从 API 获取查询向量失败。请检查您的 Token 和网络连接。", Colors.FAIL)
+        return []
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT paper_id, embedding FROM embeddings")
+    all_embeddings_data = cursor.fetchall()
+    if not all_embeddings_data:
+        # --- 【修改】增加了对 embedding 表为空的检查 ---
+        print_colored("[!] 错误: 数据库中没有找到语义向量。", Colors.FAIL)
+        print_colored("    请先运行 embedder.py 生成向量。", Colors.WARNING)
+        return []
+
+    paper_ids = [row[0] for row in all_embeddings_data]
+    db_embeddings = np.array([np.frombuffer(row[1], dtype=np.float32) for row in all_embeddings_data])
+
+    similarities = cosine_similarity(query_embedding.reshape(1, -1), db_embeddings)[0]
+    top_k_indices = np.argsort(similarities)[-top_k:][::-1]
+    top_paper_ids = [paper_ids[i] for i in top_k_indices]
+    top_scores = [similarities[i] for i in top_k_indices]
+
+    placeholders = ','.join('?' for _ in top_paper_ids)
+    sql = f"SELECT rowid, title, authors, abstract, conference, year, pdf_url, source_file FROM papers_fts WHERE rowid IN ({placeholders})"
+
+    # FTS rowid 映射到 (title, authors, ...)
+    raw_results_dict = {row[0]: row[1:] for row in cursor.execute(sql, top_paper_ids).fetchall()}
+
+    final_results = []
+    # 按相似度顺序重新组合结果
+    for i, paper_id in enumerate(top_paper_ids):
+        details = raw_results_dict.get(paper_id)
+        if details:
+            # (title, authors, abstract, conf, year, pdf, src)
+            # 在标题前加入相似度得分
+            scored_title = f"(相似度: {top_scores[i]:.2f}) {details[0]}"
+            final_results.append((scored_title,) + details[1:])
+
+    end_t = time.time()
+    print(f"[✔] 耗时 {end_t - start_t:.4f} 秒，找到 {len(final_results)} 个语义相关结果。")
+    return final_results
+
+
+def interactive_pagination(results, query):
+    num_results = len(results)
+    if num_results == 0: return "quit"
+    total_pages = math.ceil(num_results / RESULTS_PER_PAGE)
+    current_page = 1
+    while True:
+        start_idx = (current_page - 1) * RESULTS_PER_PAGE
+        end_idx = start_idx + RESULTS_PER_PAGE
+        page_results = results[start_idx:end_idx]
+        print_colored(f"\n--- 结果预览 (第 {current_page}/{total_pages} 页) ---", Colors.HEADER)
+        for i, row in enumerate(page_results, start=start_idx + 1):
+            print(f"\n{Colors.BOLD}[{i}]{Colors.ENDC} {row[0]}")
+            print(f"  {Colors.OKCYAN}{row[3]} {row[4]}{Colors.ENDC} | 作者: {textwrap.shorten(row[1], 80)}")
+            if row[5]: print(f"  PDF: {row[5]}")
+
+        if current_page >= total_pages:
+            print("\n--- 已是最后一页 ---")
+            return "end_of_list"
+        try:
+            choice = input(
+                f"\n按 {Colors.BOLD}[Enter]{Colors.ENDC} 下一页, '{Colors.BOLD}s{Colors.ENDC}' 保存, '{Colors.BOLD}q{Colors.ENDC}' 退出: ").lower()
+            if choice == 'q':
+                return "quit"
+            elif choice == 's':
+                return "save"
+            current_page += 1
+        except KeyboardInterrupt:
+            break
+    return "quit"
+
+
+def save_results_to_files(results, query, session_dir):
+    safe_query = re.sub(r'[\\/*?:"<>|]', "", query).replace(" ", "_")
+    num_results = len(results)
+    num_files = (num_results + PAPERS_PER_FILE - 1) // PAPERS_PER_FILE
+    saved_files = []
+    for i in range(num_files):
+        start_index = i * PAPERS_PER_FILE
+        chunk = results[start_index: start_index + PAPERS_PER_FILE]
+        filename = session_dir / f"search_{safe_query[:50]}{'_part_' + str(i + 1) if num_files > 1 else ''}.md"
+        saved_files.append(filename)
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(f"# 搜索: \"{query}\"\n\n**找到 {num_results} 结果 (部分 {i + 1}/{num_files})**\n\n---\n\n")
+            for idx, row in enumerate(chunk, start=start_index + 1):
+                title, authors, abstract, conf, year, pdf, src = row
+                f.write(f"### {idx}. {title}\n\n- **作者**: {authors}\n- **会议**: {conf} {year}\n")
+                if pdf and str(pdf).strip(): f.write(f"- **PDF**: [{pdf}]({pdf})\n")
+                f.write(f"\n**摘要:**\n> {abstract}\n\n*来源: `{src}`*\n\n---\n\n")
+    return saved_files
+
+
+def main():
+    if not HF_API_TOKEN:
+        print_colored("错误: 未能从 .env 文件中加载 HF_API_TOKEN。", Colors.FAIL)
+        print_colored("请确保在项目根目录创建了 .env 文件，并写入 HF_API_TOKEN=\"hf_...\"", Colors.FAIL)
+        return
+    if not DB_PATH.exists():
+        print_colored(f"\n[!] 数据库不存在: {DB_PATH}", Colors.FAIL)
+        return
+
+    # 以只读模式连接
+    conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+    session_dir = SEARCH_RESULTS_DIR / f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    session_dir.mkdir(exist_ok=True)
+
+    print_banner()
+    print(f"[*] 索引已加载: {Colors.OKCYAN}{DB_PATH.resolve()}{Colors.ENDC}")
+    print_colored(f"[*] 结果将保存至: {session_dir.resolve()}", Colors.UNDERLINE)
+
+    # --- 【修改】扩充了搜索语法示例 ---
+    print_colored("\n--- 关键词搜索语法 (FTS5) ---", Colors.OKBLUE)
+    print("  - `transformer`                 (包含 transformer)")
+    print("  - `\"large language model\"`      (包含短语)")
+    print("  - `author:hinton`               (作者字段包含 hinton)")
+    print("  - `title:attention`             (标题字段包含 attention)")
+    print("  - `author:hinton + title:rnn`   (作者 hinton 且 标题 rnn)")
+    print("  - `transformer - author:vaswani` (包含 transformer 但排除作者 vaswani)")
+    print("  - `(author:lecun OR author:bengio) + cnn` (复杂逻辑)")
+    print_colored("\n  - `sem:...` (语义搜索功能暂时禁用)\n", Colors.WARNING)
+
+    while True:
+        try:
+            q = input(f"🔍 {Colors.BOLD}请输入关键词{Colors.ENDC} (或 'exit' 退出): ").strip()
+            if not q: continue
+            if q.lower() == 'exit': break
+
+            results = []
+
+            # --- 【修改】禁用了语义搜索 ---
+            if q.lower().startswith('sem:'):
+                print_colored("\n[!] 语义搜索 (sem:) 功能暂时禁用。", Colors.WARNING)
+                print_colored("    请使用上方的关键词搜索语法 (如: title:..., author:..., +, -)。\n", Colors.WARNING)
+                continue  # 跳过本次循环，等待新输入
+            else:
+                results = keyword_search_db(conn, q)
+
+            if not results: continue
+
+            pagination_result = interactive_pagination(results, q)
+
+            if pagination_result in ["save", "end_of_list"]:
+                if input(f"\n保存这 {len(results)} 条结果? (y/n, 默认y): ").lower() != 'n':
+                    files = save_results_to_files(results, q, session_dir)
+                    print_colored("\n[✔] 结果已保存!", Colors.OKGREEN)
+                    for f in files: print_colored(f"      -> {f.resolve()}", Colors.UNDERLINE)
+
+            print()  # 在两次搜索之间添加一个空行
+
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print_colored(f"发生未知错误: {e}", Colors.FAIL)
+
+    conn.close()
+    print("\n再见！")
+
+
+if __name__ == "__main__":
+    main()
+
+==================== End of: src\search\search_local.py ====================
+
+
+
+==================== Start of: src\search\__init__.py ====================
+
+
+
+==================== End of: src\search\__init__.py ====================
+
+
+
+==================== Start of: src\test\logo.py ====================
+
+import time
+
+# --- Logo 定义 ---
+# 我们在这里定义5个版本的Logo
+# 使用 \033[xxm ANSI 转义序列来设置颜色
+# \033[0m 是重置所有颜色和样式
+# \033[1m 是加粗
+# \033[9_m 是亮色 (91=亮红, 92=亮绿, 93=亮黄, 94=亮蓝, 95=亮洋红, 96=亮青色, 97=亮白)
+
+v1_name = "V1: 科技-数据流 (亮绿色)"
+v1_art = """
+\033[92m
+>> > P U B C R A W L E R >
+[#]=======================[#]
+>> > 1011010100101011010 >
+\033[0m
+"""
+
+v2_name = "V2: 爬虫-蜘蛛网 (亮白/亮红)"
+v2_art = """
+\033[97m
+      /  \\
+     /    \\
+\033[91m \ \ \033[97m( PubCrawler )\033[91m / /
+\033[97m  \ \ \  / / /  / /
+   \ \/ /  \ \/ /
+    \/ /    \/ /
+\033[0m
+"""
+
+v3_name = "V3: 现代-结构块 (亮洋红/亮黄)"
+v3_art = """
+\033[95m
+[P] [U] [B]
+ \   |   /
+\033[93m  [C]-[R]-[A]
+\033[95m   /  |    \\
+\033[93m [W]-[L]-[E]-[R]
+\033[0m
+"""
+
+v4_name = "V4: 简洁-电路板 (亮蓝色/亮白)"
+v4_art = """
+\033[94m
+|--[P]--|--[U]--|--[B]--|
+|        |       |
+|__      |__     |__
+   |        |       |
+|--[C]--|--[R]--|--[A]--|
+|        |       |
+|__      |__     |__
+   |        |       |
+|--[W]--|--[L]--|--[E]--|--[R]--|
+\033[97m
+... data ... crawl ... analyze ...
+\033[0m
+"""
+
+v5_name = "V5: 大气-信息框 (亮白/亮青色)"
+v5_art = """
+\033[97m
++--------------------------+
+|                          |
+|  \033[96mP U B C R A W L E R\033[97m     |
+|      \033[97m...initializing...  |
++--------------------------+
+\033[0m
+"""
+
+# --- 存储和打印 ---
+
+logos_to_display = [
+    (v1_name, v1_art),
+    (v2_name, v2_art),
+    (v3_name, v3_art),
+    (v4_name, v4_art),
+    (v5_name, v5_art)
+]
+
+def display_logos():
+    """
+    依次打印所有Logo，带暂停。
+    """
+    print("正在为您展示5款 'PubCrawler' 科技感Logo设计...")
+    print("（请确保您的控制台支持ANSI颜色代码以获得最佳效果）")
+    time.sleep(2)
+
+    for name, art in logos_to_display:
+        print("\n" * 4)  # 打印几个换行符来分隔
+        # \033[1m 是加粗
+        print(f"\033[1m--- {name} ---\033[0m")
+        print(art)
+        print(f"\033[1m--- End of {name.split(':')[0]} ---\033[0m")
+        time.sleep(2.5) # 暂停2.5秒
+
+    print("\n" * 4)
+    print("全部版本展示完毕！")
+    print("您可以从上面的5个版本中选择一个，将对应的字符串（例如 v1_art）复制到您的项目代码中。")
+
+# --- 主程序执行 ---
+if __name__ == "__main__":
+    display_logos()
+
+==================== End of: src\test\logo.py ====================
+
+
+
+==================== Start of: src\test\test_acl.py ====================
+
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
+
+# ==============================================================================
+# --- 实验配置 ---
+# ==============================================================================
+
+# 1. 设置用于测试的线程数列表。脚本将为列表中的每个值运行一次测试。
+#    可以根据需要调整这个列表，例如增加 40, 56 等。
+THREADS_TO_TEST = [4, 8, 12, 16, 24, 32, 48, 64]
+
+# 2. 选择一个固定的年份进行测试，以保证每次测试的工作量一致。
+#    建议选择一个论文数量较多的年份，如 2024 或 2025。
+YEAR_FOR_TESTING = 2024
+
+# 3. 设置用于测试的论文数量。数量不宜过少（无法体现差距），也不宜过多（测试时间太长）。
+#    100-200 是一个比较理想的范围。
+PAPERS_FOR_TESTING = 150
+
+# ==============================================================================
+
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
+ACL_BASE_URL_PATTERN = "https://aclanthology.org/volumes/{year}.acl-long/"
+
+
+def get_paper_links_for_workload(year: int, limit: int):
+    """
+    获取一个固定的工作负载（论文链接列表）用于所有测试。
+    """
+    target_url = ACL_BASE_URL_PATTERN.format(year=year)
+    print(f"[*] 准备实验环境: 正在从 {target_url} 获取论文列表...")
+
+    try:
+        response = requests.get(target_url, headers=HEADERS, timeout=30)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.content, 'lxml')
+        link_tags = soup.select('p.d-sm-flex strong a.align-middle')
+        paper_links = [urljoin(target_url, tag['href']) for tag in link_tags if f'{year}.acl-long.0' not in tag['href']]
+
+        actual_found = len(paper_links)
+        print(f"[*] 找到了 {actual_found} 篇有效论文。")
+
+        # 智能限制：确保我们有足够的数据，但又不超过实际数量
+        actual_limit = min(limit, actual_found)
+        if actual_limit < limit:
+            print(f"[*] [警告] 期望测试 {limit} 篇，但只找到 {actual_found} 篇。将以 {actual_limit} 篇为准。")
+
+        print(f"[*] 实验工作负载已确定: {actual_limit} 篇论文。")
+        return paper_links[:actual_limit]
+    except requests.RequestException as e:
+        print(f"[!] [错误] 准备工作负载失败: {e}")
+        return None
+
+
+def scrape_single_paper_details(url: str):
+    """爬取单个详情页的核心函数。在测试中，我们只关心它是否成功完成。"""
+    try:
+        # 使用更长的超时，因为并发时网络可能会拥堵
+        response = requests.get(url, headers=HEADERS, timeout=25)
+        response.raise_for_status()
+        # 这里我们不需要解析，只需要确保请求成功返回即可模拟真实耗时
+        return True
+    except Exception:
+        return False
+
+
+def run_single_test(worker_count: int, urls_to_crawl: list):
+    """
+    使用指定的线程数，对给定的URL列表执行一次完整的爬取测试。
+    """
+    print("\n" + "-" * 60)
+    print(f"🧪 正在测试: {worker_count} 个并发线程...")
+
+    start_time = time.time()
+
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
+        futures = [executor.submit(scrape_single_paper_details, url) for url in urls_to_crawl]
+
+        # 使用tqdm来可视化进度
+        for _ in tqdm(as_completed(futures), total=len(urls_to_crawl), desc=f"   - 进度 ({worker_count}线程)"):
+            pass
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+
+    print(f"   -> 完成! 耗时: {elapsed_time:.2f} 秒")
+    return elapsed_time
+
+
+def main():
+    """主函数，调度所有测试并生成最终报告。"""
+    print("=" * 60)
+    print("      并发线程数性能优化器 for ACL Crawler")
+    print("=" * 60)
+
+    # 1. 准备一个固定的、用于所有测试的工作负载
+    workload_urls = get_paper_links_for_workload(YEAR_FOR_TESTING, PAPERS_FOR_TESTING)
+    if not workload_urls:
+        print("[!] 无法继续测试，因为未能获取到论文列表。")
+        return
+
+    # 2. 循环执行测试
+    experiment_results = []
+    for num_threads in THREADS_TO_TEST:
+        duration = run_single_test(num_threads, workload_urls)
+        experiment_results.append({
+            "threads": num_threads,
+            "time": duration
+        })
+        # 在每次测试间歇2秒，避免对服务器造成连续冲击
+        time.sleep(2)
+
+    # 3. 分析结果并生成报告
+    if not experiment_results:
+        print("[!] 没有完成任何测试。")
+        return
+
+    print("\n\n" + "#" * 60)
+    print("📊            最终性能测试报告")
+    print(f"            (测试负载: {len(workload_urls)} 篇论文)")
+    print("#" * 60)
+    print(f"{'线程数':<10} | {'总耗时 (秒)':<15} | {'每秒爬取论文数':<20}")
+    print("-" * 60)
+
+    best_result = None
+    best_performance = 0
+
+    for res in experiment_results:
+        threads = res['threads']
+        total_time = res['time']
+
+        if total_time > 0:
+            papers_per_second = len(workload_urls) / total_time
+            print(f"{threads:<10} | {total_time:<15.2f} | {papers_per_second:<20.2f}")
+
+            if papers_per_second > best_performance:
+                best_performance = papers_per_second
+                best_result = res
+        else:
+            print(f"{threads:<10} | {total_time:<15.2f} | {'N/A'}")
+
+    print("-" * 60)
+
+    # 4. 给出最终建议
+    if best_result:
+        optimal_threads = best_result['threads']
+        print("\n🏆 结论:")
+        print(f"根据本次在您当前网络环境下的实测结果：")
+        print(f"当线程数设置为 **{optimal_threads}** 时，爬取效率最高，达到了每秒 **{best_performance:.2f}** 篇论文。")
+        print(f"建议您在 PubCrawler 的 YAML 配置文件中将 ACL 和 CVF 任务的 `max_workers` 设置为 **{optimal_threads}**。")
+    else:
+        print("\n[!] 未能确定最佳线程数。")
+
+    print("#" * 60)
+
+
+if __name__ == "__main__":
+    main()
+
+==================== End of: src\test\test_acl.py ====================
+
+
+
 ==================== Start of: src\utils\console_logger.py ====================
 
-# FILE: src/utils/console_logger.py (Banner Updated)
+# FILE: src/utils/console_logger.py (Banner Updated to Tech Pattern)
 
 import logging
 import sys
@@ -2373,7 +3223,7 @@ try:
         'PHASE': Style.BRIGHT + Fore.BLUE,
         'TASK_START': Style.BRIGHT + Fore.MAGENTA,
         'SUCCESS': Style.BRIGHT + Fore.GREEN,
-        'STEP': Style.DIM + Fore.WHITE,
+        'STEP': Style.DIM + Fore.WHITE,  # <-- 我们会用这个
     }
 
     IS_COLORAMA_AVAILABLE = True
@@ -2408,39 +3258,38 @@ class ColoredFormatter(logging.Formatter):
 
 
 def print_banner():
-    """打印项目启动的 ASCII Art 横幅，带有渐变色效果。"""
-    banner_text = r"""
-  ██████╗ ██╗   ██╗██████╗  ██████╗██████╗  ██╗      ██████╗ ██╗     ███████╗██████╗ 
-  ██╔══██╗██║   ██║██╔══██╗██╔════╝██╔══██╗██║     ██╔═══██╗██║     ██╔════╝██╔══██╗
-  ██████╔╝██║   ██║██████╔╝██║     ██████╔╝██║     ██║   ██║██║     █████╗  ██████╔╝
-  ██╔═══╝ ██║   ██║██╔══██╗██║     ██╔═══╝ ██║     ██║   ██║██║     ██╔══╝  ██╔══██╗
-  ██║     ╚██████╔╝██████╔╝╚██████╗██║     ███████╗╚██████╔╝███████╗███████╗██║  ██║
-  ╚═╝      ╚═════╝ ╚═════╝  ╚═════╝╚═╝     ╚══════╝ ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝ 
-"""
-    if IS_COLORAMA_AVAILABLE:
-        # 定义渐变色序列
-        gradient_colors = [
-            COLORS['BANNER_GREEN'],
-            COLORS['BANNER_GREEN'],
-            COLORS['BANNER_CYAN'],
-            COLORS['BANNER_BLUE'],
-            COLORS['BANNER_BLUE'],
-            COLORS['BANNER_WHITE'],
-        ]
+    """打印项目启动的 ASCII Art 横幅 (科技感图案版)。"""
 
-        # 按行打印，并应用不同的颜色
-        lines = banner_text.strip('\n').split('\n')
-        # 确保 banner_text 前后的空行被正确处理
-        print()  # 打印一个前置空行
-        for i, line in enumerate(lines):
-            # 使用 modulo 循环颜色
-            color = gradient_colors[i % len(gradient_colors)]
-            print(f"{color}{line}{COLORS['RESET']}")
-        print()  # 打印一个后置空行
+    # -------------------【修改点在这里】-------------------
+    # 按用户要求，改为科技感图案，放弃大字母块
+    # V7: 科技-网络节点 (亮蓝色/亮白色)
+
+    # 我们使用 f-string 来嵌入颜色代码
+    banner_art = f"""
+{COLORS['BANNER_BLUE']}
+        .--.
+       / .. \\
+    --(  PC  )--  {COLORS['BANNER_WHITE']}PubCrawler{COLORS['RESET']}
+       \\ .. /    {COLORS['STEP']}[Initializing...]{COLORS['RESET']}
+        '--'
+{COLORS['RESET']}
+"""
+
+    # -------------------【修改结束】-------------------
+
+    if IS_COLORAMA_AVAILABLE:
+        print(banner_art)  # 直接打印包含颜色的 f-string
 
     else:
-        # 如果 colorama 不可用，则打印无色版本
-        print(banner_text)
+        # 如果 colorama 不可用，打印一个手动去除颜色代码的无色版本
+        no_color_art = r"""
+        .--.
+       / .. \
+    --(  PC  )--  PubCrawler
+       \ .. /    [Initializing...]
+        '--'
+"""
+        print(no_color_art)
 
 ==================== End of: src\utils\console_logger.py ====================
 
@@ -2454,7 +3303,7 @@ import requests
 import re
 from pathlib import Path
 
-from src.config import get_logger
+from src.crawlers.config import get_logger
 
 logger = get_logger(__name__)
 
@@ -2614,6 +3463,70 @@ def save_as_csv(papers: list, task_name: str, output_dir: Path):
     print(f"Successfully saved CSV data to {filename}")
 
 ==================== End of: src\utils\formatter.py ====================
+
+
+
+==================== Start of: src\utils\network_utils.py ====================
+
+# FILE: src/utils/network_utils.py
+
+import requests
+import time
+import logging
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+# 获取一个简单的日志记录器，或者你可以从主配置中传递一个
+logger = logging.getLogger(__name__)
+
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
+
+def get_session_with_retries(
+    retries=5,
+    backoff_factor=1,
+    status_forcelist=(500, 502, 503, 504),
+    session=None,
+):
+    """
+    创建一个带有重试机制的 requests Session 对象。
+    这对于处理临时的网络错误或服务器不稳定非常有效。
+    """
+    session = session or requests.Session()
+    retry_strategy = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
+
+
+def robust_get(url: str, timeout: int = 30, retries: int = 5, backoff_factor: float = 1.0):
+    """
+    一个健壮的 GET 请求函数，集成了重试和更长的超时。
+    :param url: 要请求的 URL
+    :param timeout: 单次请求的超时时间（秒）
+    :param retries: 最大重试次数
+    :param backoff_factor: 重试的退避因子 (e.g., 1s, 2s, 4s...)
+    :return: requests.Response 对象或 None
+    """
+    session = get_session_with_retries(retries=retries, backoff_factor=backoff_factor)
+    try:
+        response = session.get(url, headers=HEADERS, timeout=timeout)
+        response.raise_for_status()  # 如果状态码是 4xx 或 5xx，则抛出异常
+        return response
+    except requests.exceptions.RequestException as e:
+        # 使用 logger.error 而不是 print，以便记录到日志文件
+        logger.error(f"    [✖ NETWORK ERROR] 请求失败，已达到最大重试次数 for URL: {url}. Error: {e}")
+        return None
+
+==================== End of: src\utils\network_utils.py ====================
 
 
 

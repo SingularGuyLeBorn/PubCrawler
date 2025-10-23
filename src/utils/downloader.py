@@ -4,7 +4,7 @@ import requests
 import re
 from pathlib import Path
 
-from src.config import get_logger
+from src.crawlers.config import get_logger
 
 logger = get_logger(__name__)
 

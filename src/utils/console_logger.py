@@ -1,4 +1,4 @@
-# FILE: src/utils/console_logger.py (Banner Updated)
+# FILE: src/utils/console_logger.py (Banner Updated to Tech Pattern)
 
 import logging
 import sys
@@ -27,7 +27,7 @@ try:
         'PHASE': Style.BRIGHT + Fore.BLUE,
         'TASK_START': Style.BRIGHT + Fore.MAGENTA,
         'SUCCESS': Style.BRIGHT + Fore.GREEN,
-        'STEP': Style.DIM + Fore.WHITE,
+        'STEP': Style.DIM + Fore.WHITE,  # <-- 我们会用这个
     }
 
     IS_COLORAMA_AVAILABLE = True
@@ -62,36 +62,35 @@ class ColoredFormatter(logging.Formatter):
 
 
 def print_banner():
-    """打印项目启动的 ASCII Art 横幅，带有渐变色效果。"""
-    banner_text = r"""
-  ██████╗ ██╗   ██╗██████╗  ██████╗██████╗  ██╗      ██████╗ ██╗     ███████╗██████╗ 
-  ██╔══██╗██║   ██║██╔══██╗██╔════╝██╔══██╗██║     ██╔═══██╗██║     ██╔════╝██╔══██╗
-  ██████╔╝██║   ██║██████╔╝██║     ██████╔╝██║     ██║   ██║██║     █████╗  ██████╔╝
-  ██╔═══╝ ██║   ██║██╔══██╗██║     ██╔═══╝ ██║     ██║   ██║██║     ██╔══╝  ██╔══██╗
-  ██║     ╚██████╔╝██████╔╝╚██████╗██║     ███████╗╚██████╔╝███████╗███████╗██║  ██║
-  ╚═╝      ╚═════╝ ╚═════╝  ╚═════╝╚═╝     ╚══════╝ ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝ 
-"""
-    if IS_COLORAMA_AVAILABLE:
-        # 定义渐变色序列
-        gradient_colors = [
-            COLORS['BANNER_GREEN'],
-            COLORS['BANNER_GREEN'],
-            COLORS['BANNER_CYAN'],
-            COLORS['BANNER_BLUE'],
-            COLORS['BANNER_BLUE'],
-            COLORS['BANNER_WHITE'],
-        ]
+    """打印项目启动的 ASCII Art 横幅 (科技感图案版)。"""
 
-        # 按行打印，并应用不同的颜色
-        lines = banner_text.strip('\n').split('\n')
-        # 确保 banner_text 前后的空行被正确处理
-        print()  # 打印一个前置空行
-        for i, line in enumerate(lines):
-            # 使用 modulo 循环颜色
-            color = gradient_colors[i % len(gradient_colors)]
-            print(f"{color}{line}{COLORS['RESET']}")
-        print()  # 打印一个后置空行
+    # -------------------【修改点在这里】-------------------
+    # 按用户要求，改为科技感图案，放弃大字母块
+    # V7: 科技-网络节点 (亮蓝色/亮白色)
+
+    # 我们使用 f-string 来嵌入颜色代码
+    banner_art = f"""
+{COLORS['BANNER_BLUE']}
+        .--.
+       / .. \\
+    --(  PC  )--  {COLORS['BANNER_WHITE']}PubCrawler{COLORS['RESET']}
+       \\ .. /    {COLORS['STEP']}[Initializing...]{COLORS['RESET']}
+        '--'
+{COLORS['RESET']}
+"""
+
+    # -------------------【修改结束】-------------------
+
+    if IS_COLORAMA_AVAILABLE:
+        print(banner_art)  # 直接打印包含颜色的 f-string
 
     else:
-        # 如果 colorama 不可用，则打印无色版本
-        print(banner_text)
+        # 如果 colorama 不可用，打印一个手动去除颜色代码的无色版本
+        no_color_art = r"""
+        .--.
+       / .. \
+    --(  PC  )--  PubCrawler
+       \ .. /    [Initializing...]
+        '--'
+"""
+        print(no_color_art)

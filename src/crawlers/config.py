@@ -8,22 +8,22 @@ from src.utils.tqdm_logger import TqdmLoggingHandler
 from src.utils.console_logger import ColoredFormatter, COLORS
 
 # --- Project Structure ---
-ROOT_DIR = Path(__file__).parent.parent
+# --- 【核心修复点】 ---
+# 多加一个 .parent 就能正确地回到项目根目录
+ROOT_DIR = Path(__file__).parent.parent.parent
+
 OUTPUT_DIR = ROOT_DIR / "output"
-LOG_DIR = ROOT_DIR / "logs"
-CONFIG_FILE = ROOT_DIR / "configs" / "tasks.yaml"
+LOG_DIR = ROOT_DIR / "logs" # <-- 现在这个 logs 路径也正确了
+CONFIG_FILE = ROOT_DIR / "configs" / "tasks.yaml" # <-- 现在这个 configs 路径也正确了
 
 METADATA_OUTPUT_DIR = OUTPUT_DIR / "metadata"
 PDF_DOWNLOAD_DIR = OUTPUT_DIR / "pdfs"
 TRENDS_OUTPUT_DIR = OUTPUT_DIR / "trends"
 
 # --- Create Directories ---
+# 这部分代码现在可以正常工作了
 OUTPUT_DIR.mkdir(exist_ok=True)
 LOG_DIR.mkdir(exist_ok=True)
-(ROOT_DIR / "configs").mkdir(exist_ok=True)
-METADATA_OUTPUT_DIR.mkdir(exist_ok=True)
-PDF_DOWNLOAD_DIR.mkdir(exist_ok=True)
-TRENDS_OUTPUT_DIR.mkdir(exist_ok=True)
 
 
 # --- Logging Configuration (核心修改点) ---

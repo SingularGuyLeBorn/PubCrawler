@@ -9,7 +9,7 @@ import seaborn as sns
 from pathlib import Path
 import matplotlib.ticker as mtick
 
-from src.config import ROOT_DIR, get_logger
+from src.crawlers.config import ROOT_DIR, get_logger
 
 logger = get_logger(__name__)
 TREND_CONFIG_FILE = ROOT_DIR / "configs" / "trends.yaml"

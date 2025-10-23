@@ -40,3 +40,4 @@ dist/
 
 # outputdata
 output/*
+/search_results/
