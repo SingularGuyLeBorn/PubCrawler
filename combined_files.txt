@@ -1,5 +1,246 @@
 
 
+==================== Start of: app.py ====================
+
+# FILE: app.py (Gradio Web UI for PubCrawler - v1.2.3 - Final Fixes)
+
+import gradio as gr
+import sys
+import textwrap
+from typing import List, Dict, Any, Tuple
+
+# --- 从 search_service 导入所有功能和配置 ---
+from src.search.search_service import (
+    initialize_components,
+    keyword_search,
+    semantic_search,
+    save_results_to_markdown,
+    generate_ai_response,
+    _sqlite_conn,
+    _initialized,
+    ZHIPUAI_API_KEY,
+    SEARCH_RESULTS_DIR
+)
+
+# Gradio启动时调用初始化函数 (确保在任何函数被Gradio调用前完成)
+initialize_components()
+
+# --- Gradio UI 核心逻辑 ---
+
+# 全局变量用于存储当前搜索结果，以便AI和保存功能访问
+current_search_results: List[Dict[str, Any]] = []
+current_query_string: str = ""
+
+
+def perform_search_and_reset_chat(query_input: str) -> Tuple[
+    gr.Dataframe, str, str, gr.Column, gr.Accordion, gr.Button]:
+    """
+    在Gradio UI中执行搜索并更新UI组件。
+    """
+    global current_search_results, current_query_string
+    current_query_string = query_input
+    current_search_results = []
+
+    results: List[Dict[str, Any]] = []
+    stats: Dict[str, Any] = {"total_found": 0, "distribution": {}, "message": "搜索未执行。"}
+
+    if not _initialized:
+        error_msg = "后端服务未成功初始化。"
+        return gr.Dataframe(value=[]), error_msg, "初始化失败，无法搜索。", gr.Column(visible=False), gr.Accordion(
+            open=False), gr.Button(interactive=False)
+
+    if query_input.lower().startswith('sem:'):
+        semantic_query = query_input[4:].strip()
+        if semantic_query:
+            results, stats = semantic_search(semantic_query)
+        else:
+            stats['message'] = "语义搜索查询内容不能为空。"
+    else:
+        results, stats = keyword_search(query_input)
+
+    current_search_results = results
+
+    # 格式化统计信息
+    stats_markdown = f"**总计找到 {stats['total_found']} 篇相关论文。**\n\n"
+    if stats['distribution']:
+        stats_markdown += "**分布情况:**\n"
+        for conf_year, count in stats['distribution'].items():
+            stats_markdown += f"- {conf_year}: {count} 篇\n"
+    else:
+        stats_markdown += "无结果分布信息。\n"
+
+    # 格式化结果为Gradio表格
+    table_data = []
+    for paper in results:
+        authors = textwrap.shorten(paper.get('authors', 'N/A'), width=50, placeholder="...")
+        title = textwrap.shorten(paper.get('title', 'N/A'), width=80, placeholder="...")
+        similarity = f"{paper['similarity']:.2f}" if 'similarity' in paper and paper[
+            'similarity'] is not None else "N/A"
+        table_data.append([title, authors, paper.get('conference', 'N/A'), paper.get('year', 'N/A'), similarity])
+
+    # 根据是否有结果和API Key来决定AI按钮是否可用
+    ai_button_interactive = bool(results and ZHIPUAI_API_KEY)
+
+    return (gr.Dataframe(value=table_data, headers=["标题", "作者", "会议", "年份", "相似度"]),
+            stats.get('message', "搜索完成。"),
+            stats_markdown,
+            gr.Column(visible=False),
+            gr.Accordion(open=False),
+            gr.Button(interactive=ai_button_interactive))
+
+
+def save_current_results_gradio() -> str:
+    """
+    Gradio UI中保存当前搜索结果的回调函数。
+    """
+    global current_search_results, current_query_string
+    if not current_search_results:
+        return "没有搜索结果可保存。"
+    return save_results_to_markdown(current_search_results, current_query_string)
+
+
+# --- 【重要修改】: AI 对话函数适配 `type="messages"` ---
+def handle_chat_interaction(user_message: str, chat_history: List[Dict[str, str]]):
+    """
+    处理用户的聊天输入，调用AI服务，并返回响应。
+    现在的 chat_history 是一个字典列表，例如: [{"role": "user", "content": "你好"}]
+    """
+    global current_search_results
+    if not current_search_results:
+        chat_history.append({"role": "user", "content": user_message})
+        chat_history.append({"role": "assistant", "content": "错误：没有可供对话的搜索结果。"})
+        return chat_history
+
+    chat_history.append({"role": "user", "content": user_message})
+
+    # generate_ai_response 函数本身就需要这种格式，所以现在无需转换
+    ai_response = generate_ai_response(
+        chat_history=chat_history,
+        search_results_context=current_search_results
+    )
+
+    chat_history.append({"role": "assistant", "content": ai_response})
+    return chat_history
+
+
+def clear_chat():
+    """清空聊天记录"""
+    return [], ""
+
+
+# --- Gradio UI 布局 ---
+with gr.Blocks(title="PubCrawler AI Assistant") as demo:
+    gr.Markdown(
+        """
+        # 📚 PubCrawler AI 学术助手
+        欢迎使用 PubCrawler！在这里，您可以搜索学术论文，查看统计信息，并将结果保存或与AI进行对话。
+
+        ---
+
+        ### 搜索语法:
+        - `关键词` 或 `短语` (例如: `transformer`, `"large language model"`)
+        - `字段搜索`: `author:vaswani`, `title:"vision transformer"`, `abstract:diffusion`
+        - `逻辑组合`: `transformer AND author:vaswani`, `"large language model" OR efficient`
+        - `语义搜索`: 在查询前加上 `sem:` (例如: `sem: efficiency of few-shot learning`)
+        """
+    )
+
+    with gr.Row():
+        query_input = gr.Textbox(
+            label="请输入您的查询",
+            placeholder="例如: transformer author:vaswani 或 sem: efficiency of few-shot learning",
+            scale=4
+        )
+        search_button = gr.Button("搜索", variant="primary", scale=1)
+
+    status_output = gr.Textbox(label="状态/消息", interactive=False)
+
+    with gr.Row():
+        stats_markdown_output = gr.Markdown(
+            value="--- 查询结果统计 --- \n总计找到 0 篇相关论文。\n无结果分布信息。",
+            label="结果统计"
+        )
+
+    results_dataframe = gr.Dataframe(
+        headers=["标题", "作者", "会议", "年份", "相似度"],
+        col_count=(5, "fixed"),
+        interactive=False,
+        label="搜索结果"
+    )
+
+    with gr.Row():
+        save_button = gr.Button("保存当前结果到 Markdown")
+        start_chat_button = gr.Button("与AI对话 (需先搜索)", interactive=False)
+
+    with gr.Accordion("🤖 AI 对话窗口", open=False) as chat_accordion:
+        with gr.Column(visible=True) as chat_interface_column:
+            # 【重要修改】: 修复 UserWarning
+            chatbot = gr.Chatbot(label="与AI的对话", type="messages")
+            chat_input = gr.Textbox(label="你的问题", placeholder="例如：请总结一下这些论文的核心贡献。")
+            with gr.Row():
+                chat_submit_btn = gr.Button("发送", variant="primary")
+                chat_clear_btn = gr.Button("清除对话")
+
+    # --- 绑定事件 ---
+    search_button.click(
+        fn=perform_search_and_reset_chat,
+        inputs=query_input,
+        outputs=[results_dataframe, status_output, stats_markdown_output, chat_interface_column, chat_accordion,
+                 start_chat_button]
+    )
+
+    query_input.submit(
+        fn=perform_search_and_reset_chat,
+        inputs=query_input,
+        outputs=[results_dataframe, status_output, stats_markdown_output, chat_interface_column, chat_accordion,
+                 start_chat_button]
+    )
+
+    save_button.click(
+        fn=save_current_results_gradio,
+        inputs=[],
+        outputs=status_output
+    )
+
+    start_chat_button.click(
+        fn=lambda: (gr.Accordion(open=True), gr.Column(visible=True)),
+        inputs=None,
+        outputs=[chat_accordion, chat_interface_column]
+    )
+
+    chat_submit_btn.click(
+        fn=handle_chat_interaction,
+        inputs=[chat_input, chatbot],
+        outputs=[chatbot]
+    ).then(lambda: "", inputs=None, outputs=chat_input)
+
+    chat_input.submit(
+        fn=handle_chat_interaction,
+        inputs=[chat_input, chatbot],
+        outputs=[chatbot]
+    ).then(lambda: "", inputs=None, outputs=chat_input)
+
+    chat_clear_btn.click(
+        fn=clear_chat,
+        inputs=None,
+        outputs=[chatbot, chat_input]
+    )
+
+# 运行Gradio应用
+if __name__ == "__main__":
+    if not _initialized:
+        print(f"无法启动Gradio应用，后端初始化失败。请检查错误信息。")
+        sys.exit(1)
+    else:
+        SEARCH_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+        # 【重要修改】: 添加 inbrowser=True
+        demo.launch(share=True, inbrowser=True)
+
+
+==================== End of: app.py ====================
+
+
+
 ==================== Start of: getallcode.py ====================
 
 import os
@@ -554,6 +795,100 @@ tasks:
 
 
 
+==================== Start of: src\ai\glm_chat_service.py ====================
+
+# FILE: src/ai/glm_chat_service.py (CLI AI Interaction Layer - v1.1)
+
+import sys
+from typing import List, Dict, Any
+
+# --- 从 search_service 导入必要的AI相关功能和配置 ---
+from src.search.search_service import (
+    generate_ai_response,
+    AI_CONTEXT_PAPERS,
+    ZHIPUAI_API_KEY,
+    Colors,  # 颜色定义
+    _ai_enabled  # 检查AI是否已初始化成功
+)
+
+
+# --- 定义CLI专属的 print_colored 函数 ---
+# 确保在AI对话循环中能够正确打印彩色文本
+def print_colored(text, color, end='\n'):
+    if sys.stdout.isatty():
+        print(f"{color}{text}{Colors.ENDC}", end=end)
+    else:
+        print(text, end=end)
+
+
+def start_ai_chat_session(search_results: List[Dict[str, Any]]):
+    """
+    启动一个AI对话会话，处理CLI中的多轮交互。
+    Args:
+        search_results (list): 当前搜索结果的论文列表。
+    """
+    if not ZHIPUAI_API_KEY:
+        print_colored("[!] 错误: 未找到 ZHIPUAI_API_KEY。请在 .env 文件中配置。", Colors.FAIL)
+        return
+    if not _ai_enabled:
+        print_colored("[!] 错误: AI客户端初始化失败，无法启动对话。", Colors.FAIL)
+        return
+    if not search_results:
+        print_colored("[!] 没有可供对话的搜索结果，请先执行一次查询。", Colors.WARNING)
+        return
+
+    print_colored("\n--- 🤖 AI 对话模式 ---", Colors.HEADER)
+    print_colored(f"我已经阅读了与您查询最相关的 {AI_CONTEXT_PAPERS} 篇论文，请就这些论文向我提问。", Colors.OKCYAN)
+    print_colored("输入 'exit' 或 'quit' 结束对话。", Colors.OKCYAN)
+
+    messages = []
+
+    initial_assistant_message = "好的，我已经理解了这几篇论文的核心内容。请问您想了解什么？"
+    print(f"\nAI助手 > {initial_assistant_message}")
+    messages.append({"role": "assistant", "content": initial_assistant_message})
+
+    while True:
+        try:
+            user_question = input(f"\n{Colors.BOLD}您的问题是?{Colors.ENDC} > ").strip()
+            if not user_question: continue
+            if user_question.lower() in ['exit', 'quit']: break
+
+            messages.append({"role": "user", "content": user_question})
+
+            print_colored("🤖 GLM-4.5 正在思考...", Colors.OKCYAN, end="", flush=True)
+
+            ai_response_content = generate_ai_response(
+                chat_history=messages,
+                search_results_context=search_results
+            )
+
+            print("\r" + " " * 30 + "\r", end="")  # 清除 "思考中..." 提示
+
+            if ai_response_content.startswith("[!]"):
+                print_colored(f"\nAI助手 > {ai_response_content}", Colors.FAIL)
+            else:
+                print_colored(f"\nAI助手 > {ai_response_content}")
+                messages.append({"role": "assistant", "content": ai_response_content})
+
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print_colored(f"\n[!] 调用AI时出错: {e}", Colors.FAIL)
+            break
+
+==================== End of: src\ai\glm_chat_service.py ====================
+
+
+
+==================== Start of: src\ai\__init__.py ====================
+
+# FILE: src/ai/__init__.py
+# Makes 'ai' a Python package.
+
+==================== End of: src\ai\__init__.py ====================
+
+
+
 ==================== Start of: src\analysis\analyzer.py ====================
 
 # FILE: src/analysis/analyzer.py
@@ -870,6 +1205,162 @@ def run_cross_year_analysis(papers: list, conference_name: str, output_dir: Path
 
 
 
+==================== Start of: src\api\main.py ====================
+
+# FILE: src/api/main.py (FastAPI Backend for PubCrawler)
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
+import sys
+
+# --- 从 search_service 导入核心逻辑和初始化函数 ---
+from src.search.search_service import (
+    keyword_search,
+    semantic_search,
+    get_stats_summary,
+    generate_ai_response,
+    _initialize_search_components,
+    _sqlite_conn  # 用于FastAPI关闭时关闭连接
+)
+from src.search.search_service import ZHIPUAI_API_KEY  # 导入API Key，用于检查AI可用性
+
+# --- FastAPI 应用实例 ---
+app = FastAPI(
+    title="PubCrawler AI Assistant API",
+    description="为AI学术研究助手提供搜索、统计和AI对话功能。",
+    version="1.0.0",
+)
+
+
+# --- Pydantic 模型用于请求体和响应 ---
+class SearchQuery(BaseModel):
+    query: str = Field(..., description="搜索查询字符串，以 'sem:' 开头表示语义搜索，否则为关键词搜索。")
+    top_n: int = Field(20, description="语义搜索时返回的最相关论文数量。", ge=1, le=100)
+
+
+class SearchResultPaper(BaseModel):
+    title: str
+    authors: str
+    abstract: str
+    conference: str
+    year: str
+    similarity: Optional[float] = None  # 语义搜索结果可能包含相似度
+
+
+class SearchStats(BaseModel):
+    total_found: int
+    distribution: Dict[str, int]
+
+
+class SearchResponse(BaseModel):
+    results: List[SearchResultPaper]
+    stats: SearchStats
+    message: str = "搜索成功。"
+
+
+class AIChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class AIChatRequest(BaseModel):
+    chat_history: List[AIChatMessage] = Field(..., description="之前的聊天历史，不包含当前用户消息。")
+    current_message: str = Field(..., description="用户当前的最新消息。")
+    search_results_context: List[SearchResultPaper] = Field(..., description="提供给AI作为上下文的搜索结果论文列表。")
+
+
+class AIChatResponse(BaseModel):
+    response: str
+    message: str = "AI响应成功。"
+
+
+# --- 生命周期事件 (启动时初始化组件，关闭时清理资源) ---
+@app.on_event("startup")
+async def startup_event():
+    print("[*] FastAPI应用启动中，正在初始化搜索组件...")
+    try:
+        _initialize_search_components()
+        print("[✔] 搜索组件初始化完成。")
+    except Exception as e:
+        print(f"[✖] 搜索组件初始化失败: {e}")
+        # 这里可以选择终止应用启动，或者在后续API调用中处理错误
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("[*] FastAPI应用关闭中，正在清理资源...")
+    if _sqlite_conn:
+        _sqlite_conn.close()
+        print("[✔] SQLite连接已关闭。")
+
+
+# --- API 路由 ---
+@app.post("/search", response_model=SearchResponse)
+async def perform_search(search_query: SearchQuery):
+    """
+    执行关键词或语义搜索，并返回论文列表及统计信息。
+    - 以 'sem:' 开头的查询字符串将触发语义搜索。
+    - 其他查询字符串将触发关键词搜索。
+    """
+    query_text = search_query.query.strip()
+
+    if query_text.lower().startswith('sem:'):
+        actual_query = query_text[4:].strip()
+        if not actual_query:
+            raise HTTPException(status_code=400, detail="语义搜索查询内容不能为空。")
+        results = semantic_search(actual_query, top_n=search_query.top_n)
+    else:
+        results = keyword_search(query_text)
+
+    if not results:
+        return SearchResponse(results=[], stats={"total_found": 0, "distribution": {}}, message="未找到相关结果。")
+
+    stats_summary = get_stats_summary(results)
+    return SearchResponse(results=results, stats=stats_summary, message="搜索成功。")
+
+
+@app.post("/chat", response_model=AIChatResponse)
+async def chat_with_ai(chat_request: AIChatRequest):
+    """
+    与AI助手进行对话，提供聊天历史和搜索结果作为上下文。
+    """
+    if not ZHIPUAI_API_KEY:
+        raise HTTPException(status_code=503, detail="智谱AI API Key未配置，AI服务不可用。")
+
+    if not chat_request.search_results_context:
+        raise HTTPException(status_code=400, detail="未提供搜索结果上下文，AI无法进行对话。")
+
+    # 构造完整的消息历史，包括系统消息和用户背景消息，然后传入AI服务
+    # generate_ai_response 函数会处理系统消息和背景知识的注入
+
+    # chat_history 包含之前的对话，current_message 是用户最新输入
+    full_chat_history_for_service = chat_request.chat_history + [
+        {"role": "user", "content": chat_request.current_message}]
+
+    ai_response_text = generate_ai_response(
+        chat_history=full_chat_history_for_service,
+        search_results_context=[p.dict() for p in chat_request.search_results_context]  # 确保传递的是字典列表
+    )
+
+    if ai_response_text.startswith("[!]"):
+        raise HTTPException(status_code=500, detail=ai_response_text)
+
+    return AIChatResponse(response=ai_response_text)
+
+==================== End of: src\api\main.py ====================
+
+
+
+==================== Start of: src\api\__init__.py ====================
+
+# FILE: src/api/__init__.py
+# Makes 'api' a Python package.
+
+==================== End of: src\api\__init__.py ====================
+
+
+
 ==================== Start of: src\crawlers\config.py ====================
 
 # FILE: src/config.py (Structured Logging)
@@ -1150,9 +1641,13 @@ from src.scrapers.cvf_scraper import CvfScraper
 from src.scrapers.aaai_scraper import AaaiScraper
 from src.scrapers.kdd_scraper import KddScraper
 
-from src.crawlers.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, LOG_DIR
+from src.crawlers.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, \
+    LOG_DIR
 from src.scrapers.tpami_scraper import TpamiScraper
-from src.utils.formatter import save_as_csv
+# --- 【修改点】: 导入 save_as_markdown 和 generate_wordcloud_from_papers ---
+from src.utils.formatter import save_as_csv, save_as_markdown
+from src.analysis.analyzer import generate_wordcloud_from_papers
+# ----------------------------------------------------------------------
 from src.utils.downloader import download_single_pdf
 from src.analysis.trends import run_single_task_analysis, run_cross_year_analysis
 from src.utils.console_logger import print_banner, COLORS
@@ -1279,6 +1774,17 @@ def run_tasks_sequentially(tasks_to_run: list, source_definitions: dict, perform
 
                 metadata_dir = METADATA_OUTPUT_DIR / conf / str(year)
                 metadata_dir.mkdir(exist_ok=True, parents=True)
+
+                # --- 【新增功能】: 生成词云图和Markdown报告 ---
+                logger.info(f"    -> Generating word cloud...")
+                wordcloud_path = metadata_dir / f"{task_name}_wordcloud.png"
+                wordcloud_success = generate_wordcloud_from_papers(papers, wordcloud_path)
+                final_wordcloud_path = str(wordcloud_path) if wordcloud_success else None
+
+                logger.info(f"    -> Saving results to Markdown report...")
+                save_as_markdown(papers, task_name, metadata_dir, wordcloud_path=final_wordcloud_path)
+                # ----------------------------------------------------
+
                 logger.info(f"    -> Saving metadata to {metadata_dir}")
                 save_as_csv(papers, task_name, metadata_dir)
 
@@ -2335,151 +2841,155 @@ class TpamiScraper(BaseScraper):
 
 
 
-==================== Start of: src\search\embedder.py ====================
+==================== Start of: src\search\embedder_chroma.py ====================
 
-# FILE: src/search/embedder.py (API Version with .env)
-# 【已修改】添加了更强的速率限制和智能重试逻辑
+# FILE: src/search/embedder_multiprocess.py (Final Version with LIMIT and Incremental Update)
 
 import sqlite3
-import numpy as np
-import requests
-import time
+import chromadb
+from sentence_transformers import SentenceTransformer, util
 from pathlib import Path
-from tqdm import tqdm
+import time
+import torch
 import os
-from dotenv import load_dotenv
 
 # --- 配置 ---
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-DB_PATH = PROJECT_ROOT / "papers.db"
-API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+DB_DIR = PROJECT_ROOT / "database"
+DB_PATH = DB_DIR / "papers.db"
+CHROMA_DB_PATH = str(DB_DIR / "chroma_db")
+MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'
+COLLECTION_NAME = "papers"
 
-# --- 【核心修改】从 .env 文件加载环境变量 ---
-load_dotenv(dotenv_path=PROJECT_ROOT / '.env')
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
-
-if not HF_API_TOKEN:
-    print("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！")
-    print("错误: 未能从 .env 文件中加载 HF_API_TOKEN。")
-    print("请确保在项目根目录创建了 .env 文件，并写入 HF_API_TOKEN=\"hf_...\"")
-    print("！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！")
-    exit()
-
-HEADERS = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+# --- 【核心控制开关】 ---
+# 设置为数字 (如 2000) 来开启“快速测试模式”，只处理指定数量的论文。
+# 设置为 None 来开启“智能增量模式”，自动处理所有新论文。
+PAPER_LIMIT = 10000
 
 
-def create_embeddings_table(conn):
-    cursor = conn.cursor()
-    cursor.execute("""
-                   CREATE TABLE IF NOT EXISTS embeddings
-                   (
-                       paper_id
-                       INTEGER
-                       PRIMARY
-                       KEY,
-                       embedding
-                       BLOB
-                       NOT
-                       NULL
-                   )
-                   """)
-    conn.commit()
+# ------------------------
 
-
-def get_embedding_from_api(text: str, max_retries=5):
-    payload = {"inputs": text, "options": {"wait_for_model": True}}
-    for attempt in range(max_retries):
-        try:
-            response = requests.post(API_URL, headers=HEADERS, json=payload, timeout=60)
-            if response.status_code == 429:
-                wait_time = 60
-                print(f"\n[警告] 速率限制 (429)。暂停 {wait_time} 秒...")
-                time.sleep(wait_time)
-                continue
-            if response.status_code in [404, 401, 403]:
-                print(f"\n[致命] 错误 {response.status_code}: 检查 URL/Token。响应: {response.text}")
-                return None
-            response.raise_for_status()
-            result = response.json()
-            if isinstance(result, list) and isinstance(result[0], list):
-                return np.array(result[0], dtype=np.float32)
-            else:
-                if 'error' in result:
-                    print(f"\n[警告] 错误: {result['error']}. 重试...")
-                    time.sleep(15 * (attempt + 1))
-                    continue
-                raise ValueError(f"意外格式: {result}")
-        except requests.exceptions.RequestException as e:
-            if attempt < max_retries - 1:
-                wait_time = 10 * (attempt + 1)
-                print(f"\n[警告] 失败 ({e})。重试 {wait_time} 秒...")
-                time.sleep(wait_time)
-            else:
-                print("\n[错误] 最大重试失败。")
-                return None
-        except (ValueError, KeyError) as e:
-            print(f"\n[错误] 处理响应出错: {e}")
-            return None
-    return None
-
-
-def generate_and_store_embeddings():
+def embed_and_store_parallel():
     if not DB_PATH.exists():
-        print(f"[!] 错误: 数据库文件 {DB_PATH} 不存在。")
+        print(f"[!] 错误: SQLite数据库文件 {DB_PATH} 不存在。请先运行 indexer.py。")
         return
 
-    print("[*] 开始通过 API 生成语义向量 (已启用限速模式)...")
-    conn = sqlite3.connect(str(DB_PATH))
-    create_embeddings_table(conn)
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"[*] 1. 初始化模型 '{MODEL_NAME}' (设备: {device})...")
+    model = SentenceTransformer(MODEL_NAME, device=device)
+    print("[✔] 模型加载成功。")
+
+    print(f"[*] 2. 连接并设置ChromaDB (路径: {CHROMA_DB_PATH})...")
+    client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
+    collection = client.get_or_create_collection(name=COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
+    print(f"[✔] ChromaDB集合 '{COLLECTION_NAME}' 准备就绪。")
+
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT rowid, title, abstract FROM papers_fts")
-    papers = cursor.fetchall()
-    if not papers:
-        print("[!] 数据库中没有论文。")
-        conn.close()
-        return
+    papers_to_process = []
 
-    print(f"[*] 共找到 {len(papers)} 篇论文，开始逐一请求 API 生成向量...")
+    # --- 【核心逻辑：模式选择】 ---
+    if PAPER_LIMIT:
+        # 模式一：快速测试模式
+        print(f"[*] [快速测试模式] 已启用，将强制处理数据库中的前 {PAPER_LIMIT} 篇论文。")
+        cursor.execute(f"SELECT rowid, title, abstract, conference, year, source_file FROM papers_fts LIMIT ?",
+                       (PAPER_LIMIT,))
+        papers_to_process = cursor.fetchall()
 
-    embedding_data = []
-    failed_papers = 0
+    else:
+        # 模式二：智能增量模式
+        print(f"[*] [智能增量模式] 启动，开始计算需要更新的论文...")
 
-    for paper in tqdm(papers, desc="生成向量 (API限速)"):
-        paper_id, title, abstract = paper
-        text_to_embed = f"{title}. {abstract}"
+        # 1. 从ChromaDB获取已存在的ID
+        existing_ids_in_chroma = set(collection.get(include=[])['ids'])
+        print(f"    -> ChromaDB中已存在 {len(existing_ids_in_chroma)} 个向量。")
 
-        embedding = get_embedding_from_api(text_to_embed)
+        # 2. 从SQLite获取所有ID
+        cursor.execute("SELECT rowid FROM papers_fts")
+        all_ids_in_sqlite = {str(row[0]) for row in cursor.fetchall()}
+        print(f"    -> SQLite中总共有 {len(all_ids_in_sqlite)} 篇论文。")
 
-        if embedding is not None:
-            embedding_blob = embedding.tobytes()
-            embedding_data.append((paper_id, embedding_blob))
-        else:
-            failed_papers += 1
+        # 3. 计算差集，得到需要处理的新ID
+        new_paper_ids = list(all_ids_in_sqlite - existing_ids_in_chroma)
 
-        # --- [核心修复 2]：主动限速 ---
-        # 0.1秒太快了！免费API绝对会封禁你。
-        # 我们在每次请求后强制等待 3 秒，以尊重API限制。
-        time.sleep(1)
+        if not new_paper_ids:
+            print("\n[✔] 数据库已是最新，无需更新。任务结束。")
+            conn.close()
+            return
 
-    print(f"[*] 向量生成完毕，正在存入数据库... (成功: {len(embedding_data)}, 失败: {failed_papers})")
+        print(f"[✔] 发现 {len(new_paper_ids)} 篇新论文需要处理。")
 
-    if embedding_data:
-        cursor.executemany(
-            "INSERT OR REPLACE INTO embeddings (paper_id, embedding) VALUES (?, ?)",
-            embedding_data
-        )
-        conn.commit()
+        # 4. 只从SQLite中获取这些新论文的详细信息
+        placeholders = ','.join('?' for _ in new_paper_ids)
+        query = f"SELECT rowid, title, abstract, conference, year, source_file FROM papers_fts WHERE rowid IN ({placeholders})"
+        cursor.execute(query, new_paper_ids)
+        papers_to_process = cursor.fetchall()
 
     conn.close()
 
-    print(f"\n[✔] 任务完成！")
+    if not papers_to_process:
+        print("[!] 本次运行没有需要处理的论文。任务结束。")
+        return
+
+    print(f"[✔] 本次共需处理 {len(papers_to_process)} 篇论文。")
+
+    worker_processes = 2  # 固定使用2个进程
+    print(f"[*] 将使用 {worker_processes} 个进程进行并行处理。")
+
+    print("[*] 4. 启动多进程池...")
+    pool = model.start_multi_process_pool(target_devices=[device] * worker_processes)
+    print("[✔] 进程池已启动。")
+
+    print("[*] 5. 开始并行生成向量...")
+    start_time = time.time()
+
+    documents_to_embed = [f"{p[1]}. {p[2]}" for p in papers_to_process]
+    embeddings = model.encode_multi_process(documents_to_embed, pool, batch_size=64)
+
+    end_time_encoding = time.time()
+    print(f"[✔] 向量生成完毕! 耗时: {end_time_encoding - start_time:.2f} 秒。")
+
+    model.stop_multi_process_pool(pool)
+    print("[✔] 进程池已关闭。")
+
+    print("[*] 6. 开始将向量批量存入ChromaDB...")
+    start_time_storing = time.time()
+
+    ids = [str(p[0]) for p in papers_to_process]
+    metadatas = [{"title": p[1], "conference": p[3], "year": p[4], "source_file": p[5]} for p in papers_to_process]
+
+    # ChromaDB的add方法是幂等的，如果ID已存在，它会更新内容。对于我们的场景，用upsert更语义化。
+    db_batch_size = 1024
+    for i in range(0, len(papers_to_process), db_batch_size):
+        collection.upsert(
+            ids=ids[i:i + db_batch_size],
+            embeddings=embeddings[i:i + db_batch_size].tolist(),
+            metadatas=metadatas[i:i + db_batch_size],
+            documents=documents_to_embed[i:i + db_batch_size]
+        )
+
+    end_time_storing = time.time()
+    print(f"[✔] 数据存储/更新完毕! 耗时: {end_time_storing - start_time_storing:.2f} 秒。")
+
+    print("\n" + "=" * 50)
+    print(f"[✔] 所有任务完成！")
+    print(f"    - 本次处理论文: {len(papers_to_process)} 篇")
+    print(f"    - 向量数据库中的条目总数: {collection.count()}")
+    print(f"    - 总耗时: {end_time_storing - start_time:.2f} 秒")
+    print("=" * 50)
 
 
 if __name__ == "__main__":
-    generate_and_store_embeddings()
+    try:
+        import torch
+    except ImportError:
+        print("错误: PyTorch 未安装。请运行 'uv pip install torch'")
+        exit()
 
-==================== End of: src\search\embedder.py ====================
+    embed_and_store_parallel()
+
+==================== End of: src\search\embedder_chroma.py ====================
 
 
 
@@ -2496,8 +3006,11 @@ import time
 # --- 配置 ---
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 METADATA_DIR = PROJECT_ROOT / "output" / "metadata"
-DB_PATH = PROJECT_ROOT / "papers.db"  # 数据库文件将保存在项目根目录
+# 新增：定义统一的数据库存放目录
+DB_DIR = PROJECT_ROOT / "database"
 
+# 修改：让 DB_PATH 指向新目录中的文件
+DB_PATH = DB_DIR / "papers.db"
 # 定义需要的列，与数据库表结构对应
 REQUIRED_COLUMNS = ['title', 'authors', 'abstract', 'conference', 'year', 'pdf_url', 'source_file']
 
@@ -2597,42 +3110,197 @@ if __name__ == "__main__":
 
 
 
-==================== Start of: src\search\search_local.py ====================
+==================== Start of: src\search\search_ai_assistant.py ====================
 
-# FILE: src/search/search_local.py (v4.4 - Extended Examples)
+# FILE: src/search/search_ai_assistant.py (CLI Launcher - v1.1)
 
-import sqlite3
-import numpy as np
-import requests
-import time
-from sklearn.metrics.pairwise import cosine_similarity
-from pathlib import Path
-import textwrap
-from datetime import datetime
-import re
 import sys
 import math
+import textwrap
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Any
+
+# --- 从 search_service 导入所有功能和配置 ---
+from src.search.search_service import (
+    initialize_components,
+    keyword_search,
+    semantic_search,
+    get_stats_summary,
+    save_results_to_markdown,
+    _sqlite_conn,
+    PROJECT_ROOT,
+    SEARCH_RESULTS_DIR,
+    RESULTS_PER_PAGE,
+    Colors, # 导入Colors
+    _initialized
+)
+# --- 导入CLI专属的AI对话交互函数 ---
+from src.ai.glm_chat_service import start_ai_chat_session
+
+# --- 定义CLI专属的 print_colored 函数 ---
+# 确保在CLI交互中能够正确打印彩色文本
+def print_colored(text, color, end='\n'):
+    if sys.stdout.isatty():
+        print(f"{color}{text}{Colors.ENDC}", end=end)
+    else:
+        print(text, end=end)
+
+# --- CLI特有的Banner ---
+def print_banner():
+    banner_text = "--- PubCrawler v7.4: CLI AI Assistant (Refactored) ---"
+    print_colored(banner_text, Colors.HEADER)
+    SEARCH_RESULTS_DIR.mkdir(exist_ok=True)
+    print_colored(f"[*] 结果将保存至: {SEARCH_RESULTS_DIR.resolve()}", Colors.UNDERLINE)
+
+# --- CLI特有的结果统计打印 ---
+def print_cli_stats_summary(stats_summary: Dict[str, Any]):
+    if not stats_summary['total_found']: return
+    print_colored("\n--- 查询结果统计 ---", Colors.HEADER)
+    print(f"总计找到 {Colors.BOLD}{stats_summary['total_found']}{Colors.ENDC} 篇相关论文。")
+    if stats_summary['distribution']:
+        print("分布情况:")
+        for conf_year, count in stats_summary['distribution'].items():
+            print(f"  - {conf_year}: {count} 篇")
+    print_colored("--------------------", Colors.HEADER)
+
+# --- CLI特有的分页逻辑 ---
+def interactive_pagination_cli(results: List[Dict[str, Any]], query: str, session_dir: Path):
+    num_results = len(results)
+    if num_results == 0:
+        print_colored("[!] 未找到相关结果。", Colors.WARNING)
+        return
+
+    stats_summary = get_stats_summary(results)
+    print_cli_stats_summary(stats_summary)
+
+    total_pages = math.ceil(num_results / RESULTS_PER_PAGE)
+    current_page = 1
+
+    while True:
+        start_idx, end_idx = (current_page - 1) * RESULTS_PER_PAGE, current_page * RESULTS_PER_PAGE
+        page_results = results[start_idx:end_idx]
+
+        print_colored(f"\n--- 结果预览 (第 {current_page}/{total_pages} 页) ---", Colors.HEADER)
+        for i, paper in enumerate(page_results, start=start_idx + 1):
+            title, authors, conf, year = paper.get('title', 'N/A'), paper.get('authors', 'N/A'), paper.get('conference', 'N/A'), paper.get('year', 'N/A')
+            display_line = f"  {Colors.OKCYAN}{conf} {year}{Colors.ENDC} | 作者: {textwrap.shorten(authors, 70)}"
+            if 'similarity' in paper: display_line = f"  {Colors.OKGREEN}相似度: {paper['similarity']:.2f}{Colors.ENDC} |" + display_line
+            print(f"\n{Colors.BOLD}[{i}]{Colors.ENDC} {title}\n{display_line}")
+
+        if current_page >= total_pages: print("\n--- 已是最后一页 ---"); break
+        try:
+            choice = input(
+                f"\n按 {Colors.BOLD}[Enter]{Colors.ENDC} 下一页, '{Colors.BOLD}s{Colors.ENDC}' 保存, '{Colors.BOLD}ai{Colors.ENDC}' 对结果提问, '{Colors.BOLD}q{Colors.ENDC}' 返回: ").lower()
+            if choice == 'q': return
+            if choice == 's': break
+            if choice == 'ai':
+                start_ai_chat_session(results)
+                print_colored("\n[i] AI对话结束，返回结果列表。", Colors.OKBLUE)
+                continue
+            current_page += 1
+        except KeyboardInterrupt:
+            return
+
+    if input(f"\n是否将这 {num_results} 条结果全部保存到 Markdown? (y/n, 默认y): ").lower() != 'n':
+        save_results_to_markdown(results, query)
+
+# --- 主程序 (CLI入口) ---
+def main():
+    # 确保在main函数开始时调用初始化，而不是在模块加载时
+    initialize_components()
+
+    if not _initialized: # 检查初始化是否成功
+        print_colored(f"[{Colors.FAIL}✖{Colors.ENDC}] 严重错误: 搜索后端服务初始化失败，无法运行CLI。", Colors.FAIL)
+        sys.exit(1)
+
+    session_dir = SEARCH_RESULTS_DIR / f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    session_dir.mkdir(exist_ok=True)
+
+    print_banner()
+    print_colored("\n--- 搜索语法 (AI已集成 & FTS5已修正) ---", Colors.OKBLUE)
+    print("  - `transformer author:vaswani`   (关键词 + 作者字段搜索)")
+    print("  - `title:\"vision transformer\"`     (精确标题搜索)")
+    print("  - `\"large language model\" AND efficient` (短语和关键词组合)")
+    print(f"  - `{Colors.BOLD}sem:{Colors.ENDC} efficiency of few-shot learning` (语义搜索！)")
+
+    while True:
+        try:
+            q = input(f"\n🔍 {Colors.BOLD}请输入查询{Colors.ENDC} (或 'exit' 退出): ").strip()
+            if not q: continue
+            if q.lower() == 'exit': break
+
+            results = []
+            if q.lower().startswith('sem:'):
+                semantic_query = q[4:].strip()
+                if semantic_query: results, _ = semantic_search(semantic_query)
+            else:
+                results, _ = keyword_search(q)
+
+            interactive_pagination_cli(results, q, session_dir)
+
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print_colored(f"发生未知错误: {e}", Colors.FAIL)
+
+    if _sqlite_conn:
+        _sqlite_conn.close()
+        print_colored("\n[✔] SQLite连接已关闭。", Colors.OKBLUE)
+    print("\n再见！")
+
+
+if __name__ == "__main__":
+    main()
+
+==================== End of: src\search\search_ai_assistant.py ====================
+
+
+
+==================== Start of: src\search\search_service.py ====================
+
+# FILE: src/search/search_service.py (Core Backend Services - v1.1)
+
+import sqlite3
+import chromadb
+from chromadb.config import Settings
+from sentence_transformers import SentenceTransformer
+from pathlib import Path
+import time
+import re
+import torch
+from datetime import datetime
+from collections import Counter
 import os
 from dotenv import load_dotenv
+from zai import ZhipuAiClient
+from typing import List, Dict, Any, Optional, Tuple
 
-# --- 配置 ---
+# --- 全局配置 (统一管理，其他模块通过导入这个文件来访问) ---
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-DB_PATH = PROJECT_ROOT / "papers.db"
+DB_DIR = PROJECT_ROOT / "database"
 SEARCH_RESULTS_DIR = PROJECT_ROOT / "search_results"
-SEARCH_RESULTS_DIR.mkdir(exist_ok=True)
-PAPERS_PER_FILE = 100
-RESULTS_PER_PAGE = 10
+DB_PATH = DB_DIR / "papers.db"
+CHROMA_DB_PATH = str(DB_DIR / "chroma_db")
+MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'
+COLLECTION_NAME = "papers"
+RESULTS_PER_PAGE = 10  # 用于分页的默认值
+AI_CONTEXT_PAPERS = 5  # 每次提问时，发送给AI的最相关的论文数量
 
-# API URL (即使暂时禁用, 也保持 URL 正确, 以便未来启用)
-API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+# --- 加载环境变量 ---
+load_dotenv(PROJECT_ROOT / '.env')
+ZHIPUAI_API_KEY = os.getenv("ZHIPUAI_API_KEY")
 
-# --- 从 .env 文件加载环境变量 ---
-load_dotenv(dotenv_path=PROJECT_ROOT / '.env')
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
-HEADERS = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+# --- 全局可访问的后端组件实例 (使用单例模式，通过 initialize_components 函数初始化) ---
+_sqlite_conn: Optional[sqlite3.Connection] = None
+_sentence_transformer_model: Optional[SentenceTransformer] = None
+_chroma_collection: Optional[chromadb.api.models.Collection.Collection] = None
+_zhipu_ai_client: Optional[ZhipuAiClient] = None
+_ai_enabled: bool = False
+_initialized: bool = False  # 标记是否已初始化
 
 
-# --- 颜色代码 ---
+# --- 颜色定义 (保留在服务层，作为通用常量) ---
 class Colors:
     HEADER = '\033[95m';
     OKBLUE = '\033[94m';
@@ -2645,221 +3313,484 @@ class Colors:
     UNDERLINE = '\033[4m'
 
 
-# --- 辅助函数 ---
-def print_colored(text, color):
-    if sys.stdout.isatty():
-        print(f"{color}{text}{Colors.ENDC}")
-    else:
-        print(text)
+# --- 初始化函数 (所有后端组件的单一入口，确保只初始化一次) ---
+def initialize_components() -> None:
+    """
+    初始化所有搜索和AI后端组件。确保只运行一次。
+    此函数会打印状态信息，但颜色和输出方式由调用者决定。
+    """
+    global _sqlite_conn, _sentence_transformer_model, _chroma_collection, _zhipu_ai_client, _ai_enabled, _initialized
 
+    if _initialized:
+        # print("搜索后端服务已初始化，跳过重复初始化。") # 调试用
+        return
 
-def print_banner():
-    # 更新了 Banner 版本号
-    banner_text = ["╔══════════════════════════════════════════════════════════════╗",
-                   "║    ____              __            ____                       ║",
-                   "║   / __ \\____  / /______/ __ \\__  ______  ____ _____ ___    ║",
-                   "║  / /_/ / __ \\/ / ___/ / / / / / / / __ \\/ __ `/ __ `__ \\   ║",
-                   "║ / ____/ /_/ / / /__/ / /_/ / /_/ / / / / /_/ / / / / / /   ║",
-                   "║/_/    \\____/_/\\___/_/\\___\\_\\__,_/_/ /_/\\__,_/_/ /_/ /_/    ║",
-                   "║                                                          ║",
-                   "║        Your Local Paper Search Engine v4.4 (.env)          ║",
-                   "╚══════════════════════════════════════════════════════════════╝"]
-    for line in banner_text: print_colored(line, Colors.HEADER)
-    print()
+    print(f"[{Colors.OKBLUE}*{Colors.ENDC}] 正在初始化搜索后端服务...")
 
-
-def parse_advanced_query(query: str):
-    # FTS5 支持 AND 和 NOT (但 + 和 - 更方便)
-    query = query.replace(' +', ' AND ').replace(' -', ' NOT ')
-    # 将用户友好的 author: 映射到数据库字段 authors:
-    query = re.sub(r'author:(\S+)', r'authors:\1', query, flags=re.IGNORECASE)
-    query = re.sub(r'title:(\S+)', r'title:\1', query, flags=re.IGNORECASE)
-    return query
-
-
-def keyword_search_db(conn, raw_query):
-    advanced_query = parse_advanced_query(raw_query)
-    print(f"[*] 正在执行关键词搜索: '{advanced_query}'...")
-    start_t = time.time()
+    # 1. 初始化SQLite连接
     try:
-        cursor = conn.execute(
-            "SELECT title, authors, abstract, conference, year, pdf_url, source_file FROM papers_fts WHERE papers_fts MATCH ? ORDER BY rank",
-            (advanced_query,))
-        results = cursor.fetchall()
-        end_t = time.time()
-        count = len(results)
-        print(f"[✔] 耗时 {end_t - start_t:.4f} 秒，找到 {Colors.BOLD}{Colors.OKGREEN}{count}{Colors.ENDC} 个结果。")
-        return results
-    except sqlite3.OperationalError as e:
-        # 增加了更详细的错误提示
-        print_colored(f"[!] 搜索语法错误: {e}", Colors.FAIL)
-        print_colored("    提示: 确保 AND/NOT/OR 逻辑正确，或字段名(title:/author:)后有内容。", Colors.WARNING)
-        return []
-
-
-def get_embedding_from_api(text: str):
-    """(此函数在当前版本中未被 main() 调用)"""
-    payload = {"inputs": text, "options": {"wait_for_model": True}}
-    try:
-        response = requests.post(API_URL, headers=HEADERS, json=payload, timeout=20)
-        if response.status_code == 401:
-            print_colored("\n[!] API 错误: 401 - Token 无效。请检查 .env 文件中的 HF_API_TOKEN。", Colors.FAIL)
-            return None
-        if response.status_code == 404:
-            print_colored(f"\n[!] API 错误: 404 - 未找到模型。请检查 API_URL: {API_URL}", Colors.FAIL)
-            return None
-        response.raise_for_status()
-        result = response.json()
-        if isinstance(result, list) and isinstance(result[0], list):
-            return np.array(result[0], dtype=np.float32)
-    except requests.exceptions.RequestException as e:
-        print_colored(f"\n[!] API 请求失败: {e}", Colors.FAIL)
+        _sqlite_conn = sqlite3.connect(str(DB_PATH), uri=True, check_same_thread=False)
+        print(f"[{Colors.OKGREEN}✔{Colors.ENDC}] SQLite数据库 '{DB_PATH.name}' 连接成功。")
     except Exception as e:
-        print_colored(f"\n[!] API 响应处理失败: {e}", Colors.FAIL)
-    return None
+        print(f"[{Colors.FAIL}✖{Colors.ENDC}] 错误: 无法连接SQLite数据库: {e}")
+        _sqlite_conn = None
+        _initialized = True
+        return
 
+        # 2. 初始化SentenceTransformer模型和ChromaDB
+    try:
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        _sentence_transformer_model = SentenceTransformer(MODEL_NAME, device=device)
+        print(f"[{Colors.OKGREEN}✔{Colors.ENDC}] SentenceTransformer模型 '{MODEL_NAME}' ({device}) 加载成功。")
 
-def semantic_search_db(conn, query, top_k=50):
-    """(此函数在当前版本中未被 main() 调用)"""
-    print(f"[*] 正在执行语义搜索: '{query}'...")
-    start_t = time.time()
-    query_embedding = get_embedding_from_api(query)
-    if query_embedding is None:
-        print_colored("[!] 错误: 从 API 获取查询向量失败。请检查您的 Token 和网络连接。", Colors.FAIL)
-        return []
-    cursor = conn.cursor()
-    cursor.execute("SELECT paper_id, embedding FROM embeddings")
-    all_embeddings_data = cursor.fetchall()
-    if not all_embeddings_data:
-        print_colored("[!] 错误: 数据库中没有找到语义向量。", Colors.FAIL)
-        print_colored("    请先运行 embedder.py 生成向量。", Colors.WARNING)
-        return []
-    paper_ids = [row[0] for row in all_embeddings_data]
-    db_embeddings = np.array([np.frombuffer(row[1], dtype=np.float32) for row in all_embeddings_data])
-    similarities = cosine_similarity(query_embedding.reshape(1, -1), db_embeddings)[0]
-    top_k_indices = np.argsort(similarities)[-top_k:][::-1]
-    top_paper_ids = [paper_ids[i] for i in top_k_indices]
-    top_scores = [similarities[i] for i in top_k_indices]
-    placeholders = ','.join('?' for _ in top_paper_ids)
-    sql = f"SELECT rowid, title, authors, abstract, conference, year, pdf_url, source_file FROM papers_fts WHERE rowid IN ({placeholders})"
-    raw_results_dict = {row[0]: row[1:] for row in cursor.execute(sql, top_paper_ids).fetchall()}
-    final_results = []
-    for i, paper_id in enumerate(top_paper_ids):
-        details = raw_results_dict.get(paper_id)
-        if details:
-            scored_title = f"(相似度: {top_scores[i]:.2f}) {details[0]}"
-            final_results.append((scored_title,) + details[1:])
-    end_t = time.time()
-    print(f"[✔] 耗时 {end_t - start_t:.4f} 秒，找到 {len(final_results)} 个语义相关结果。")
-    return final_results
+        _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH, settings=Settings(anonymized_telemetry=False))
+        _chroma_collection = _chroma_client.get_or_create_collection(name=COLLECTION_NAME,
+                                                                     metadata={"hnsw:space": "cosine"})
+        print(
+            f"[{Colors.OKGREEN}✔{Colors.ENDC}] ChromaDB集合 '{COLLECTION_NAME}' ({_chroma_collection.count()} 个向量) 已加载。")
+    except Exception as e:
+        print(f"[{Colors.FAIL}✖{Colors.ENDC}] 错误: 无法初始化语义搜索组件: {e}")
+        _sentence_transformer_model = None
+        _chroma_collection = None
+        _initialized = True
+        if _sqlite_conn: _sqlite_conn.close()
+        return
 
-
-def interactive_pagination(results, query):
-    num_results = len(results)
-    if num_results == 0: return "quit"
-    total_pages = math.ceil(num_results / RESULTS_PER_PAGE)
-    current_page = 1
-    while True:
-        start_idx = (current_page - 1) * RESULTS_PER_PAGE
-        end_idx = start_idx + RESULTS_PER_PAGE
-        page_results = results[start_idx:end_idx]
-        print_colored(f"\n--- 结果预览 (第 {current_page}/{total_pages} 页) ---", Colors.HEADER)
-        for i, row in enumerate(page_results, start=start_idx + 1):
-            print(f"\n{Colors.BOLD}[{i}]{Colors.ENDC} {row[0]}")
-            print(f"  {Colors.OKCYAN}{row[3]} {row[4]}{Colors.ENDC} | 作者: {textwrap.shorten(row[1], 80)}")
-            if row[5] and str(row[5]).strip(): print(f"  PDF: {row[5]}")
-        if current_page >= total_pages:
-            print("\n--- 已是最后一页 ---")
-            return "end_of_list"
+    # 3. 初始化智谱AI客户端
+    if ZHIPUAI_API_KEY:
         try:
-            choice = input(
-                f"\n按 {Colors.BOLD}[Enter]{Colors.ENDC} 下一页, '{Colors.BOLD}s{Colors.ENDC}' 保存, '{Colors.BOLD}q{Colors.ENDC}' 退出: ").lower()
-            if choice == 'q': return "quit"
-            if choice == 's': return "save"
-            current_page += 1
-        except KeyboardInterrupt:
-            break
-    return "quit"
+            _zhipu_ai_client = ZhipuAiClient(api_key=ZHIPUAI_API_KEY)
+            _ai_enabled = True
+            print(f"[{Colors.OKGREEN}✔{Colors.ENDC}] 智谱AI客户端初始化成功。")
+        except Exception as e:
+            print(f"[{Colors.WARNING}⚠{Colors.ENDC}] 警告: 无法初始化智谱AI客户端: {e}. AI对话功能将不可用。")
+            _zhipu_ai_client = None
+            _ai_enabled = False
+    else:
+        print(f"[{Colors.WARNING}⚠{Colors.ENDC}] 警告: 未设置 ZHIPUAI_API_KEY. AI对话功能将不可用。")
+        _ai_enabled = False
+
+    _initialized = True
+    print(f"[{Colors.OKBLUE}*{Colors.ENDC}] 搜索后端服务初始化完成。")
 
 
-def save_results_to_files(results, query, session_dir):
-    safe_query = re.sub(r'[\\/*?:"<>|]', "", query).replace(" ", "_")
-    num_results = len(results)
-    num_files = (num_results + PAPERS_PER_FILE - 1) // PAPERS_PER_FILE
-    saved_files = []
-    for i in range(num_files):
-        start_index = i * PAPERS_PER_FILE
-        chunk = results[start_index: start_index + PAPERS_PER_FILE]
-        filename = session_dir / f"search_{safe_query[:50]}{'_part_' + str(i + 1) if num_files > 1 else ''}.md"
-        saved_files.append(filename)
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(f"# 搜索: \"{query}\"\n\n**找到 {num_results} 结果 (部分 {i + 1}/{num_files})**\n\n---\n\n")
-            for idx, row in enumerate(chunk, start=start_index + 1):
-                title, authors, abstract, conf, year, pdf, src = row
-                f.write(f"### {idx}. {title}\n\n- **作者**: {authors}\n- **会议**: {conf} {year}\n")
-                if pdf and str(pdf).strip(): f.write(f"- **PDF**: [{pdf}]({pdf})\n")
-                f.write(f"\n**摘要:**\n> {abstract}\n\n*来源: `{src}`*\n\n---\n\n")
-    return saved_files
+# --- 核心搜索功能 ---
 
+def keyword_search(raw_query: str) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """
+    执行关键词搜索，返回结果列表和统计摘要。
+    """
+    if not _initialized or _sqlite_conn is None:
+        return [], {"error": "搜索服务未初始化或SQLite连接失败。"}
 
-def main():
-    if not HF_API_TOKEN:
-        print_colored("错误: 未能从 .env 文件中加载 HF_API_TOKEN。", Colors.FAIL)
-        print_colored("请确保在项目根目录创建了 .env 文件，并写入 HF_API_TOKEN=\"hf_...\"", Colors.FAIL)
-        return
-    if not DB_PATH.exists():
-        print_colored(f"\n[!] 数据库不存在: {DB_PATH}", Colors.FAIL)
-        return
+    COLUMN_MAP = {'author': 'authors', 'title': 'title', 'abstract': 'abstract'}
+    parsed_query_parts = []
+    pattern = re.compile(r'(\b\w+):(?:"([^"]*)"|(\S+))')
+    remaining_query = raw_query
+
+    for match in list(pattern.finditer(raw_query)):
+        full_match_text = match.group(0)
+        field_alias = match.group(1).lower()
+        value = match.group(2) if match.group(2) is not None else match.group(3)
+        if field_alias in COLUMN_MAP:
+            db_column = COLUMN_MAP[field_alias]
+            safe_value = value.replace('"', '""')
+            if ' ' in value or not value.isalnum():
+                parsed_query_parts.append(f'{db_column}:"{safe_value}"')
+            else:
+                parsed_query_parts.append(f'{db_column}:{safe_value}')
+            remaining_query = re.sub(re.escape(full_match_text), '', remaining_query, 1)
+
+    general_terms = re.findall(r'"[^"]*"|\S+', remaining_query.strip())
+    for term in general_terms:
+        safe_term = term.replace('"', '""')
+        if term.startswith('"') and term.endswith('"'):
+            parsed_query_parts.append(f'{safe_term}')
+        else:
+            parsed_query_parts.append(safe_term)
+
+    final_fts_query = ' AND '.join(filter(None, parsed_query_parts))
+
+    if not final_fts_query:
+        return [], {"total_found": 0, "distribution": {}, "message": "关键词搜索查询为空或解析失败。"}
 
     try:
-        conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
-    except sqlite3.OperationalError:
-        print_colored(f"\n[!] 无法以只读模式打开数据库: {DB_PATH}", Colors.FAIL)
-        print_colored("    请检查文件权限或路径是否正确。", Colors.WARNING)
-        return
+        cursor = _sqlite_conn.execute(
+            "SELECT title, authors, abstract, conference, year FROM papers_fts WHERE papers_fts MATCH ? ORDER BY rank",
+            (final_fts_query,)
+        )
+        raw_results = cursor.fetchall()
+        results = [{"title": r[0], "authors": r[1], "abstract": r[2], "conference": r[3], "year": r[4]} for r in
+                   raw_results]
+
+        stats = get_stats_summary(results)
+        stats['message'] = f"关键词搜索完成，找到 {len(results)} 篇。"
+        return results, stats
+    except sqlite3.OperationalError as e:
+        return [], {"total_found": 0, "distribution": {},
+                    "message": f"关键词搜索失败: {e}. FTS5 Query: '{final_fts_query}'"}
+
+
+def semantic_search(query: str, top_n: int = 20) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """
+    执行语义搜索，返回结果列表和统计摘要。
+    """
+    if not _initialized or _sentence_transformer_model is None or _chroma_collection is None or _sqlite_conn is None:
+        return [], {"error": "搜索服务未初始化或组件失败。"}
+
+    start_t = time.time()
+    query_embedding = _sentence_transformer_model.encode(query, convert_to_tensor=False)
+    chroma_results = _chroma_collection.query(query_embeddings=[query_embedding.tolist()], n_results=top_n)
+
+    ids_found, distances = chroma_results['ids'][0], chroma_results['distances'][0]
+    if not ids_found: return [], get_stats_summary([])
+
+    placeholders = ','.join('?' for _ in ids_found)
+    sql_query = f"SELECT rowid, title, authors, abstract, conference, year FROM papers_fts WHERE rowid IN ({placeholders})"
+    cursor = _sqlite_conn.cursor()
+    raw_sqlite_results = {str(r[0]): r[1:] for r in cursor.execute(sql_query, ids_found).fetchall()}
+
+    final_results = []
+    for i, paper_id in enumerate(ids_found):
+        details = raw_sqlite_results.get(paper_id)
+        if details:
+            final_results.append({
+                "title": details[0],
+                "authors": details[1],
+                "abstract": details[2],
+                "conference": details[3],
+                "year": details[4],
+                "similarity": 1 - distances[i]
+            })
+    end_t = time.time()
+
+    stats = get_stats_summary(final_results)
+    stats['message'] = f"语义搜索完成 (耗时: {end_t - start_t:.4f} 秒, 找到 {len(final_results)} 篇)。"
+    return final_results, stats
+
+
+# --- 辅助功能 (与CLI和Web UI共享) ---
+
+def get_stats_summary(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    生成查询结果的统计摘要。
+    """
+    total_found = len(results)
+
+    conf_year_counter = Counter([(p.get('conference', 'N/A'), p.get('year', 'N/A')) for p in results])
+    distribution = {f"{conf} {year}": count for (conf, year), count in conf_year_counter.most_common()}
+
+    return {"total_found": total_found, "distribution": distribution}
+
+
+def format_papers_for_prompt(papers: List[Dict[str, Any]]) -> str:
+    """将论文列表格式化为清晰的字符串，作为AI的上下文。"""
+    context = ""
+    for i, paper in enumerate(papers, 1):
+        context += f"[论文 {i}]\n"
+        context += f"标题: {paper.get('title', 'N/A')}\n"
+        context += f"作者: {paper.get('authors', 'N/A')}\n"
+        context += f"摘要: {paper.get('abstract', 'N/A')}\n\n"
+    return context
+
+
+def save_results_to_markdown(results: List[Dict[str, Any]], query: str) -> str:
+    """将搜索结果保存为Markdown文件。"""
+    if not results: return "没有搜索结果可保存。"
 
     session_dir = SEARCH_RESULTS_DIR / f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
     session_dir.mkdir(exist_ok=True)
-    print_banner()
-    print(f"[*] 索引已加载: {Colors.OKCYAN}{DB_PATH.resolve()}{Colors.ENDC}")
-    print_colored(f"[*] 结果将保存至: {session_dir.resolve()}", Colors.UNDERLINE)
 
-    # --- 【修改】扩充了搜索语法示例 ---
-    print_colored("\n--- 关键词搜索语法 (FTS5) ---", Colors.OKBLUE)
-    print("  - `transformer`                 (包含 transformer)")
-    print("  - `\"large language model\"`      (包含精确短语)")
-    print("  - `author:hinton`               (作者字段包含 hinton)")
-    print("  - `title:attention`             (标题字段包含 attention)")
-    print("  - `author:hinton + title:rnn`   (作者 hinton 且 标题 rnn)")
-    print("  - `transformer - author:vaswani` (包含 transformer 但排除作者 vaswani)")
-    print("  - `author:lecun + author:hinton` (lecun 和 hinton 合作的论文)")
-    print("  - `title:\"vision transformer\"`   (标题中包含精确短语 \"vision transformer\")")
-    print("  - `(large NEAR/3 model)`        (large 和 model 词距在3个词以内)")
-    print("  - `author:vas*`                 (作者名以 vas 开头, 如 vaswani)")
-    print("  - `(author:lecun OR author:bengio) + cnn` (复杂逻辑组合)")
-    print("  - `(vision OR image) + (transformer OR rnn)` (多个主题的布尔逻辑组合)")
-    print_colored("\n  - `sem:...` (语义搜索功能暂时禁用)\n", Colors.WARNING)
+    safe_query = re.sub(r'[\\/*?:"<>|]', "", query).replace(" ", "_")[:50]
+    filename = session_dir / f"search_{safe_query}.md"
+
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(f"# 搜索查询: \"{query}\"\n\n**共找到 {len(results)} 条相关结果**\n\n---\n\n")
+        for idx, paper in enumerate(results, 1):
+            title, authors, abstract = paper.get('title', 'N/A'), paper.get('authors', 'N/A'), paper.get('abstract',
+                                                                                                         'N/A')
+            conf, year = paper.get('conference', 'N/A'), paper.get('year', 'N/A')
+            similarity_str = f"- **语义相似度**: {paper['similarity']:.2f}\n" if 'similarity' in paper else ""
+            f.write(
+                f"### {idx}. {title}\n\n- **作者**: {authors}\n- **会议/年份**: {conf} {year}\n{similarity_str}\n**摘要:**\n> {abstract}\n\n---\n\n")
+
+    return f"结果已保存到: {filename.resolve()}"
+
+
+# --- AI响应生成器 (服务模块的核心逻辑) ---
+def generate_ai_response(chat_history: List[Dict[str, str]], search_results_context: List[Dict[str, Any]]) -> str:
+    """
+    根据搜索结果上下文和聊天历史生成AI响应。
+    chat_history: 仅包含用户消息和AI响应，不包含系统消息和初始背景。
+    search_results_context: 原始的论文结果列表。
+    """
+    global _ai_enabled, _zhipu_ai_client  # 确保可以访问全局变量
+
+    if not _ai_enabled or _zhipu_ai_client is None:
+        return "[!] 错误: AI对话功能未启用或智谱AI客户端初始化失败，请检查您的ZHIPUAI_API_KEY。"
+    if not search_results_context:
+        return "[!] 没有可供AI对话的搜索结果上下文。"
+
+    context_papers = search_results_context[:AI_CONTEXT_PAPERS]
+    formatted_context = format_papers_for_prompt(context_papers)
+
+    full_messages = [
+        {"role": "system",
+         "content": "你是一个专业的AI学术研究助手。请根据下面提供的论文摘要信息，精准、深入地回答用户的问题。你的回答必须严格基于提供的材料，不要编造信息。"},
+        {"role": "user", "content": f"这是我为你提供的背景知识，请仔细阅读：\n\n{formatted_context}"},
+        {"role": "assistant", "content": "好的，我已经理解了这几篇论文的核心内容。请问您想了解什么？"}
+    ]
+    full_messages.extend(chat_history)
+
+    try:
+        response_generator = _zhipu_ai_client.chat.completions.create(
+            model="glm-4.5-flash",
+            messages=full_messages,
+            stream=True,
+            temperature=0.7,
+        )
+
+        full_response_content = ""
+        for chunk in response_generator:
+            delta_content = chunk.choices[0].delta.content
+            if delta_content:
+                full_response_content += delta_content
+        return full_response_content
+    except Exception as e:
+        return f"[!] 调用AI时出错: {e}"
+
+
+# 模块加载时自动初始化组件 (确保在任何函数被调用前完成)
+initialize_components()
+
+==================== End of: src\search\search_service.py ====================
+
+
+
+==================== Start of: src\search\search_ui.py ====================
+
+# FILE: src/search/search_ai_assistant.py (v7.3 - AI Module Separated)
+
+import sqlite3
+import chromadb
+from chromadb.config import Settings
+from sentence_transformers import SentenceTransformer
+from pathlib import Path
+import textwrap
+import time
+import sys
+import re
+import torch
+import math
+from datetime import datetime
+from collections import Counter
+import os
+from dotenv import load_dotenv
+
+# --- 【核心修改】: 导入新的AI服务模块 ---
+from src.ai.glm_chat_service import start_ai_chat_session, print_colored, Colors
+
+# ------------------------------------
+
+# --- 配置 (大部分不变，但不再需要AI_CONTEXT_PAPERS和ZHIPUAI_API_KEY的全局导入) ---
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DB_DIR = PROJECT_ROOT / "database"
+SEARCH_RESULTS_DIR = PROJECT_ROOT / "search_results"
+DB_PATH = DB_DIR / "papers.db"
+CHROMA_DB_PATH = str(DB_DIR / "chroma_db")
+MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'
+COLLECTION_NAME = "papers"
+RESULTS_PER_PAGE = 10
+
+
+# --- 【删除】: 不再需要在此文件中加载ZHIPUAI_API_KEY ---
+# ZHIPUAI_API_KEY = os.getenv("ZHIPUAI_API_KEY")
+# --------------------------------------------------------------------------
+
+# --- 颜色和打印函数 (这里只需保留print_banner，print_colored和Colors从ai_chat_service导入) ---
+# class Colors: ... (这部分可以直接删除，因为它现在是从ai_chat_service导入的)
+# def print_colored(text, color): ... (这部分可以直接删除)
+
+def print_banner():
+    banner_text = "--- PubCrawler v7.3: AI Research Assistant (Module Refactored) ---"
+    print_colored(banner_text, Colors.HEADER)
+    SEARCH_RESULTS_DIR.mkdir(exist_ok=True)
+    print_colored(f"[*] 结果将保存至: {SEARCH_RESULTS_DIR.resolve()}", Colors.UNDERLINE)
+
+
+# --- 文件保存、统计、分页模块 (无变化，但注意print_colored现在是导入的) ---
+def save_results_to_markdown(results, query, session_dir):
+    if not results: return []
+    safe_query = re.sub(r'[\\/*?:"<>|]', "", query).replace(" ", "_")[:50]
+    filename = session_dir / f"search_{safe_query}.md"
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(f"# 搜索查询: \"{query}\"\n\n**共找到 {len(results)} 条相关结果**\n\n---\n\n")
+        for idx, paper in enumerate(results, 1):
+            title, authors, abstract = paper.get('title', 'N/A'), paper.get('authors', 'N/A'), paper.get('abstract',
+                                                                                                         'N/A')
+            conf, year = paper.get('conference', 'N/A'), paper.get('year', 'N/A')
+            similarity_str = f"- **语义相似度**: {paper['similarity']:.2f}\n" if 'similarity' in paper else ""
+            f.write(
+                f"### {idx}. {title}\n\n- **作者**: {authors}\n- **会议/年份**: {conf} {year}\n{similarity_str}\n**摘要:**\n> {abstract}\n\n---\n\n")
+    print_colored(f"\n[✔] 结果已成功保存到 Markdown 文件!", Colors.OKGREEN)
+    print_colored(f"      -> {filename.resolve()}", Colors.UNDERLINE)
+
+
+def print_stats_summary(results):
+    if not results: return
+    total_found = len(results)
+    print_colored("\n--- 查询结果统计 ---", Colors.HEADER)
+    print(f"总计找到 {Colors.BOLD}{total_found}{Colors.ENDC} 篇相关论文。")
+    conf_year_counter = Counter([(p.get('conference', 'N/A'), p.get('year', 'N/A')) for p in results])
+    if conf_year_counter:
+        print("分布情况:")
+        for (conf, year), count in conf_year_counter.most_common():
+            print(f"  - {conf} {year}: {count} 篇")
+    print_colored("--------------------", Colors.HEADER)
+
+
+def interactive_pagination(results, query, session_dir):
+    num_results = len(results)
+    if num_results == 0: return
+    print_stats_summary(results)
+    total_pages, current_page = math.ceil(num_results / RESULTS_PER_PAGE), 1
+    while True:
+        start_idx, end_idx = (current_page - 1) * RESULTS_PER_PAGE, current_page * RESULTS_PER_PAGE
+        page_results = results[start_idx:end_idx]
+        print_colored(f"\n--- 结果预览 (第 {current_page}/{total_pages} 页) ---", Colors.HEADER)
+        for i, paper in enumerate(page_results, start=start_idx + 1):
+            title, authors, conf, year = paper.get('title', 'N/A'), paper.get('authors', 'N/A'), paper.get('conference',
+                                                                                                           'N/A'), paper.get(
+                'year', 'N/A')
+            display_line = f"  {Colors.OKCYAN}{conf} {year}{Colors.ENDC} | 作者: {textwrap.shorten(authors, 70)}"
+            if 'similarity' in paper: display_line = f"  {Colors.OKGREEN}相似度: {paper['similarity']:.2f}{Colors.ENDC} |" + display_line
+            print(f"\n{Colors.BOLD}[{i}]{Colors.ENDC} {title}\n{display_line}")
+        if current_page >= total_pages: print("\n--- 已是最后一页 ---"); break
+        try:
+            choice = input(
+                f"\n按 {Colors.BOLD}[Enter]{Colors.ENDC} 下一页, '{Colors.BOLD}s{Colors.ENDC}' 保存, '{Colors.BOLD}ai{Colors.ENDC}' 对结果提问, '{Colors.BOLD}q{Colors.ENDC}' 返回: ").lower()
+            if choice == 'q': return
+            if choice == 's': break
+            if choice == 'ai':
+                start_ai_chat_session(results)  # <-- 调用新的AI服务函数
+                print_colored("\n[i] AI对话结束，返回结果列表。", Colors.OKBLUE)
+                continue
+            current_page += 1
+        except KeyboardInterrupt:
+            return
+    if input(f"\n是否将这 {num_results} 条结果全部保存到 Markdown? (y/n, 默认y): ").lower() != 'n':
+        save_results_to_markdown(results, query, session_dir)
+
+
+# --- 搜索核心 (无变化) ---
+def keyword_search(conn, raw_query):
+    COLUMN_MAP = {'author': 'authors', 'title': 'title', 'abstract': 'abstract'}
+    parsed_query_parts = []
+    pattern = re.compile(r'(\b\w+):(?:"([^"]*)"|(\S+))')
+    remaining_query = raw_query
+    for match in list(pattern.finditer(raw_query)):
+        full_match_text = match.group(0)
+        field_alias = match.group(1).lower()
+        value = match.group(2) if match.group(2) is not None else match.group(3)
+        if field_alias in COLUMN_MAP:
+            db_column = COLUMN_MAP[field_alias]
+            safe_value = value.replace('"', '""')
+            if ' ' in value or not value.isalnum():
+                parsed_query_parts.append(f'{db_column}:"{safe_value}"')
+            else:
+                parsed_query_parts.append(f'{db_column}:{safe_value}')
+            remaining_query = re.sub(re.escape(full_match_text), '', remaining_query, 1)
+    general_terms = re.findall(r'"[^"]*"|\S+', remaining_query.strip())
+    for term in general_terms:
+        safe_term = term.replace('"', '""')
+        if term.startswith('"') and term.endswith('"'):
+            parsed_query_parts.append(f'{safe_term}')
+        else:
+            parsed_query_parts.append(safe_term)
+    final_fts_query = ' AND '.join(filter(None, parsed_query_parts))
+    if not final_fts_query:
+        print_colored("[!] 关键词搜索查询为空或解析失败，无法执行。", Colors.WARNING);
+        return []
+    print(f"[*] 正在执行关键词搜索 (FTS5 Query: '{final_fts_query}')...")
+    try:
+        cursor = conn.execute(
+            "SELECT title, authors, abstract, conference, year FROM papers_fts WHERE papers_fts MATCH ? ORDER BY rank",
+            (final_fts_query,))
+        results = [{"title": r[0], "authors": r[1], "abstract": r[2], "conference": r[3], "year": r[4]} for r in
+                   cursor.fetchall()]
+        return results
+    except sqlite3.OperationalError as e:
+        print_colored(f"[!] 关键词搜索失败: {e}", Colors.FAIL)
+        print_colored(f"    原始查询: '{raw_query}'", Colors.WARNING)
+        print_colored(f"    生成的FTS5查询: '{final_fts_query}'", Colors.WARNING)
+        print_colored("    提示: FTS5查询语法严格，请检查 'AND/OR/NOT', 短语引号或字段名是否有误。", Colors.WARNING);
+        return []
+
+
+def semantic_search(conn, collection, model, query, top_n=20):
+    print(f"[*] 正在执行语义搜索: '{query}'...")
+    start_t = time.time()
+    query_embedding = model.encode(query, convert_to_tensor=False)
+    chroma_results = collection.query(query_embeddings=[query_embedding.tolist()], n_results=top_n)
+    ids_found, distances = chroma_results['ids'][0], chroma_results['distances'][0]
+    if not ids_found: return []
+    placeholders = ','.join('?' for _ in ids_found)
+    sql_query = f"SELECT rowid, title, authors, abstract, conference, year FROM papers_fts WHERE rowid IN ({placeholders})"
+    cursor = conn.cursor()
+    raw_sqlite_results = {str(r[0]): r[1:] for r in cursor.execute(sql_query, ids_found).fetchall()}
+    final_results = []
+    for i, paper_id in enumerate(ids_found):
+        details = raw_sqlite_results.get(paper_id)
+        if details:
+            final_results.append(
+                {"title": details[0], "authors": details[1], "abstract": details[2], "conference": details[3],
+                 "year": details[4], "similarity": 1 - distances[i]})
+    end_t = time.time()
+    print(f"[✔] 耗时 {end_t - start_t:.4f} 秒，找到并组合了 {len(final_results)} 个结果。")
+    return final_results
+
+
+# --- 主程序 (需要进行一些调整，因为print_colored和Colors现在从外部导入) ---
+def main():
+    # 之前这里是检查ZHIPUAI_API_KEY，现在由ai_chat_service.py内部检查
+
+    try:
+        conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        model = SentenceTransformer(MODEL_NAME, device=device)
+        client = chromadb.PersistentClient(path=CHROMA_DB_PATH, settings=Settings(anonymized_telemetry=False))
+        collection = client.get_collection(name=COLLECTION_NAME)
+    except Exception as e:
+        print_colored(f"\n[!] 无法初始化模块: {e}", Colors.FAIL); return
+
+    session_dir = SEARCH_RESULTS_DIR / f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    session_dir.mkdir(exist_ok=True)
+
+    print_banner()
+    print_colored("\n--- 搜索语法 (AI已集成 & FTS5已修正) ---", Colors.OKBLUE)
+    print("  - `transformer author:vaswani`   (关键词 + 作者字段搜索)")
+    print("  - `title:\"vision transformer\"`     (精确标题搜索)")
+    print("  - `\"large language model\" AND efficient` (短语和关键词组合)")
+    print(f"  - `{Colors.BOLD}sem:{Colors.ENDC} efficiency of few-shot learning` (语义搜索！)")
+
+    # last_results 不再需要在此处存储，因为 ai_chat_session 直接接收结果
 
     while True:
         try:
-            q = input(f"🔍 {Colors.BOLD}请输入关键词{Colors.ENDC} (或 'exit' 退出): ").strip()
+            q = input(f"\n🔍 {Colors.BOLD}请输入查询{Colors.ENDC} (或 'exit' 退出): ").strip()
             if not q: continue
             if q.lower() == 'exit': break
+
+            results = []
             if q.lower().startswith('sem:'):
-                print_colored("\n[!] 语义搜索 (sem:) 功能暂时禁用。", Colors.WARNING)
-                print_colored("    请使用上方的关键词搜索语法 (如: title:..., author:..., +, -)。\n", Colors.WARNING)
-                continue
+                semantic_query = q[4:].strip()
+                if semantic_query: results = semantic_search(conn, collection, model, semantic_query)
+            else:
+                results = keyword_search(conn, q)
 
-            results = keyword_search_db(conn, q)
-            if not results: continue
+            # last_results = results # 不再需要赋值给 last_results
+            interactive_pagination(results, q, session_dir)
 
-            pagination_result = interactive_pagination(results, q)
-            if pagination_result in ["save", "end_of_list"]:
-                if input(f"\n保存这 {len(results)} 条结果? (y/n, 默认y): ").lower() != 'n':
-                    files = save_results_to_files(results, q, session_dir)
-                    print_colored("\n[✔] 结果已保存!", Colors.OKGREEN)
-                    for f in files: print_colored(f"      -> {f.resolve()}", Colors.UNDERLINE)
-            print()
         except KeyboardInterrupt:
             break
         except Exception as e:
@@ -2872,13 +3803,14 @@ def main():
 if __name__ == "__main__":
     main()
 
-==================== End of: src\search\search_local.py ====================
+==================== End of: src\search\search_ui.py ====================
 
 
 
 ==================== Start of: src\search\__init__.py ====================
 
-
+# FILE: src/search/__init__.py
+# Makes 'search' a Python package.
 
 ==================== End of: src\search\__init__.py ====================
 

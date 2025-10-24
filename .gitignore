@@ -45,3 +45,4 @@ dist/
 papers.dbs
 /database/*
 
+/.gradio/certificate.pem
