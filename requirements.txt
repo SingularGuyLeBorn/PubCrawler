@@ -1,18 +1,33 @@
-# FILE: requirements.txt
+# requirements.txt (Corrected Version)
 
-pandas
-openreview-py
-requests
-beautifulsoup4
-lxml
-tqdm
-PyYAML
-selenium
-webdriver-manager
-wordcloud
-matplotlib
-nltk
-gensim  # 强大的主题建模库
-scikit-learn # 可能需要用到其中的特征提取工具
+# 核心爬虫与网络请求
+requests==2.32.3
+beautifulsoup4==4.12.3
+lxml==5.2.2
+selenium==4.21.0
+webdriver-manager==4.0.1
+openreview-py==1.1.2
 
-# END OF FILE: requirements.txt
+# 数据处理与分析
+pandas==2.2.2
+numpy==1.26.4
+PyYAML==6.0.1
+
+# 数据可视化
+matplotlib==3.9.0
+seaborn==0.13.2
+wordcloud==1.9.3
+
+# NLP & 机器学习
+nltk==3.8.1
+scikit-learn==1.5.0
+
+# 命令行与工具
+tqdm==4.66.4
+colorama==0.4.6
+python-dotenv==1.0.1
+
+sentence-transformers==3.0.1
+chromadb==1.2.1
+
+zai-sdk==0.0.4

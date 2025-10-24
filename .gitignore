@@ -41,3 +41,5 @@ dist/
 # outputdata
 output/*
 /search_results/
+
+papers.dbs

@@ -9,8 +9,11 @@ import time
 # --- 配置 ---
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 METADATA_DIR = PROJECT_ROOT / "output" / "metadata"
-DB_PATH = PROJECT_ROOT / "papers.db"  # 数据库文件将保存在项目根目录
+# 新增：定义统一的数据库存放目录
+DB_DIR = PROJECT_ROOT / "database"
 
+# 修改：让 DB_PATH 指向新目录中的文件
+DB_PATH = DB_DIR / "papers.db"
 # 定义需要的列，与数据库表结构对应
 REQUIRED_COLUMNS = ['title', 'authors', 'abstract', 'conference', 'year', 'pdf_url', 'source_file']
 
