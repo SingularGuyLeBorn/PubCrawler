@@ -31,3 +31,10 @@ sentence-transformers==3.0.1
 chromadb==1.2.1
 
 zai-sdk==0.0.4
+
+# Web Backend
+fastapi==0.120.0
+uvicorn==0.38.0
+
+# Frontend
+gradio==4.36.1

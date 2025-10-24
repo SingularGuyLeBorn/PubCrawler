@@ -18,9 +18,13 @@ from src.scrapers.cvf_scraper import CvfScraper
 from src.scrapers.aaai_scraper import AaaiScraper
 from src.scrapers.kdd_scraper import KddScraper
 
-from src.crawlers.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, LOG_DIR
+from src.crawlers.config import get_logger, CONFIG_FILE, METADATA_OUTPUT_DIR, PDF_DOWNLOAD_DIR, TRENDS_OUTPUT_DIR, \
+    LOG_DIR
 from src.scrapers.tpami_scraper import TpamiScraper
-from src.utils.formatter import save_as_csv
+# --- 【修改点】: 导入 save_as_markdown 和 generate_wordcloud_from_papers ---
+from src.utils.formatter import save_as_csv, save_as_markdown
+from src.analysis.analyzer import generate_wordcloud_from_papers
+# ----------------------------------------------------------------------
 from src.utils.downloader import download_single_pdf
 from src.analysis.trends import run_single_task_analysis, run_cross_year_analysis
 from src.utils.console_logger import print_banner, COLORS
@@ -147,6 +151,17 @@ def run_tasks_sequentially(tasks_to_run: list, source_definitions: dict, perform
 
                 metadata_dir = METADATA_OUTPUT_DIR / conf / str(year)
                 metadata_dir.mkdir(exist_ok=True, parents=True)
+
+                # --- 【新增功能】: 生成词云图和Markdown报告 ---
+                logger.info(f"    -> Generating word cloud...")
+                wordcloud_path = metadata_dir / f"{task_name}_wordcloud.png"
+                wordcloud_success = generate_wordcloud_from_papers(papers, wordcloud_path)
+                final_wordcloud_path = str(wordcloud_path) if wordcloud_success else None
+
+                logger.info(f"    -> Saving results to Markdown report...")
+                save_as_markdown(papers, task_name, metadata_dir, wordcloud_path=final_wordcloud_path)
+                # ----------------------------------------------------
+
                 logger.info(f"    -> Saving metadata to {metadata_dir}")
                 save_as_csv(papers, task_name, metadata_dir)
 

@@ -39,7 +39,9 @@ dist/
 .env
 
 # outputdata
-output/*
+/output/*
 /search_results/
 
 papers.dbs
+/database/*
+
