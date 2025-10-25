@@ -210,22 +210,13 @@ python src/crawlers/run_crawler.py
 运行 Streamlit Web UI，开始通过图形界面进行搜索、分析和 AI 交互！
 
 ```bash
-streamlit run streamlit_app.py```
+streamlit run streamlit_app.py
+```
 *   **浏览器访问**: 启动后，Streamlit 会在您的终端中提供一个本地 URL (通常是 `http://localhost:8501`)，并自动在浏览器中打开。
 *   **趋势分析**: 在“趋势分析仪表盘”页面，选择会议、年份和具体的 CSV 文件，即可查看动态生成的交互式图表。
 *   **搜索与AI**: 在“AI 助手 & 搜索”页面，进行关键词或语义搜索 (`sem:` 前缀)，对结果进行筛选，并与 AI 对话。
 
 ---
-
-#### **（可选）通过命令行使用本地搜索引擎**
-
-如果您偏爱命令行，也可以直接通过命令行工具查询您的知识库。
-```bash
-python src/search/search_ai_assistant.py
-```
-
-* **输入**: 您的搜索查询 (例如 `author:lecun` 或 `sem: reinforcement learning benchmarks`)
-* **输出**: 交互式的命令行结果展示，并可选择将搜索结果保存为格式化的 Markdown 文件，或启动 AI CLI 对话。
 
 ## 🗺️ 论文地图 (Paper Map)
 
