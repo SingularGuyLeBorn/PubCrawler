@@ -8,7 +8,6 @@ from src.utils.tqdm_logger import TqdmLoggingHandler
 from src.utils.console_logger import ColoredFormatter, COLORS
 
 # --- Project Structure ---
-# --- 【核心修复点】 ---
 # 多加一个 .parent 就能正确地回到项目根目录
 ROOT_DIR = Path(__file__).parent.parent.parent
 
