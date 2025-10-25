@@ -1,4 +1,4 @@
-# requirements.txt (Corrected Version)
+# FILE: requirements.txt
 
 # 核心爬虫与网络请求
 requests==2.32.3
@@ -17,6 +17,7 @@ PyYAML==6.0.1
 matplotlib==3.9.0
 seaborn==0.13.2
 wordcloud==1.9.3
+plotly==5.22.0
 
 # NLP & 机器学习
 nltk==3.8.1
@@ -27,14 +28,17 @@ tqdm==4.66.4
 colorama==0.4.6
 python-dotenv==1.0.1
 
+# 向量数据库 & 语义搜索
 sentence-transformers==3.0.1
 chromadb==1.2.1
 
+# AI 服务
 zai-sdk==0.0.4
 
-# Web Backend
+# Web Backend API (可选)
 fastapi==0.120.0
 uvicorn==0.38.0
 
-# Frontend
-gradio==4.36.1
+# Frontend UI
+streamlit==1.35.0
+# END OF FILE: requirements.txt
